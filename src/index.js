@@ -1,0 +1,20 @@
+import React from "react";
+import ReactDOM from "react-dom";
+import "./styles.css";
+import Main from "./Components/Main";
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(<Main />, rootElement);
+/*
+TODO
+-----------------------------------------
+Ensure you can't place armor on dead royals
+Add check when placing armor to see that the royal doesn't become invincible
+Update placeArmorCard with correct rules for placing armor
+Make a function to place the first nine cards, as well as were royals can be put
+Make a function to cycle through cards to find a royal, if no other royals are in play
+Make a function to check if all royals are dead and the game is won
+Make a function that lets you replace one card after the first nine have been placed
+Change all buttons to just be <div>'s with onClick
+Possibly move deck, joker and ace row to the left side?
+*/

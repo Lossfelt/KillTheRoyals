@@ -1,2 +1,0 @@
-# KillTheRoyals
-Created with CodeSandbox

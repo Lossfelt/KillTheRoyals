@@ -1,0 +1,80 @@
+.Main {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.kort {
+  float: left;
+  margin: 5px;
+  font-size: 100px;
+}
+
+.centerTheGrid {
+  display: flex;
+  justify-content: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto auto;
+  background-color: #2196f3;
+  padding: 5px;
+  max-width: 575px;
+}
+
+.grid > * {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 5px;
+  text-align: center;
+  font-size: 10px;
+}
+
+.blackButton {
+  font-size: 100px;
+  padding: 0;
+  line-height: 1;
+  color: black;
+}
+
+.redButton {
+  font-size: 100px;
+  padding: 0;
+  line-height: 1;
+  color: red;
+}
+
+.activeCard {
+  background-color: lightgreen;
+}
+
+.topgrid {
+  display: grid;
+  grid-template-columns: 10% auto 10%;
+}
+
+.aboutbutton {
+  border: none;
+  cursor: pointer;
+}
+
+.contentvisible {
+  position: fixed; /* Sit on top of the page content */
+  width: 80%; /* covers 80% of the page */
+  height: 80%; /* covers 80% of the page */
+  top: 10%; /*starts 10% from the top*/
+  left: 10%; /*starts 10% from the left*/
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.95
+  ); /* White background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /*makes mouse a pointer when hovering over*/
+  overflow-y: scroll;
+}
+
+.contenthidden {
+  display: none;
+}
