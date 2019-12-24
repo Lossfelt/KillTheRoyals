@@ -8,9 +8,7 @@ ReactDOM.render(<Main />, rootElement);
 /*
 TODO
 -----------------------------------------
-Ensure you can't place armor on dead royals
-Add check when placing armor to see that the royal doesn't become invincible
-Update placeArmorCard with correct rules for placing armor
+Update placeArmorCard with correct rules for placing armor, ie. that no other royal is more elegible and does not have armor already
 Make a function to place the first nine cards, as well as were royals can be put
 Make a function to cycle through cards to find a royal, if no other royals are in play
 Make a function to check if all royals are dead and the game is won
