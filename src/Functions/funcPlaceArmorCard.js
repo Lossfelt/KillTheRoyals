@@ -19,12 +19,12 @@ export function placeArmorCard(hvilkenKnapp) {
   }
 }
 
-function checkArmorElegibility(currentRoyal) {
-  const allRoyals = []; //list of all the royals
-  let armorCanBePlaced = true;
-  allRoyals.forEach(royal => {
-    if(currentRoyal !== royal) {
-      
-    }
-  })
-}
+// function checkArmorElegibility(currentRoyal) {
+//   const allRoyals = []; //list of all the royals
+//   let armorCanBePlaced = true;
+//   allRoyals.forEach(royal => {
+//     if(currentRoyal !== royal) {
+
+//     }
+//   })
+// }

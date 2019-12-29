@@ -5,8 +5,7 @@
 
 .kort {
   float: left;
-  margin: 5px;
-  font-size: 100px;
+  /* margin: 5px; */
 }
 
 .centerTheGrid {
@@ -25,20 +24,20 @@
 .grid > * {
   background-color: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(0, 0, 0, 0.8);
-  padding: 5px;
+  padding: 2px;
   text-align: center;
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .blackButton {
-  font-size: 100px;
+  font-size: 9vh;
   padding: 0;
   line-height: 1;
   color: black;
 }
 
 .redButton {
-  font-size: 100px;
+  font-size: 9vh;
   padding: 0;
   line-height: 1;
   color: red;
