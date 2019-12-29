@@ -114,12 +114,11 @@ class Main extends React.Component {
     this.placeArmorCard = placeArmorCard.bind(this);
     this.placeJoker = placeJoker.bind(this);
     this.placeAce = placeAce.bind(this);
-    this.checkForDeath = this.checkForDeath.bind(this);
     this.killRoyals = killRoyals.bind(this);
   }
 
-  checkForDeath() {
-    if (this.state.checkForDeadRoyals !== "none") {
+  componentDidUpdate(){
+        if (this.state.checkForDeadRoyals !== "none") {
       let spotToBeChecked = this.state.checkForDeadRoyals;
       this.setState({ checkForDeadRoyals: "none" });
       this.killRoyals(spotToBeChecked);
@@ -127,9 +126,6 @@ class Main extends React.Component {
   }
 
   render() {
-    //console.log(this.state.deck[0])
-    this.checkForDeath();
-
     return (
       <div className="Main">
         <About />
