@@ -7,8 +7,8 @@ export function placeArmorCard(hvilkenKnapp) {
     this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0]
       .picture !== "\u{1F0A0}" &&
     this.state.deck[0].value +
-      this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0].value <=
-      20
+    this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0].value <=
+    20 && checkArmorElegibility(hvilkenKnapp)
   ) {
     var kortstokk = this.state.deck;
     var bunke = this.state.cardsInPlay[hvilkenKnapp];
@@ -19,12 +19,25 @@ export function placeArmorCard(hvilkenKnapp) {
   }
 }
 
-// function checkArmorElegibility(currentRoyal) {
-//   const allRoyals = []; //list of all the royals
-//   let armorCanBePlaced = true;
-//   allRoyals.forEach(royal => {
-//     if(currentRoyal !== royal) {
-
-//     }
-//   })
-// }
+function checkArmorElegibility(currentRoyal) {
+  const allRoyals = ["upperLeftRoyal", "upperMiddleRoyal", "upperRightRoyal",
+    "leftUpperRoyal", "leftMiddleRoyal", "leftBottomRoyal",
+    "rightUpperRoyal", "rightMiddleRoyal", "rightBottomRoyal",
+    "bottomLeftRoyal", "bottomMiddleRoyal", "bottomRightRoyal"];
+  allRoyals.forEach(royal => {
+    if (currentRoyal !== royal) {
+      if (this.state.cardsInPlay[royal][0] !== "\u{1F0F1}" && this.state.cardsInPlay[royal][0] !== "\u{1F0A0}") {
+        if (this.state.cardsInPlay[currentRoyal][0].value > this.state.cardsInPlay[royal][0].value) {
+          return false;
+        } else if (this.state.cardsInPlay[royal][0].suit === this.state.deck[0].suit &&
+          this.state.cardsInPlay[currentRoyal][0].suit !== this.state.deck[0].suit) {
+          return false;
+        } else if (this.state.cardsInPlay[royal][0].color === this.state.deck[0].color &&
+          this.state.cardsInPlay[currentRoyal][0].color !== this.state.deck[0].color) {
+          return false;
+        }
+      }
+    }
+  })
+  return true;
+}
