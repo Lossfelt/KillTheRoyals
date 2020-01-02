@@ -19,7 +19,7 @@ export function placeArmorCard(hvilkenKnapp) {
     this.setState({ hvilkenKnapp: bunke });
   }
 }
-//denne virker ikke. Hvis du har en knekt av feil suit og en dame av riktig suit, så vil ingen være gyldig da den ikke setter noe krav høyere enn det andre.
+
 function checkArmorElegibility(hvilkenKnapp, sub) {
   let currentRoyal = hvilkenKnapp.replace("Armor", "Royal");
   let isElegible = true;
@@ -29,18 +29,24 @@ function checkArmorElegibility(hvilkenKnapp, sub) {
     "bottomLeftRoyal", "bottomMiddleRoyal", "bottomRightRoyal"];
   allRoyals.forEach(royal => {
     if (currentRoyal !== royal) {
-      if (sub.state.cardsInPlay[royal][0] !== "\u{1F0F1}" && sub.state.cardsInPlay[royal][0] !== "\u{1F0A0}") {
-        if (sub.state.cardsInPlay[currentRoyal][0].value > sub.state.cardsInPlay[royal][0].value) {
+      if (sub.state.cardsInPlay[royal][0].picture !== "\u{1F0F1}" &&
+        sub.state.cardsInPlay[royal][0].picture !== "\u{1F0A0}" &&
+        sub.state.cardsInPlay[royal.replace("Royal", "Armor")][0].picture === "\u{1F0F1}") {
+        if (sub.state.cardsInPlay[royal][0].value < sub.state.cardsInPlay[currentRoyal][0].value) {
           isElegible = false;
-        } else if (sub.state.cardsInPlay[royal][0].suit === sub.state.deck[0].suit &&
-          sub.state.cardsInPlay[currentRoyal][0].suit !== sub.state.deck[0].suit) {
-          isElegible = false;
-        } else if (sub.state.cardsInPlay[royal][0].color === sub.state.deck[0].color &&
-          sub.state.cardsInPlay[currentRoyal][0].color !== sub.state.deck[0].color) {
-          isElegible = false;
+        }
+        else if (sub.state.cardsInPlay[royal][0].value === sub.state.cardsInPlay[currentRoyal][0].value) {
+          if (sub.state.cardsInPlay[royal][0].suit === sub.state.deck[0].suit &&
+            sub.state.cardsInPlay[currentRoyal][0].suit !== sub.state.deck[0].suit) {
+            isElegible = false;
+          }
+          if (sub.state.cardsInPlay[royal][0].color === sub.state.deck[0].color &&
+            sub.state.cardsInPlay[currentRoyal][0].color !== sub.state.deck[0].color) {
+            isElegible = false;
+          }
         }
       }
     }
   })
-  return isElegible;
+  return isElegible
 }

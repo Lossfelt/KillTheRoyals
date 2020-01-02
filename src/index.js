@@ -8,7 +8,6 @@ ReactDOM.render(<Main />, rootElement);
 /*
 TODO
 -----------------------------------------
-Update placeArmorCard with correct rules for placing armor, ie. that no other royal is more elegible and does not have armor already
 Make a function to place the first nine cards, as well as were royals can be put
 Make a function to cycle through cards to find a royal, if no other royals are in play
 Make a function to check if all royals are dead and the game is won
