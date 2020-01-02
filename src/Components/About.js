@@ -97,7 +97,7 @@ class About extends React.Component {
           <h5>Adding armor</h5>
           <p>
             If you can't play a card you can add it to the royal it’s most
-            similar to (lowest value royal of same suit) and increases their
+            similar to (lowest value royal, and if tied; of same color or suit) and increases their
             health by the added value. So a King with a 3 as armour now has 13 +
             3 = 16 health.
           </p>
