@@ -8,7 +8,7 @@ ReactDOM.render(<Main />, rootElement);
 /*
 TODO
 -----------------------------------------
-Put a placeholder-card on bottom of the deck
+Put a placeholder-card on bottom of the deck and update counter
 - change Ace-use to ensure placeholder stays on bottom
 - change normal placement so that you can't put placeholder on the grid
 - change armor placement so you can't put the placeholder as armor
