@@ -8,11 +8,14 @@ ReactDOM.render(<Main />, rootElement);
 /*
 TODO
 -----------------------------------------
-Put a placeholder-card on bottom of the deck and update counter
+Put a placeholder-card on bottom of the deck and update counter -- maybe instead in createGrid do deck.length?deck.picture:\u{1F0F1}
 - change Ace-use to ensure placeholder stays on bottom
 - change normal placement so that you can't put placeholder on the grid
 - change armor placement so you can't put the placeholder as armor
 Make a function to place the first nine cards, as well as were royals can be put
+- variable for whether one is in the startup phase, if so auto-place the first nine cards and collect royals found
+- spot/button to put royals found until the first nine number-cards have been placed
+- function to place the royal-cards found during startup
 Make a function to cycle through cards to find a royal, if no other royals are in play
 Make a function to check if all royals are dead and the game is won
 Make a function that lets you replace one card after the first nine have been placed
