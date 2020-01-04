@@ -65,7 +65,15 @@ class CreateGrid extends React.Component {
           </button>
         </div>
         <div />
-        <div />
+        <div>
+          <button
+            className={this.colorCard("royalsToBePlaced")}
+            id="royalsToBePlaced"
+          >
+            {this.props.cardsInPlay.royalsToBePlaced[0].picture}
+          </button>
+          {this.props.cardsInPlay.royalsToBePlaced.length - 1}
+        </div>
         <div />
         <div />
         <div>

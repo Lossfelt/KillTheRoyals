@@ -12,6 +12,7 @@ Make a function to place the first nine cards, as well as were royals can be put
 - variable for whether one is in the startup phase, if so auto-place the first nine cards and collect royals found
 - spot/button to put royals found until the first nine number-cards have been placed
 - function to place the royal-cards found during startup
+- function to enforce correct royal-placement
 Make a function to cycle through cards to find a royal, if no other royals are in play
 Make a function to check if all royals are dead and the game is won
 Make a function that lets you replace one card after the first nine have been placed
