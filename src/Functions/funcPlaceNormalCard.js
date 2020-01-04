@@ -39,11 +39,13 @@ export function placeNormalCard(hvilkenKnapp) {
   else if (bunke.length > 1 && this.state.aceInUse !== "none") {
     this.setState({ aceInUse: "none" });
     sisteKortIBunken = bunke.pop();
+    kortstokk.pop();
     while (bunke.length) {
       kort = bunke.pop();
       kortstokk.push(kort);
     }
     bunke.push(sisteKortIBunken);
+    kortstokk.push(sisteKortIBunken);
     let hvilkenAce = this.state.aceInUse;
     let aceBunke = this.state.cardsInPlay[hvilkenAce];
     aceBunke.unshift({ picture: "\u{1F0A0}" });
@@ -56,6 +58,7 @@ export function placeNormalCard(hvilkenKnapp) {
 
   //This is the normal placement of cards on the grid
   else if (
+    this.state.deck.length > 1 && 
     this.state.deck[0].value < 11 &&
     this.state.deck[0].value >= bunke[0].value
   ) {

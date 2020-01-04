@@ -1,22 +1,24 @@
 export function placeArmorCard(hvilkenKnapp) {
   let sub = this;
-  if (
-    this.state.deck[0].value < 10 &&
-    this.state.cardsInPlay[hvilkenKnapp][0].picture === "\u{1F0F1}" &&
-    this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0]
-      .picture !== "\u{1F0F1}" &&
-    this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0]
-      .picture !== "\u{1F0A0}" &&
-    this.state.deck[0].value +
-    this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0].value <=
-    20 && checkArmorElegibility(hvilkenKnapp, sub) === true
-  ) {
-    var kortstokk = this.state.deck;
-    var bunke = this.state.cardsInPlay[hvilkenKnapp];
-    var kort = kortstokk.shift();
-    bunke.unshift(kort);
-    this.setState({ deck: kortstokk });
-    this.setState({ hvilkenKnapp: bunke });
+  if (this.state.deck.length > 1) {
+    if (
+      this.state.deck[0].value < 10 &&
+      this.state.cardsInPlay[hvilkenKnapp][0].picture === "\u{1F0F1}" &&
+      this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0]
+        .picture !== "\u{1F0F1}" &&
+      this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0]
+        .picture !== "\u{1F0A0}" &&
+      this.state.deck[0].value +
+      this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0].value <=
+      20 && checkArmorElegibility(hvilkenKnapp, sub) === true
+    ) {
+      var kortstokk = this.state.deck;
+      var bunke = this.state.cardsInPlay[hvilkenKnapp];
+      var kort = kortstokk.shift();
+      bunke.unshift(kort);
+      this.setState({ deck: kortstokk });
+      this.setState({ hvilkenKnapp: bunke });
+    }
   }
 }
 

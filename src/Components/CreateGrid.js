@@ -361,7 +361,7 @@ class CreateGrid extends React.Component {
           <button className={this.colorCard("deck")}>
             {this.props.deck[0].picture}
           </button>
-          {this.props.deck.length}
+          {this.props.deck.length - 1}
         </div>
         <div>
           <button
