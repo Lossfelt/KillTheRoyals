@@ -59,6 +59,7 @@ export function placeNormalCard(hvilkenKnapp) {
   //This is the normal placement of cards on the grid
   else if (
     this.state.deck.length > 1 && 
+    this.state.cardsInPlay.royalsToBePlaced.length === 1 && 
     this.state.deck[0].value < 11 &&
     this.state.deck[0].value >= bunke[0].value
   ) {

@@ -9,7 +9,7 @@ import { placeArmorCard } from "../Functions/funcPlaceArmorCard";
 import { placeJoker } from "../Functions/funcPlaceJoker";
 import { placeAce } from "../Functions/funcPlaceAce";
 import { killRoyals } from "../Functions/funcKillRoyals";
-//import {placeFirstNineCards} from "../Functions/funcPlaceFirstNineCards";
+import {placeFirstNineCards} from "../Functions/funcPlaceFirstNineCards";
 
 class Main extends React.Component {
   constructor(props) {
@@ -20,7 +20,7 @@ class Main extends React.Component {
       jokerInUseBunkeNr1: "none",
       aceInUse: "none",
       checkForDeadRoyals: "none",
-      isSetupPhase: false,
+      isSetupPhase: false, //not in use yet
       cardsInPlay: {
         leftUpper: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
         middleUpper: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
@@ -118,13 +118,11 @@ class Main extends React.Component {
     this.placeJoker = placeJoker.bind(this);
     this.placeAce = placeAce.bind(this);
     this.killRoyals = killRoyals.bind(this);
-    //this.placeFirstNineCards = placeFirstNineCards.bind(this);
+    this.placeFirstNineCards = placeFirstNineCards.bind(this);
   }
 
   componentDidMount(){
-    // console.log("try to place the first cards")
-    // this.placeFirstNineCards();
-    // console.log("finished placing the first cards")
+    this.placeFirstNineCards();
   }
 
   componentDidUpdate(){

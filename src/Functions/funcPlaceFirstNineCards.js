@@ -1,33 +1,47 @@
 export function placeFirstNineCards() {
-    const gridPositions = ["leftUpper", "middleUpper", "rightUpper",
-        "leftMiddle", "middleMiddle", "rightMiddle",
-        "leftBottom", "middleBottom", "rightBottom"];
-
+    let kortstokk = this.state.deck;
+    let leftUpperBunke = this.state.cardsInPlay.leftUpper;
+    let middleUpperBunke = this.state.cardsInPlay.middleUpper;
+    let rightUpperBunke = this.state.cardsInPlay.rightUpper;
+    let leftMiddleBunke = this.state.cardsInPlay.leftMiddle;
+    let middleMiddleBunke = this.state.cardsInPlay.middleMiddle;
+    let rightMiddleBunke = this.state.cardsInPlay.rightMiddle;
+    let leftBottomBunke = this.state.cardsInPlay.leftBottom;
+    let middleBottomBunke = this.state.cardsInPlay.middleBottom;
+    let rightBottomBunke = this.state.cardsInPlay.rightBottom;
+    let royalsToBePlacedBunke = this.state.cardsInPlay.royalsToBePlaced;
+    let placeholder = royalsToBePlacedBunke.pop();
+    let kort = {};
+    const gridPositions = [leftUpperBunke, middleUpperBunke, rightUpperBunke,
+        leftMiddleBunke, middleMiddleBunke, rightMiddleBunke,
+        leftBottomBunke, middleBottomBunke, rightBottomBunke];
+        
     gridPositions.forEach(position => {
-        while (this.state.cardsInPlay[position].length < 2) {
-            let kortstokk = this.state.deck;
-            let bunke = [];
-            let kort = {};
+        while (position.length < 2) {
             if (kortstokk[0].value < 11) {
-                bunke = this.state.cardsInPlay[position]
                 kort = kortstokk.shift();
-                bunke.unshift(kort);
-                this.setState({
-                    deck: kortstokk,
-                    position: bunke
-                })
-            } else if (kortstokk[0].value > 10) {
-                bunke = this.state.cardsInPlay.royalsToBePlaced;
-                let placeholder = bunke.pop();
+                position.unshift(kort);
+            } else if (kortstokk[0].value > 10 || 
+                kortstokk[0].value === "A" || 
+                kortstokk[0].value === "Joker") {
                 kort = kortstokk.shift();
-                bunke.push(kort);
-                bunke.push(placeholder);
-                this.setState({
-                    deck: kortstokk,
-                    royalsToBePlaced: bunke
-                })
+                royalsToBePlacedBunke.push(kort);
             }
         }
     })
 
+    royalsToBePlacedBunke.push(placeholder);
+    this.setState({
+        deck: kortstokk,
+        leftUpper: leftUpperBunke,
+        middleUpper: middleUpperBunke,
+        rightUpper: rightUpperBunke,
+        leftMiddle: leftMiddleBunke,
+        middleMiddle: middleMiddleBunke,
+        rightMiddle: rightMiddleBunke,
+        leftBottom: leftBottomBunke,
+        middleBottom: middleBottomBunke,
+        rightBottom: rightBottomBunke,
+        royalsToBePlaced: royalsToBePlacedBunke
+    })
 }
