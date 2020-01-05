@@ -10,6 +10,7 @@ import { placeJoker } from "../Functions/funcPlaceJoker";
 import { placeAce } from "../Functions/funcPlaceAce";
 import { killRoyals } from "../Functions/funcKillRoyals";
 import {placeFirstNineCards} from "../Functions/funcPlaceFirstNineCards";
+import {cycleDeckForRoyal} from "../Functions/funcCycleDeckForRoyal";
 
 class Main extends React.Component {
   constructor(props) {
@@ -119,6 +120,7 @@ class Main extends React.Component {
     this.placeAce = placeAce.bind(this);
     this.killRoyals = killRoyals.bind(this);
     this.placeFirstNineCards = placeFirstNineCards.bind(this);
+    this.cycleDeckForRoyal = cycleDeckForRoyal.bind(this);
   }
 
   componentDidMount(){
@@ -131,6 +133,7 @@ class Main extends React.Component {
       this.setState({ checkForDeadRoyals: "none" });
       this.killRoyals(spotToBeChecked);
     }
+    this.cycleDeckForRoyal();
   }
 
   render() {

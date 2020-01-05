@@ -8,7 +8,8 @@ ReactDOM.render(<Main />, rootElement);
 /*
 TODO
 -----------------------------------------
-Make a function to cycle through cards to find a royal, if no other royals are in play
+cycleDeckForRoyal not working, debug
+Ensure cycleDeck doesn't break the game when all royals are dead
 Make function to enforce correct royal-placement
 Hide startup-royal-button when not in use
 Make a function to check if all royals are dead and the game is won
