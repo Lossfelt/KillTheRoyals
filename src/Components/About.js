@@ -91,8 +91,8 @@ class About extends React.Component {
             </li>
           </ul>
           If there are no more alive royals in play, but you've not yet killed
-          all 12, then you will need to click on the deck to cycle through it to
-          find a royal for you to place into play. The number-cards cycled
+          all 12, then the game will cycle through the deck to
+          find a royal for you to place into play. The cards cycled
           through are added to the bottom of the deck.
           <h5>Adding armor</h5>
           <p>
