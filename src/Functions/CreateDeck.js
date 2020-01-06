@@ -196,7 +196,7 @@ export function createDeck() {
   var joker2 = {
     value: "Joker",
     suit: "black",
-    picture: "\u{1F0BF}",
+    picture: "\u{1F0DF}",
     color: "black"
   };
   deck.push(joker2);
