@@ -3,7 +3,7 @@ export function placeJoker(hvilkenKnapp) {
   let bunke = this.state.cardsInPlay[hvilkenKnapp];
   let kort = {};
   if (this.state.cardsInPlay.royalsToBePlaced[0].value === "Joker" && 
-  this.state.cardsInPlay[hvilkenKnapp][0].picture === "\u{1F0F1}") {
+  this.state.cardsInPlay[hvilkenKnapp][0].picture === "empty") {
     let royalsToBePlacedBunke = this.state.cardsInPlay.royalsToBePlaced
     kort = royalsToBePlacedBunke.shift();
     bunke.unshift(kort);
@@ -19,7 +19,7 @@ export function placeJoker(hvilkenKnapp) {
     this.setState({ jokerInUse: hvilkenKnapp });
   } else if (
     this.state.deck[0].value === "Joker" &&
-    this.state.cardsInPlay[hvilkenKnapp][0].picture === "\u{1F0F1}"
+    this.state.cardsInPlay[hvilkenKnapp][0].picture === "empty"
   ) {
     kort = kortstokk.shift();
     bunke.unshift(kort);

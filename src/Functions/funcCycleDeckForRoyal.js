@@ -12,7 +12,7 @@ export function cycleDeckForRoyal() {
             "bottomLeftRoyal", "bottomMiddleRoyal", "bottomRightRoyal"]
 
         allRoyals.forEach(royal => {
-            if (this.state.cardsInPlay[royal][0].picture !== "\u{1F0F1}" &&
+            if (this.state.cardsInPlay[royal][0].picture !== "empty" &&
                 this.state.cardsInPlay[royal][0].picture !== "\u{1F0A0}") {
                 cycleDeck = false;
             }

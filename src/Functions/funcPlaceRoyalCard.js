@@ -12,7 +12,7 @@ export function placeRoyalCard(hvilkenKnapp) {
     }
   else if (
     this.state.deck[0].value > 10 &&
-    this.state.cardsInPlay[hvilkenKnapp][0].picture === "\u{1F0F1}"
+    this.state.cardsInPlay[hvilkenKnapp][0].picture === "empty"
   ) {
     var kortstokk = this.state.deck;
     var bunke = this.state.cardsInPlay[hvilkenKnapp];

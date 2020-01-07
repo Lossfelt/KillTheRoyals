@@ -23,94 +23,94 @@ class Main extends React.Component {
       checkForDeadRoyals: "none",
       isSetupPhase: false, //not in use yet
       cardsInPlay: {
-        leftUpper: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        middleUpper: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        rightUpper: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        leftMiddle: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        middleMiddle: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        rightMiddle: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        leftBottom: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        middleBottom: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        rightBottom: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
+        leftUpper: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        middleUpper: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        rightUpper: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        leftMiddle: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        middleMiddle: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        rightMiddle: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        leftBottom: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        middleBottom: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        rightBottom: [{ value: 0, suit: "", picture: "empty", color: "" }],
         upperLeftRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         upperMiddleRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         upperRightRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         leftUpperRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         leftMiddleRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         leftBottomRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         rightUpperRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         rightMiddleRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         rightBottomRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         bottomLeftRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         bottomMiddleRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         bottomRightRoyal: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         upperLeftArmor: [
           { value: 0, suit: "", picture: "empty", color: "" }
         ],
         upperMiddleArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         upperRightArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         leftUpperArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         leftMiddleArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         leftBottomArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         rightUpperArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         rightMiddleArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         rightBottomArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         bottomLeftArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         bottomMiddleArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         bottomRightArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
-        joker1: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        joker2: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        ace1: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        ace2: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        ace3: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        ace4: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }],
-        royalsToBePlaced: [{ value: 0, suit: "", picture: "\u{1F0F1}", color: "" }]
+        joker1: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        joker2: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        ace1: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        ace2: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        ace3: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        ace4: [{ value: 0, suit: "", picture: "empty", color: "" }],
+        royalsToBePlaced: [{ value: 0, suit: "", picture: "empty", color: "" }]
       }
     };
     this.placeNormalCard = placeNormalCard.bind(this);

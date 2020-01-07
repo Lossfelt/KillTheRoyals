@@ -1,8 +1,6 @@
-import React from "react";
-
 export function backgroundOrPicture(topPicture) {
     if (topPicture === "empty") {
-        return <div className="backgroundSquare" />
+        return ""
     } else {
         return topPicture
     }

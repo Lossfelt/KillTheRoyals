@@ -3,9 +3,9 @@ export function placeArmorCard(hvilkenKnapp) {
   if (this.state.deck.length > 1) {
     if (
       this.state.deck[0].value < 10 &&
-      this.state.cardsInPlay[hvilkenKnapp][0].picture === "\u{1F0F1}" &&
+      this.state.cardsInPlay[hvilkenKnapp][0].picture === "empty" &&
       this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0]
-        .picture !== "\u{1F0F1}" &&
+        .picture !== "empty" &&
       this.state.cardsInPlay[hvilkenKnapp.replace("Armor", "Royal")][0]
         .picture !== "\u{1F0A0}" &&
       this.state.deck[0].value +
@@ -31,9 +31,9 @@ function checkArmorElegibility(hvilkenKnapp, sub) {
     "bottomLeftRoyal", "bottomMiddleRoyal", "bottomRightRoyal"];
   allRoyals.forEach(royal => {
     if (currentRoyal !== royal) {
-      if (sub.state.cardsInPlay[royal][0].picture !== "\u{1F0F1}" &&
+      if (sub.state.cardsInPlay[royal][0].picture !== "empty" &&
         sub.state.cardsInPlay[royal][0].picture !== "\u{1F0A0}" &&
-        sub.state.cardsInPlay[royal.replace("Royal", "Armor")][0].picture === "\u{1F0F1}") {
+        sub.state.cardsInPlay[royal.replace("Royal", "Armor")][0].picture === "empty") {
         if (sub.state.cardsInPlay[royal][0].value < sub.state.cardsInPlay[currentRoyal][0].value) {
           isElegible = false;
         }

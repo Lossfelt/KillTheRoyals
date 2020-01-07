@@ -20,6 +20,7 @@ class CreateGrid extends React.Component {
 
   placeRoyalCard(e) {
     this.props.placeRoyalCard(e.target.id);
+    console.log(e.target.id);
   }
 
   placeArmorCard(e) {
@@ -53,7 +54,7 @@ class CreateGrid extends React.Component {
             id="upperMiddleArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.upperMiddleArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.upperMiddleArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -62,7 +63,7 @@ class CreateGrid extends React.Component {
             id="upperRightArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.upperRightArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.upperRightArmor[0].picture)}
           </button>
         </div>
         <div />
@@ -71,7 +72,7 @@ class CreateGrid extends React.Component {
             className={this.colorCard("royalsToBePlaced")}
             id="royalsToBePlaced"
           >
-            {this.props.cardsInPlay.royalsToBePlaced[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.royalsToBePlaced[0].picture)}
           </button>
           {this.props.cardsInPlay.royalsToBePlaced.length - 1}
         </div>
@@ -83,7 +84,7 @@ class CreateGrid extends React.Component {
             id="upperLeftRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.upperLeftRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.upperLeftRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -92,7 +93,7 @@ class CreateGrid extends React.Component {
             id="upperMiddleRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.upperMiddleRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.upperMiddleRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -101,7 +102,7 @@ class CreateGrid extends React.Component {
             id="upperRightRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.upperRightRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.upperRightRoyal[0].picture)}
           </button>
         </div>
         <div />
@@ -112,7 +113,7 @@ class CreateGrid extends React.Component {
             id="leftUpperArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.leftUpperArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftUpperArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -121,7 +122,7 @@ class CreateGrid extends React.Component {
             id="leftUpperRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.leftUpperRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftUpperRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -130,7 +131,7 @@ class CreateGrid extends React.Component {
             id="leftUpper"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.leftUpper[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftUpper[0].picture)}
           </button>
           {this.props.cardsInPlay.leftUpper.length - 1}
         </div>
@@ -140,7 +141,7 @@ class CreateGrid extends React.Component {
             id="middleUpper"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.middleUpper[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.middleUpper[0].picture)}
           </button>
           {this.props.cardsInPlay.middleUpper.length - 1}
         </div>
@@ -150,7 +151,7 @@ class CreateGrid extends React.Component {
             id="rightUpper"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.rightUpper[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightUpper[0].picture)}
           </button>
           {this.props.cardsInPlay.rightUpper.length - 1}
         </div>
@@ -160,7 +161,7 @@ class CreateGrid extends React.Component {
             id="rightUpperRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.rightUpperRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightUpperRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -169,7 +170,7 @@ class CreateGrid extends React.Component {
             id="rightUpperArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.rightUpperArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightUpperArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -178,7 +179,7 @@ class CreateGrid extends React.Component {
             id="leftMiddleArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.leftMiddleArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftMiddleArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -187,7 +188,7 @@ class CreateGrid extends React.Component {
             id="leftMiddleRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.leftMiddleRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftMiddleRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -196,7 +197,7 @@ class CreateGrid extends React.Component {
             id="leftMiddle"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.leftMiddle[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftMiddle[0].picture)}
           </button>
           {this.props.cardsInPlay.leftMiddle.length - 1}
         </div>
@@ -206,7 +207,7 @@ class CreateGrid extends React.Component {
             id="middleMiddle"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.middleMiddle[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.middleMiddle[0].picture)}
           </button>
           {this.props.cardsInPlay.middleMiddle.length - 1}
         </div>
@@ -216,7 +217,7 @@ class CreateGrid extends React.Component {
             id="rightMiddle"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.rightMiddle[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightMiddle[0].picture)}
           </button>
           {this.props.cardsInPlay.rightMiddle.length - 1}
         </div>
@@ -226,7 +227,7 @@ class CreateGrid extends React.Component {
             id="rightMiddleRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.rightMiddleRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightMiddleRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -235,7 +236,7 @@ class CreateGrid extends React.Component {
             id="rightMiddleArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.rightMiddleArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightMiddleArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -244,7 +245,7 @@ class CreateGrid extends React.Component {
             id="leftBottomArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.leftBottomArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftBottomArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -253,7 +254,7 @@ class CreateGrid extends React.Component {
             id="leftBottomRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.leftBottomRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftBottomRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -262,7 +263,7 @@ class CreateGrid extends React.Component {
             id="leftBottom"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.leftBottom[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.leftBottom[0].picture)}
           </button>
           {this.props.cardsInPlay.leftBottom.length - 1}
         </div>
@@ -272,7 +273,7 @@ class CreateGrid extends React.Component {
             id="middleBottom"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.middleBottom[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.middleBottom[0].picture)}
           </button>
           {this.props.cardsInPlay.middleBottom.length - 1}
         </div>
@@ -282,7 +283,7 @@ class CreateGrid extends React.Component {
             id="rightBottom"
             onClick={this.placeNormalCard}
           >
-            {this.props.cardsInPlay.rightBottom[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightBottom[0].picture)}
           </button>
           {this.props.cardsInPlay.rightBottom.length - 1}
         </div>
@@ -292,7 +293,7 @@ class CreateGrid extends React.Component {
             id="rightBottomRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.rightBottomRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightBottomRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -301,7 +302,7 @@ class CreateGrid extends React.Component {
             id="rightBottomArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.rightBottomArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.rightBottomArmor[0].picture)}
           </button>
         </div>
         <div />
@@ -312,7 +313,7 @@ class CreateGrid extends React.Component {
             id="bottomLeftRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.bottomLeftRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.bottomLeftRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -321,7 +322,7 @@ class CreateGrid extends React.Component {
             id="bottomMiddleRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.bottomMiddleRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.bottomMiddleRoyal[0].picture)}
           </button>
         </div>
         <div>
@@ -330,7 +331,7 @@ class CreateGrid extends React.Component {
             id="bottomRightRoyal"
             onClick={this.placeRoyalCard}
           >
-            {this.props.cardsInPlay.bottomRightRoyal[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.bottomRightRoyal[0].picture)}
           </button>
         </div>
         <div />
@@ -343,7 +344,7 @@ class CreateGrid extends React.Component {
             id="bottomLeftArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.bottomLeftArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.bottomLeftArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -352,7 +353,7 @@ class CreateGrid extends React.Component {
             id="bottomMiddleArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.bottomMiddleArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.bottomMiddleArmor[0].picture)}
           </button>
         </div>
         <div>
@@ -361,14 +362,14 @@ class CreateGrid extends React.Component {
             id="bottomRightArmor"
             onClick={this.placeArmorCard}
           >
-            {this.props.cardsInPlay.bottomRightArmor[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.bottomRightArmor[0].picture)}
           </button>
         </div>
         <div />
         <div />
         <div>
           <button className={this.colorCard("deck")}>
-            {this.props.deck[0].picture}
+            {this.backgroundOrPicture(this.props.deck[0].picture)}
           </button>
           {this.props.deck.length - 1}
         </div>
@@ -378,7 +379,7 @@ class CreateGrid extends React.Component {
             id="joker1"
             onClick={this.placeJoker}
           >
-            {this.props.cardsInPlay.joker1[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.joker1[0].picture)}
           </button>
         </div>
         <div>
@@ -387,7 +388,7 @@ class CreateGrid extends React.Component {
             id="joker2"
             onClick={this.placeJoker}
           >
-            {this.props.cardsInPlay.joker2[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.joker2[0].picture)}
           </button>
         </div>
         <div>
@@ -396,7 +397,7 @@ class CreateGrid extends React.Component {
             id="ace1"
             onClick={this.placeAce}
           >
-            {this.props.cardsInPlay.ace1[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.ace1[0].picture)}
           </button>
         </div>
         <div>
@@ -405,7 +406,7 @@ class CreateGrid extends React.Component {
             id="ace2"
             onClick={this.placeAce}
           >
-            {this.props.cardsInPlay.ace2[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.ace2[0].picture)}
           </button>
         </div>
         <div>
@@ -414,7 +415,7 @@ class CreateGrid extends React.Component {
             id="ace3"
             onClick={this.placeAce}
           >
-            {this.props.cardsInPlay.ace3[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.ace3[0].picture)}
           </button>
         </div>
         <div>
@@ -423,7 +424,7 @@ class CreateGrid extends React.Component {
             id="ace4"
             onClick={this.placeAce}
           >
-            {this.props.cardsInPlay.ace4[0].picture}
+            {this.backgroundOrPicture(this.props.cardsInPlay.ace4[0].picture)}
           </button>
         </div>
       </div>

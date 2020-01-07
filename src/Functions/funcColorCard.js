@@ -2,11 +2,15 @@ export function colorCard(id) {
   let classes = "";
 
   if (id === "deck") {
-    if (this.props[id][0].color === "red") {
+    if (this.props[id][0].picture === "empty") {
+      classes = "backgroundSquare";
+    } else if (this.props[id][0].color === "red") {
       classes = "redButton";
     } else {
       classes = "blackButton";
     }
+  } else if (this.props.cardsInPlay[id][0].picture === "empty") {
+    classes = "backgroundSquare";
   } else if (this.props.cardsInPlay[id][0].color === "red") {
     classes = "redButton";
   } else {
