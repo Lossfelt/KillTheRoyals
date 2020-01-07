@@ -77,3 +77,8 @@
 .contenthidden {
   display: none;
 }
+
+.backgroundSquare {
+  height: 9vh;
+  width: 6vh;
+}

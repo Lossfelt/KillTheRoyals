@@ -69,7 +69,7 @@ class Main extends React.Component {
           { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
         ],
         upperLeftArmor: [
-          { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }
+          { value: 0, suit: "", picture: "empty", color: "" }
         ],
         upperMiddleArmor: [
           { value: 0, suit: "", picture: "\u{1F0F1}", color: "" }

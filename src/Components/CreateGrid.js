@@ -1,5 +1,6 @@
 import React from "react";
 import { colorCard } from "../Functions/funcColorCard";
+import {backgroundOrPicture} from "../Functions/funcBackgroundOrPicture";
 
 class CreateGrid extends React.Component {
   constructor(props) {
@@ -10,6 +11,7 @@ class CreateGrid extends React.Component {
     this.placeJoker = this.placeJoker.bind(this);
     this.placeAce = this.placeAce.bind(this);
     this.colorCard = colorCard.bind(this);
+    this.backgroundOrPicture = backgroundOrPicture.bind(this);
   }
 
   placeNormalCard(e) {
@@ -42,8 +44,7 @@ class CreateGrid extends React.Component {
             className={this.colorCard("upperLeftArmor")}
             id="upperLeftArmor"
             onClick={this.placeArmorCard}
-          >
-            {this.props.cardsInPlay.upperLeftArmor[0].picture}
+          >{this.backgroundOrPicture(this.props.cardsInPlay.upperLeftArmor[0].picture)}
           </button>
         </div>
         <div>
