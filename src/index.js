@@ -17,6 +17,7 @@ Make a function to check if all royals are dead and the game is won
 Make a function that lets you replace one card after the first nine have been placed
 Change all buttons to just be <div>'s with onClick
 Ensure other cards can't be placed when using joker or ace
+Change stack-length number from static to onHover
 Enable an undo-function (make an array with the state of every turn)
 Possibly move deck, joker and ace row to the left side?
 Do I need the startup-phase variable?
