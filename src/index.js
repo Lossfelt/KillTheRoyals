@@ -11,6 +11,7 @@ TODO
 cycleDeckForRoyal should work now, also if Joker or Ace on top of deck when no royals
 placeRoyals lacks check during startup-phase to check that spot is empty before placing royals
 Ensure cycleDeck doesn't break the game when all royals are dead
+Set card-back on armor when its royal is dead
 Make function to enforce correct royal-placement
 Hide startup-royal-button when not in use
 Make a function to check if all royals are dead and the game is won
