@@ -106,6 +106,12 @@ function doTheKilling(card1, card2, royal, armor, hvilkenRoyalBunke, sub) {
     ) {
       bunkenTilRoyal.unshift(deadRoyal);
       sub.setState({ hvilkenRoyalBunke: bunkenTilRoyal });
+      if (armor.picture !== "empty") {
+        let actualArmor = hvilkenRoyalBunke.replace("Royal", "Armor");
+        let actualArmorBunke = sub.state.cardsInPlay[actualArmor];
+        actualArmorBunke.unshift(deadRoyal);
+        sub.setState({ actualArmor: actualArmorBunke });
+      }
     }
   } else if (royal.value === 12) {
     if (
@@ -115,11 +121,23 @@ function doTheKilling(card1, card2, royal, armor, hvilkenRoyalBunke, sub) {
     ) {
       bunkenTilRoyal.unshift(deadRoyal);
       sub.setState({ hvilkenRoyalBunke: bunkenTilRoyal });
+      if (armor.picture !== "empty") {
+        let actualArmor = hvilkenRoyalBunke.replace("Royal", "Armor");
+        let actualArmorBunke = sub.state.cardsInPlay[actualArmor];
+        actualArmorBunke.unshift(deadRoyal);
+        sub.setState({ actualArmor: actualArmorBunke });
+      }
     }
   } else if (royal.value === 11) {
     if (card1.value + card2.value >= royal.value + armor.value) {
       bunkenTilRoyal.unshift(deadRoyal);
       sub.setState({ hvilkenRoyalBunke: bunkenTilRoyal });
+      if (armor.picture !== "empty") {
+        let actualArmor = hvilkenRoyalBunke.replace("Royal", "Armor");
+        let actualArmorBunke = sub.state.cardsInPlay[actualArmor];
+        actualArmorBunke.unshift(deadRoyal);
+        sub.setState({ actualArmor: actualArmorBunke });
+      }
     }
   }
 }
