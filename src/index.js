@@ -15,6 +15,7 @@ Make function to enforce correct royal-placement
 Hide startup-royal-button when not in use
 Make a function to check if all royals are dead and the game is won
 Make a function that lets you replace one card after the first nine have been placed
+Make a restart-button so you don't have to reload the site to start again
 Change all buttons to just be <div>'s with onClick
 Ensure other cards can't be placed when using joker or ace
 Change stack-length number from static to onHover
