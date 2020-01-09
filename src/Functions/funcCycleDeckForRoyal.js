@@ -1,10 +1,13 @@
+import {checkIfGameWon} from "./funcCheckIfGameWon";
+
 export function cycleDeckForRoyal() {
     let kortstokk = this.state.deck;
     let sub = this;
     if ((kortstokk[0].value < 11 ||
         kortstokk[0].value === "Joker" || 
         kortstokk[0].value === "A") &&
-        this.state.cardsInPlay.royalsToBePlaced.length <= 1) {
+        this.state.cardsInPlay.royalsToBePlaced.length <= 1 && 
+        checkIfGameWon(sub)) {
         let cycleDeck = true;
         const allRoyals = ["upperLeftRoyal", "upperMiddleRoyal", "upperRightRoyal",
             "leftUpperRoyal", "leftMiddleRoyal", "leftBottomRoyal",

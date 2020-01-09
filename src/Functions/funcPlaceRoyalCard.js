@@ -1,6 +1,7 @@
 export function placeRoyalCard(hvilkenKnapp) {
   if (this.state.cardsInPlay.royalsToBePlaced[0].value >= 11 && 
-    this.state.cardsInPlay.royalsToBePlaced[0].value <= 13) {
+    this.state.cardsInPlay.royalsToBePlaced[0].value <= 13 &&
+    this.state.cardsInPlay[hvilkenKnapp][0].picture === "empty") {
       let royalsToBePlacedBunke = this.state.cardsInPlay.royalsToBePlaced;
       let bunke = this.state.cardsInPlay[hvilkenKnapp];
       let kort = royalsToBePlacedBunke.shift();

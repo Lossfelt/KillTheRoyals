@@ -69,12 +69,12 @@ class CreateGrid extends React.Component {
         <div />
         <div>
           <button
-            className={this.colorCard("royalsToBePlaced")}
+            className={this.props.cardsInPlay.royalsToBePlaced.length < 2 ? "contenthidden": this.colorCard("royalsToBePlaced")}
             id="royalsToBePlaced"
           >
             {this.backgroundOrPicture(this.props.cardsInPlay.royalsToBePlaced[0].picture)}
           </button>
-          {this.props.cardsInPlay.royalsToBePlaced.length - 1}
+          {this.props.cardsInPlay.royalsToBePlaced.length < 2 ? "":  this.props.cardsInPlay.royalsToBePlaced.length - 1}
         </div>
         <div />
         <div />
