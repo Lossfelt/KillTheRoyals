@@ -9,8 +9,9 @@ import { placeArmorCard } from "../Functions/funcPlaceArmorCard";
 import { placeJoker } from "../Functions/funcPlaceJoker";
 import { placeAce } from "../Functions/funcPlaceAce";
 import { killRoyals } from "../Functions/funcKillRoyals";
-import {placeFirstNineCards} from "../Functions/funcPlaceFirstNineCards";
-import {cycleDeckForRoyal} from "../Functions/funcCycleDeckForRoyal";
+import { placeFirstNineCards } from "../Functions/funcPlaceFirstNineCards";
+import { cycleDeckForRoyal } from "../Functions/funcCycleDeckForRoyal";
+import { replaceOneCard } from "../Functions/funcReplaceOneCard";
 
 class Main extends React.Component {
   constructor(props) {
@@ -21,7 +22,8 @@ class Main extends React.Component {
       jokerInUseBunkeNr1: "none",
       aceInUse: "none",
       checkForDeadRoyals: "none",
-      isSetupPhase: false, //not in use yet
+      isSetupPhase: true,
+      setupPhaseStackToBeReplaced: "none",
       cardsInPlay: {
         leftUpper: [{ value: 0, suit: "", picture: "empty", color: "" }],
         middleUpper: [{ value: 0, suit: "", picture: "empty", color: "" }],
@@ -121,19 +123,25 @@ class Main extends React.Component {
     this.killRoyals = killRoyals.bind(this);
     this.placeFirstNineCards = placeFirstNineCards.bind(this);
     this.cycleDeckForRoyal = cycleDeckForRoyal.bind(this);
+    this.replaceOneCard = replaceOneCard.bind(this);
+    this.replaceOrNot = this.replaceOrNot.bind(this);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.placeFirstNineCards();
   }
 
-  componentDidUpdate(){
-        if (this.state.checkForDeadRoyals !== "none") {
+  componentDidUpdate() {
+    if (this.state.checkForDeadRoyals !== "none") {
       let spotToBeChecked = this.state.checkForDeadRoyals;
       this.setState({ checkForDeadRoyals: "none" });
       this.killRoyals(spotToBeChecked);
     }
     this.cycleDeckForRoyal();
+  }
+
+  replaceOrNot(e) {
+    this.replaceOneCard(e.target.id);
   }
 
   render() {
@@ -153,6 +161,13 @@ class Main extends React.Component {
             jokerInUse={this.state.jokerInUse}
             jokerInUseBunkeNr1={this.state.jokerInUseBunkeNr1}
           />
+        </div>
+        <div className={this.state.isSetupPhase &&
+          this.state.setupPhaseStackToBeReplaced === "none" &&
+          this.state.cardsInPlay.royalsToBePlaced.length <= 1 ? "replaceOneCardBox" : "contenthidden"}>
+          <h5>Do you want to replace one card?</h5>
+          <div id="yes" className="yes" onClick={this.replaceOrNot}>Yes</div>
+          <div id="no" className="no" onClick={this.replaceOrNot}>No</div>
         </div>
       </div>
     );

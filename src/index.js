@@ -9,7 +9,6 @@ ReactDOM.render(<Main />, rootElement);
 TODO
 -----------------------------------------
 cycleDeckForRoyal should work now, also if Joker or Ace on top of deck when no royals
-Make a function that lets you replace one card after the first nine have been placed
 Make function to enforce correct royal-placement
 Make funcCheckIfGameWon display a win-message
 Disable placement and usage of cards when all royals are dead

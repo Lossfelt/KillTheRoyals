@@ -7,7 +7,9 @@ export function cycleDeckForRoyal() {
         kortstokk[0].value === "Joker" || 
         kortstokk[0].value === "A") &&
         this.state.cardsInPlay.royalsToBePlaced.length <= 1 && 
-        checkIfGameWon(sub)) {
+        checkIfGameWon(sub) && 
+        this.state.isSetupPhase === false && 
+        this.state.setupPhaseStackToBeReplaced === "none") {
         let cycleDeck = true;
         const allRoyals = ["upperLeftRoyal", "upperMiddleRoyal", "upperRightRoyal",
             "leftUpperRoyal", "leftMiddleRoyal", "leftBottomRoyal",

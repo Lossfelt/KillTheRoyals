@@ -20,7 +20,6 @@ class CreateGrid extends React.Component {
 
   placeRoyalCard(e) {
     this.props.placeRoyalCard(e.target.id);
-    console.log(e.target.id);
   }
 
   placeArmorCard(e) {

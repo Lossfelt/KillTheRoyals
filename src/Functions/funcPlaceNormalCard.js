@@ -4,8 +4,28 @@ export function placeNormalCard(hvilkenKnapp) {
   let kort = {};
   let sisteKortIBunken = {};
 
+  //This is the replacement of a card during setup
+  if (this.state.setupPhaseStackToBeReplaced === "waiting") {
+    sisteKortIBunken = kortstokk.pop();
+    kort = bunke.shift();
+    kortstokk.push(kort);
+    while(kortstokk[0].value >= 11 || 
+      kortstokk[0].value === "A" || 
+      kortstokk[0].value === "Joker"){
+        kortstokk.push(kortstokk.shift());
+      }
+      bunke.unshift(kortstokk.shift());
+      kortstokk.push(sisteKortIBunken);
+      this.setState({
+        isSetupPhase: false,
+        setupPhaseStackToBeReplaced: "none",
+        deck: kortstokk,
+        hvilkenKnapp: bunke
+      });
+    }
+
   //This is the use of jokers
-  if (
+  else if (
     this.state.jokerInUse !== "none" &&
     this.state.jokerInUseBunkeNr1 !== "none"
   ) {
