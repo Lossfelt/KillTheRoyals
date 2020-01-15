@@ -72,6 +72,7 @@
   z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
   cursor: pointer; /*makes mouse a pointer when hovering over*/
   overflow-y: scroll;
+  border-style: solid;
 }
 
 .contenthidden {
@@ -81,22 +82,27 @@
 .replaceOneCardBox{
   position: absolute;
   width: 200px;
-  height: 120px;
+  height: 130px;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  margin: auto;
+  margin: 15vh auto auto auto;
   background-color: white;
   z-index: 2;
+  border-style: solid;
 }
 
 .replaceOneCardBox > .yes {
   background-color: lightgreen;
+  margin: 1px 10px;
+  cursor: pointer;
 }
 
 .replaceOneCardBox > .no {
   background-color: red;
+  margin: 10px 10px;
+  cursor: pointer;
 }
 
 .backgroundSquare {

@@ -165,8 +165,9 @@ class Main extends React.Component {
         <div className={this.state.isSetupPhase &&
           this.state.setupPhaseStackToBeReplaced === "none" &&
           this.state.cardsInPlay.royalsToBePlaced.length <= 1 ? "replaceOneCardBox" : "contenthidden"}>
-          <h5>Do you want to replace one card?</h5>
+          <h5>Do you want to replace one number-card?</h5>
           <div id="yes" className="yes" onClick={this.replaceOrNot}>Yes</div>
+          <div />
           <div id="no" className="no" onClick={this.replaceOrNot}>No</div>
         </div>
       </div>
