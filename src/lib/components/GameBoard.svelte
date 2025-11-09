@@ -166,7 +166,7 @@
 <style>
 	.game-board {
 		display: grid;
-		grid-template-columns: repeat(7, minmax(0, 1fr));
+		grid-template-columns: repeat(7, minmax(var(--card-width), 1fr));
 		gap: var(--grid-gap);
 		width: 100%;
 		max-width: var(--grid-max-width);
@@ -181,12 +181,14 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		width: 100%;
 		min-height: var(--card-height);
 	}
 
 	.cell.empty {
 		/* Empty cells for spacing */
 		background: transparent;
+		min-height: var(--card-height);
 	}
 
 	/* Mobile optimization */

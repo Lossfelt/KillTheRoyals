@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Card as CardType } from '$lib/types';
+	import CardSVG from './CardSVG.svelte';
 
 	// Props
 	export let card: CardType | undefined = undefined;
@@ -26,9 +27,7 @@
 	aria-label={card ? `${card.value} of ${card.suit}` : 'Empty card slot'}
 >
 	{#if card}
-		<span class="card-symbol no-select">
-			{card.unicode}
-		</span>
+		<CardSVG {card} />
 	{/if}
 
 	{#if showDepth}
@@ -43,14 +42,12 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		width: var(--card-width);
-		height: var(--card-height);
-		min-width: var(--touch-target-min);
-		min-height: var(--touch-target-min);
-		background: var(--color-card);
-		border: 1px solid var(--color-card-border);
-		border-radius: var(--card-radius);
-		box-shadow: var(--shadow-card);
+		width: 100%;
+		min-width: var(--card-width);
+		min-height: var(--card-height);
+		background: transparent;
+		border: none;
+		box-shadow: none;
 		transition: all var(--transition-normal);
 		cursor: pointer;
 		padding: 0;
@@ -59,39 +56,24 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
-	.card-symbol {
-		font-size: var(--card-font-size);
-		line-height: 1;
-	}
-
-	.card-red {
-		color: var(--color-card-red);
-	}
-
-	.card-black {
-		color: var(--color-card-black);
-	}
-
 	.card-empty {
 		background: transparent;
 		border: 2px dashed var(--color-text-muted);
-		box-shadow: none;
+		border-radius: var(--card-radius);
 	}
 
 	.card-active {
-		background: var(--color-active);
-		border-color: var(--color-active-border);
-		box-shadow: var(--shadow-card-hover);
+		filter: brightness(1.2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 		transform: translateY(-2px);
 	}
 
 	.card-clickable:hover:not(:disabled) {
-		box-shadow: var(--shadow-card-hover);
+		filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 		transform: translateY(-2px);
 	}
 
 	.card-clickable:active:not(:disabled) {
-		box-shadow: var(--shadow-card-active);
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
 		transform: translateY(0);
 	}
 
@@ -104,26 +86,18 @@
 		position: absolute;
 		bottom: 2px;
 		right: 4px;
-		font-size: 0.7rem;
+		font-size: 0.6rem;
 		font-weight: bold;
 		color: var(--color-text-muted);
-		background: rgba(255, 255, 255, 0.8);
-		padding: 1px 4px;
-		border-radius: 4px;
+		background: rgba(255, 255, 255, 0.9);
+		padding: 1px 3px;
+		border-radius: 3px;
+		z-index: 10;
 	}
 
 	/* Accessibility: Focus visible */
 	.card:focus-visible {
 		outline: 2px solid var(--color-active-border);
 		outline-offset: 2px;
-	}
-
-	/* Mobile: Ensure touch targets */
-	@media (max-width: 767px) {
-		.card {
-			/* Ensure minimum touch target size */
-			min-width: var(--touch-target-min);
-			min-height: var(--touch-target-min);
-		}
 	}
 </style>
