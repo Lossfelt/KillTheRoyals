@@ -52,18 +52,11 @@
 			🃏
 		</text>
 	{:else}
-		<!-- Top left corner -->
-		<text x="8" y="18" class="corner-value">{getDisplayValue(card.value)}</text>
-		<text x="8" y="32" class="corner-suit">{getSuitSymbol(card.suit)}</text>
+		<!-- Top center - value -->
+		<text x="50" y="35" text-anchor="middle" dominant-baseline="middle" class="corner-value">{getDisplayValue(card.value)}</text>
 
-		<!-- Bottom right corner (rotated) -->
-		<g transform="rotate(180 50 70)">
-			<text x="8" y="18" class="corner-value">{getDisplayValue(card.value)}</text>
-			<text x="8" y="32" class="corner-suit">{getSuitSymbol(card.suit)}</text>
-		</g>
-
-		<!-- Center symbol -->
-		<text x="50" y="70" text-anchor="middle" dominant-baseline="middle" class="center-suit">
+		<!-- Bottom center - suit symbol -->
+		<text x="50" y="105" text-anchor="middle" dominant-baseline="middle" class="center-suit">
 			{getSuitSymbol(card.suit)}
 		</text>
 	{/if}
@@ -76,13 +69,9 @@
 	}
 
 	.corner-value {
-		font-size: 14px;
+		font-size: 50px;
 		font-weight: bold;
 		font-family: serif;
-	}
-
-	.corner-suit {
-		font-size: 12px;
 	}
 
 	.center-suit {
@@ -95,13 +84,11 @@
 
 	/* Color based on card suit */
 	:global(.card-red) .corner-value,
-	:global(.card-red) .corner-suit,
 	:global(.card-red) .center-suit {
 		fill: var(--color-card-red);
 	}
 
 	:global(.card-black) .corner-value,
-	:global(.card-black) .corner-suit,
 	:global(.card-black) .center-suit {
 		fill: var(--color-card-black);
 	}
