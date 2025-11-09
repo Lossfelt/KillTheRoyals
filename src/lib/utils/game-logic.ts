@@ -1,0 +1,546 @@
+/**
+ * Game Logic Utilities - Core game mechanics
+ * All functions are pure (no side effects) and return new state
+ */
+
+import type {
+	Card,
+	CardStack,
+	CardsInPlay,
+	GridPosition,
+	RoyalPosition,
+	ArmorPosition,
+	AcePosition,
+	GameState,
+	Payload
+} from '$lib/types';
+import { FIRING_LINES, ROYAL_ARMOR_PAIRS, DEAD_CARD_UNICODE } from '$lib/types';
+
+/**
+ * Calculate numeric value from card (handles 'A' and 'Joker')
+ */
+function getCardNumericValue(card: Card | undefined): number {
+	if (!card) return 0;
+	if (card.value === 'A') return 1; // Aces have value 1 for combat
+	if (card.value === 'Joker') return 0;
+	return card.value as number;
+}
+
+/**
+ * Check if a royal is dead (has card back symbol)
+ */
+export function isRoyalDead(royal: Card | undefined): boolean {
+	return royal?.unicode === DEAD_CARD_UNICODE;
+}
+
+/**
+ * Check if a card is empty (placeholder card)
+ */
+export function isEmptyCard(card: Card | undefined): boolean {
+	return !card || card.unicode === 'empty' || card.unicode === '';
+}
+
+/**
+ * Get the armor position for a royal position
+ */
+function getArmorPositionForRoyal(royal: RoyalPosition): ArmorPosition {
+	const pair = ROYAL_ARMOR_PAIRS.find((p) => p.royal === royal);
+	if (!pair) throw new Error(`No armor position found for royal: ${royal}`);
+	return pair.armor;
+}
+
+/**
+ * Check if a payload can kill a royal
+ * @param payload - Two cards that form the attack
+ * @param royal - The royal card being attacked
+ * @param armor - Optional armor protecting the royal
+ * @returns true if royal is killed
+ */
+export function canKillRoyal(
+	payload: Payload,
+	royal: Card,
+	armor?: Card
+): boolean {
+	// Can't kill if royal is already dead
+	if (isRoyalDead(royal)) return false;
+
+	// Can't kill with empty payload
+	if (isEmptyCard(payload[0]) || isEmptyCard(payload[1])) return false;
+
+	const payloadValue =
+		getCardNumericValue(payload[0]) + getCardNumericValue(payload[1]);
+	const royalValue = getCardNumericValue(royal);
+	const armorValue = armor && !isEmptyCard(armor) ? getCardNumericValue(armor) : 0;
+	const totalHealth = royalValue + armorValue;
+
+	// Check if payload is strong enough
+	if (payloadValue < totalHealth) return false;
+
+	// Jack (11): Any suit combination works
+	if (royal.value === 11) return true;
+
+	// Queen (12): Same color required
+	if (royal.value === 12) {
+		return payload[0].color === payload[1].color;
+	}
+
+	// King (13): Same suit required
+	if (royal.value === 13) {
+		return payload[0].suit === payload[1].suit;
+	}
+
+	return false;
+}
+
+/**
+ * Kill royals that can be killed from a grid position
+ * Returns updated cardsInPlay with dead royals marked
+ */
+export function killRoyalsFromPosition(
+	position: GridPosition,
+	cardsInPlay: CardsInPlay
+): CardsInPlay {
+	const newCardsInPlay = { ...cardsInPlay };
+	const deadCard: Card = {
+		value: 0 as any,
+		suit: 'spades',
+		unicode: DEAD_CARD_UNICODE,
+		color: 'black'
+	};
+
+	// Get the royals that can be targeted from this position
+	const targetRoyals = FIRING_LINES[position];
+	if (!targetRoyals || targetRoyals.length === 0) return newCardsInPlay;
+
+	// Get the payload cards based on position
+	const payload = getPayloadForPosition(position, cardsInPlay);
+	if (!payload) return newCardsInPlay;
+
+	// Try to kill each targetable royal
+	for (const royalPos of targetRoyals) {
+		const royal = cardsInPlay[royalPos][0];
+		if (!royal || isRoyalDead(royal)) continue;
+
+		const armorPos = getArmorPositionForRoyal(royalPos);
+		const armor = cardsInPlay[armorPos][0];
+
+		if (canKillRoyal(payload, royal, armor)) {
+			// Kill the royal
+			newCardsInPlay[royalPos] = [deadCard, ...newCardsInPlay[royalPos]];
+
+			// Kill the armor too if it exists
+			if (armor && !isEmptyCard(armor)) {
+				newCardsInPlay[armorPos] = [deadCard, ...newCardsInPlay[armorPos]];
+			}
+		}
+	}
+
+	return newCardsInPlay;
+}
+
+/**
+ * Get the payload (2 cards) for a grid position
+ * Returns null if payload cannot be formed
+ */
+function getPayloadForPosition(
+	position: GridPosition,
+	cardsInPlay: CardsInPlay
+): Payload | null {
+	// Mapping of grid positions to their payload card positions
+	// Payload is: [card at adjacent position 1, card at adjacent position 2]
+	const payloadMap: Record<GridPosition, [GridPosition, GridPosition] | null> = {
+		upperLeft: ['upperMiddle', 'middleLeft'],
+		upperMiddle: ['upperLeft', 'upperRight'],
+		upperRight: ['upperMiddle', 'middleRight'],
+		middleLeft: ['upperLeft', 'bottomLeft'],
+		middleMiddle: null, // Center doesn't shoot
+		middleRight: ['upperRight', 'bottomRight'],
+		bottomLeft: ['middleLeft', 'bottomMiddle'],
+		bottomMiddle: ['bottomLeft', 'bottomRight'],
+		bottomRight: ['middleRight', 'bottomMiddle']
+	};
+
+	const payloadPositions = payloadMap[position];
+	if (!payloadPositions) return null;
+
+	const card1 = cardsInPlay[payloadPositions[0]][0];
+	const card2 = cardsInPlay[payloadPositions[1]][0];
+
+	if (!card1 || !card2 || isEmptyCard(card1) || isEmptyCard(card2)) {
+		return null;
+	}
+
+	return [card1, card2];
+}
+
+/**
+ * Check if a numbered card can be placed on a stack
+ */
+export function canPlaceNumberedCard(card: Card, targetStack: CardStack): boolean {
+	// Empty stack can accept any card
+	if (targetStack.length === 0) return true;
+
+	const topCard = targetStack[0];
+	if (!topCard || isEmptyCard(topCard)) return true;
+
+	// Can only place on same or lower value
+	const cardValue = getCardNumericValue(card);
+	const stackValue = getCardNumericValue(topCard);
+
+	return cardValue >= stackValue;
+}
+
+/**
+ * Get the royal position that a royal card should be placed at
+ * Based on similarity rules: same suit > same color > highest value
+ */
+export function getRoyalPlacementPosition(
+	royal: Card,
+	cardsInPlay: CardsInPlay
+): RoyalPosition | null {
+	const royalPositions: RoyalPosition[] = [
+		'upperLeftRoyal',
+		'upperMiddleRoyal',
+		'upperRightRoyal',
+		'leftUpperRoyal',
+		'leftMiddleRoyal',
+		'leftBottomRoyal',
+		'rightUpperRoyal',
+		'rightMiddleRoyal',
+		'rightBottomRoyal',
+		'bottomLeftRoyal',
+		'bottomMiddleRoyal',
+		'bottomRightRoyal'
+	];
+
+	// Find empty royal positions
+	const emptyPositions = royalPositions.filter(
+		(pos) => cardsInPlay[pos].length === 0 || isEmptyCard(cardsInPlay[pos][0])
+	);
+
+	if (emptyPositions.length === 0) return null;
+
+	// If only one empty position, use it
+	if (emptyPositions.length === 1) return emptyPositions[0];
+
+	// Find the grid position with the most similar card
+	const gridPositions: GridPosition[] = [
+		'upperLeft',
+		'upperMiddle',
+		'upperRight',
+		'middleLeft',
+		'middleMiddle',
+		'middleRight',
+		'bottomLeft',
+		'bottomMiddle',
+		'bottomRight'
+	];
+
+	let bestScore = -1;
+	let bestPosition: RoyalPosition | null = null;
+
+	for (const gridPos of gridPositions) {
+		const gridCard = cardsInPlay[gridPos][0];
+		if (!gridCard || isEmptyCard(gridCard)) continue;
+
+		const score = getCardSimilarity(royal, gridCard);
+		if (score > bestScore) {
+			bestScore = score;
+			// Get adjacent royal positions for this grid position
+			const adjacentRoyals = getAdjacentRoyalPositions(gridPos);
+			// Find first empty adjacent royal position
+			const emptyAdjacent = adjacentRoyals.find((rPos) => emptyPositions.includes(rPos));
+			if (emptyAdjacent) {
+				bestPosition = emptyAdjacent;
+			}
+		}
+	}
+
+	// If no similar card found, just use first empty position
+	return bestPosition ?? emptyPositions[0];
+}
+
+/**
+ * Get similarity score between two cards (for royal placement)
+ * Same suit: 3, Same color: 2, Different color: 1
+ */
+function getCardSimilarity(card1: Card, card2: Card): number {
+	if (card1.suit === card2.suit) return 3;
+	if (card1.color === card2.color) return 2;
+	return 1;
+}
+
+/**
+ * Get royal positions adjacent to a grid position
+ */
+function getAdjacentRoyalPositions(gridPos: GridPosition): RoyalPosition[] {
+	const adjacencyMap: Record<GridPosition, RoyalPosition[]> = {
+		upperLeft: ['upperLeftRoyal', 'leftUpperRoyal'],
+		upperMiddle: ['upperMiddleRoyal'],
+		upperRight: ['upperRightRoyal', 'rightUpperRoyal'],
+		middleLeft: ['leftMiddleRoyal'],
+		middleMiddle: [],
+		middleRight: ['rightMiddleRoyal'],
+		bottomLeft: ['bottomLeftRoyal', 'leftBottomRoyal'],
+		bottomMiddle: ['bottomMiddleRoyal'],
+		bottomRight: ['bottomRightRoyal', 'rightBottomRoyal']
+	};
+
+	return adjacencyMap[gridPos] ?? [];
+}
+
+/**
+ * Find the best armor position for a card
+ * Armor must go to lowest-value royal first, with suit/color priority
+ */
+export function getArmorPlacementPosition(
+	armorCard: Card,
+	cardsInPlay: CardsInPlay
+): ArmorPosition | null {
+	const royalArmorPairs = ROYAL_ARMOR_PAIRS;
+
+	// Find royals that are alive and don't have armor yet
+	const eligiblePairs = royalArmorPairs.filter((pair) => {
+		const royal = cardsInPlay[pair.royal][0];
+		const armor = cardsInPlay[pair.armor][0];
+
+		// Royal must be alive
+		if (!royal || isRoyalDead(royal)) return false;
+
+		// Armor slot must be empty
+		if (armor && !isEmptyCard(armor)) return false;
+
+		// Don't make royal invincible (total value > 20 is problematic)
+		const royalValue = getCardNumericValue(royal);
+		const armorValue = getCardNumericValue(armorCard);
+		if (royalValue + armorValue > 20) return false;
+
+		return true;
+	});
+
+	if (eligiblePairs.length === 0) return null;
+
+	// Find lowest value royal
+	let lowestValue = Infinity;
+	let bestPairs: typeof royalArmorPairs = [];
+
+	for (const pair of eligiblePairs) {
+		const royal = cardsInPlay[pair.royal][0];
+		const value = getCardNumericValue(royal);
+
+		if (value < lowestValue) {
+			lowestValue = value;
+			bestPairs = [pair];
+		} else if (value === lowestValue) {
+			bestPairs.push(pair);
+		}
+	}
+
+	// If only one option, return it
+	if (bestPairs.length === 1) return bestPairs[0].armor;
+
+	// Apply suit/color priority
+	for (const pair of bestPairs) {
+		const royal = cardsInPlay[pair.royal][0];
+		if (royal.suit === armorCard.suit) return pair.armor;
+	}
+
+	for (const pair of bestPairs) {
+		const royal = cardsInPlay[pair.royal][0];
+		if (royal.color === armorCard.color) return pair.armor;
+	}
+
+	// If no match, return first option
+	return bestPairs[0].armor;
+}
+
+/**
+ * Check if game is won (all royals dead)
+ */
+export function checkGameWon(cardsInPlay: CardsInPlay): boolean {
+	const royalPositions: RoyalPosition[] = [
+		'upperLeftRoyal',
+		'upperMiddleRoyal',
+		'upperRightRoyal',
+		'leftUpperRoyal',
+		'leftMiddleRoyal',
+		'leftBottomRoyal',
+		'rightUpperRoyal',
+		'rightMiddleRoyal',
+		'rightBottomRoyal',
+		'bottomLeftRoyal',
+		'bottomMiddleRoyal',
+		'bottomRightRoyal'
+	];
+
+	for (const pos of royalPositions) {
+		const royal = cardsInPlay[pos][0];
+		if (royal && !isRoyalDead(royal)) {
+			return false; // Found a living royal
+		}
+	}
+
+	return true; // All royals are dead or not placed
+}
+
+/**
+ * Check if game is lost (deck empty with living royals)
+ */
+export function checkGameLost(deck: Card[], cardsInPlay: CardsInPlay): boolean {
+	// Game is lost if deck is empty and royals still alive
+	if (deck.length > 0) return false;
+
+	return !checkGameWon(cardsInPlay);
+}
+
+/**
+ * Count living royals on the board
+ */
+export function countLivingRoyals(cardsInPlay: CardsInPlay): number {
+	const royalPositions: RoyalPosition[] = [
+		'upperLeftRoyal',
+		'upperMiddleRoyal',
+		'upperRightRoyal',
+		'leftUpperRoyal',
+		'leftMiddleRoyal',
+		'leftBottomRoyal',
+		'rightUpperRoyal',
+		'rightMiddleRoyal',
+		'rightBottomRoyal',
+		'bottomLeftRoyal',
+		'bottomMiddleRoyal',
+		'bottomRightRoyal'
+	];
+
+	let count = 0;
+	for (const pos of royalPositions) {
+		const royal = cardsInPlay[pos][0];
+		if (royal && !isRoyalDead(royal) && !isEmptyCard(royal)) {
+			count++;
+		}
+	}
+
+	return count;
+}
+
+/**
+ * Initialize empty cards in play structure
+ */
+export function createEmptyCardsInPlay(): CardsInPlay {
+	return {
+		// Grid positions (9)
+		upperLeft: [],
+		upperMiddle: [],
+		upperRight: [],
+		middleLeft: [],
+		middleMiddle: [],
+		middleRight: [],
+		bottomLeft: [],
+		bottomMiddle: [],
+		bottomRight: [],
+
+		// Royal positions (12)
+		upperLeftRoyal: [],
+		upperMiddleRoyal: [],
+		upperRightRoyal: [],
+		leftUpperRoyal: [],
+		leftMiddleRoyal: [],
+		leftBottomRoyal: [],
+		rightUpperRoyal: [],
+		rightMiddleRoyal: [],
+		rightBottomRoyal: [],
+		bottomLeftRoyal: [],
+		bottomMiddleRoyal: [],
+		bottomRightRoyal: [],
+
+		// Armor positions (12)
+		upperLeftArmor: [],
+		upperMiddleArmor: [],
+		upperRightArmor: [],
+		leftUpperArmor: [],
+		leftMiddleArmor: [],
+		leftBottomArmor: [],
+		rightUpperArmor: [],
+		rightMiddleArmor: [],
+		rightBottomArmor: [],
+		bottomLeftArmor: [],
+		bottomMiddleArmor: [],
+		bottomRightArmor: [],
+
+		// Special positions
+		joker1: [],
+		joker2: [],
+		ace1: [],
+		ace2: [],
+		ace3: [],
+		ace4: [],
+		royalsToBePlaced: []
+	};
+}
+
+/**
+ * Setup phase: Place first 9 numbered cards on grid
+ * Sets aside royals, aces, and jokers
+ */
+export function setupFirstNineCards(deck: Card[]): {
+	cardsInPlay: CardsInPlay;
+	remainingDeck: Card[];
+	royalsToPlace: Card[];
+	acesToPlace: Card[];
+	jokersToPlace: Card[];
+} {
+	const cardsInPlay = createEmptyCardsInPlay();
+	const gridPositions: GridPosition[] = [
+		'upperLeft',
+		'upperMiddle',
+		'upperRight',
+		'middleLeft',
+		'middleMiddle',
+		'middleRight',
+		'bottomLeft',
+		'bottomMiddle',
+		'bottomRight'
+	];
+
+	const newDeck = [...deck];
+	const royalsToPlace: Card[] = [];
+	const acesToPlace: Card[] = [];
+	const jokersToPlace: Card[] = [];
+
+	let gridIndex = 0;
+
+	while (gridIndex < 9 && newDeck.length > 0) {
+		const card = newDeck.shift()!;
+
+		if (card.value === 'Joker') {
+			jokersToPlace.push(card);
+		} else if (card.value === 'A') {
+			acesToPlace.push(card);
+		} else if (card.value === 11 || card.value === 12 || card.value === 13) {
+			royalsToPlace.push(card);
+		} else {
+			// Numbered card: place on grid
+			cardsInPlay[gridPositions[gridIndex]] = [card];
+			gridIndex++;
+		}
+	}
+
+	// Place aces and jokers in their slots
+	if (jokersToPlace.length > 0) cardsInPlay.joker1 = [jokersToPlace[0]];
+	if (jokersToPlace.length > 1) cardsInPlay.joker2 = [jokersToPlace[1]];
+	if (acesToPlace.length > 0) cardsInPlay.ace1 = [acesToPlace[0]];
+	if (acesToPlace.length > 1) cardsInPlay.ace2 = [acesToPlace[1]];
+	if (acesToPlace.length > 2) cardsInPlay.ace3 = [acesToPlace[2]];
+	if (acesToPlace.length > 3) cardsInPlay.ace4 = [acesToPlace[3]];
+
+	// Place royals in royalsToBePlaced stack
+	cardsInPlay.royalsToBePlaced = royalsToPlace;
+
+	return {
+		cardsInPlay,
+		remainingDeck: newDeck,
+		royalsToPlace,
+		acesToPlace,
+		jokersToPlace
+	};
+}

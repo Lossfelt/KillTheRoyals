@@ -1,0 +1,159 @@
+/* CSS Reset and Base Styles */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+/* CSS Custom Properties (Design Tokens) */
+:root {
+	/* Colors - Light Mode (Physical Card Theme) */
+	--color-bg: #1a472a;
+	--color-bg-secondary: #2d5a3d;
+	--color-card: #ffffff;
+	--color-card-border: #e0e0e0;
+	--color-card-red: #dc143c;
+	--color-card-black: #000000;
+	--color-active: #90ee90;
+	--color-active-border: #32cd32;
+	--color-text: #ffffff;
+	--color-text-muted: #cccccc;
+	--color-button: #4caf50;
+	--color-button-hover: #45a049;
+	--color-modal-overlay: rgba(0, 0, 0, 0.7);
+
+	/* Spacing System */
+	--spacing-xs: 0.25rem; /* 4px */
+	--spacing-sm: 0.5rem; /* 8px */
+	--spacing-md: 1rem; /* 16px */
+	--spacing-lg: 1.5rem; /* 24px */
+	--spacing-xl: 2rem; /* 32px */
+
+	/* Card Dimensions - Mobile First */
+	--card-width: 60px;
+	--card-height: 84px; /* Maintain 2:3 aspect ratio */
+	--card-radius: 6px;
+	--card-font-size: 2.5rem;
+
+	/* Grid Layout */
+	--grid-gap: 0.5rem;
+	--grid-max-width: 90vw;
+
+	/* Shadows */
+	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.24);
+	--shadow-md: 0 2px 4px rgba(0, 0, 0, 0.12), 0 2px 3px rgba(0, 0, 0, 0.24);
+	--shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.12), 0 4px 6px rgba(0, 0, 0, 0.24);
+	--shadow-card: var(--shadow-md);
+	--shadow-card-hover: var(--shadow-lg);
+	--shadow-card-active: var(--shadow-sm);
+
+	/* Transitions */
+	--transition-fast: 0.15s ease;
+	--transition-normal: 0.2s ease;
+	--transition-slow: 0.3s ease;
+
+	/* Touch Target Size (Minimum 44x44px for accessibility) */
+	--touch-target-min: 44px;
+
+	/* Z-index layers */
+	--z-base: 1;
+	--z-card: 10;
+	--z-modal: 100;
+	--z-overlay: 99;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-bg: #0d1b14;
+		--color-bg-secondary: #1a2e21;
+		--color-card: #f8f8f8;
+		--color-text: #e0e0e0;
+		--color-text-muted: #999999;
+		--color-button: #3d8b40;
+		--color-button-hover: #357a38;
+	}
+}
+
+/* Tablet Breakpoint (768px+) */
+@media (min-width: 768px) {
+	:root {
+		--card-width: 70px;
+		--card-height: 98px;
+		--card-font-size: 3rem;
+		--grid-gap: 0.75rem;
+	}
+}
+
+/* Desktop Breakpoint (1024px+) */
+@media (min-width: 1024px) {
+	:root {
+		--card-width: 80px;
+		--card-height: 112px;
+		--card-font-size: 3.5rem;
+		--grid-gap: 1rem;
+		--grid-max-width: 800px;
+	}
+}
+
+/* Body Styles */
+html,
+body {
+	width: 100%;
+	min-height: 100vh;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	background-color: var(--color-bg);
+	color: var(--color-text);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	overflow-x: hidden;
+}
+
+/* Accessibility: Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* Focus Styles for Accessibility */
+:focus-visible {
+	outline: 2px solid var(--color-active-border);
+	outline-offset: 2px;
+}
+
+/* Button Reset */
+button {
+	font-family: inherit;
+	cursor: pointer;
+	border: none;
+	background: none;
+	color: inherit;
+}
+
+/* Utility Classes */
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
+
+.no-select {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
