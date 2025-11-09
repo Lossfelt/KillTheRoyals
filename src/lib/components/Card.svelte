@@ -9,6 +9,7 @@
 	export let clickable: boolean = true;
 	export let empty: boolean = false;
 	export let onclick: (() => void) | undefined = undefined;
+	export let slotType: 'royal' | 'armor' | 'joker' | 'ace' | 'grid' | undefined = undefined;
 
 	$: cardColor = card ? card.color : 'black';
 	$: showDepth = stackDepth > 1;
@@ -28,6 +29,65 @@
 >
 	{#if card}
 		<CardSVG {card} />
+	{:else}
+		<!-- Empty slot placeholder -->
+		<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" class="card-svg empty-slot">
+			<rect
+				width="100"
+				height="140"
+				rx="4"
+				fill="transparent"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-dasharray="5,5"
+				opacity="0.3"
+			/>
+
+			{#if slotType === 'royal'}
+				<!-- Profile face for royal cards -->
+				<g opacity="0.2" fill="currentColor">
+					<circle cx="50" cy="55" r="18" />
+					<ellipse cx="50" cy="75" rx="25" ry="15" />
+				</g>
+			{:else if slotType === 'armor'}
+				<!-- Shield for armor -->
+				<path
+					d="M 50 30 L 70 40 L 70 70 Q 70 90 50 110 Q 30 90 30 70 L 30 40 Z"
+					fill="transparent"
+					stroke="currentColor"
+					stroke-width="3"
+					opacity="0.2"
+				/>
+			{:else if slotType === 'joker'}
+				<!-- Large "J" for joker -->
+				<text
+					x="50"
+					y="85"
+					text-anchor="middle"
+					dominant-baseline="middle"
+					font-size="60"
+					font-weight="bold"
+					fill="currentColor"
+					opacity="0.15"
+				>
+					J
+				</text>
+			{:else if slotType === 'ace'}
+				<!-- Large "A" for ace -->
+				<text
+					x="50"
+					y="85"
+					text-anchor="middle"
+					dominant-baseline="middle"
+					font-size="60"
+					font-weight="bold"
+					fill="currentColor"
+					opacity="0.15"
+				>
+					A
+				</text>
+			{/if}
+		</svg>
 	{/if}
 
 	{#if showDepth}
@@ -58,8 +118,12 @@
 
 	.card-empty {
 		background: transparent;
-		border: 2px dashed var(--color-text-muted);
-		border-radius: var(--card-radius);
+		color: var(--color-text-muted);
+	}
+
+	.empty-slot {
+		width: 100%;
+		height: 100%;
 	}
 
 	.card-active {
