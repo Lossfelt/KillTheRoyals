@@ -47,10 +47,12 @@
 	<rect width="100" height="140" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1" filter="url(#shadow)" />
 
 	{#if card.suit === 'joker'}
-		<!-- Joker card - special design -->
-		<text x="50" y="75" text-anchor="middle" dominant-baseline="middle" class="joker-text">
-			🃏
-		</text>
+		<!-- Joker card - diagonal text -->
+		<g transform="rotate(45 50 70)">
+			<text x="50" y="70" text-anchor="middle" dominant-baseline="middle" class="joker-text">
+				JOKER
+			</text>
+		</g>
 	{:else}
 		<!-- Top center - value -->
 		<text x="50" y="35" text-anchor="middle" dominant-baseline="middle" class="corner-value">{getDisplayValue(card.value)}</text>
@@ -79,7 +81,11 @@
 	}
 
 	.joker-text {
-		font-size: 60px;
+		font-size: 28px;
+		font-weight: bold;
+		font-family: sans-serif;
+		letter-spacing: 2px;
+		fill: #9b59b6; /* Purple color for joker */
 	}
 
 	/* Color based on card suit */
