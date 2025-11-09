@@ -166,13 +166,15 @@
 <style>
 	.game-board {
 		display: grid;
-		grid-template-columns: repeat(7, 1fr);
+		grid-template-columns: repeat(7, minmax(0, 1fr));
 		gap: var(--grid-gap);
+		width: 100%;
 		max-width: var(--grid-max-width);
 		margin: 0 auto;
-		padding: var(--spacing-md);
+		padding: var(--spacing-sm);
 		background-color: var(--color-bg-secondary);
 		border-radius: calc(var(--card-radius) * 2);
+		box-sizing: border-box;
 	}
 
 	.cell {
@@ -190,8 +192,15 @@
 	/* Mobile optimization */
 	@media (max-width: 767px) {
 		.game-board {
-			gap: var(--spacing-xs);
-			padding: var(--spacing-sm);
+			padding: 0.25rem;
+			border-radius: var(--card-radius);
+		}
+	}
+
+	/* Tablet and up */
+	@media (min-width: 768px) {
+		.game-board {
+			padding: var(--spacing-md);
 		}
 	}
 </style>
