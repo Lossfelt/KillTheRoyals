@@ -138,6 +138,7 @@ export interface GameState {
 	isSetupPhase: boolean;
 	setupPhaseReplaceMode: boolean; // Waiting for user to choose card to replace
 	alternativeRoyalPositions: RoyalPosition[]; // Available positions for player to choose when placing royal
+	canPlaceTopCardOnGrid: boolean; // Whether the top card in deck can be placed on any grid position
 	gameStatus: GameStatus;
 }
 

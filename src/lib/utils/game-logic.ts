@@ -33,10 +33,11 @@ export function isRoyalDead(royal: Card | undefined): boolean {
 }
 
 /**
- * Check if a card is empty (placeholder card) or dead
+ * Check if a card is empty (placeholder card)
+ * Note: Dead royals are NOT considered empty - they occupy the position permanently
  */
 export function isEmptyCard(card: Card | undefined): boolean {
-	return !card || card.unicode === 'empty' || card.unicode === '' || card.value === 'DEAD';
+	return !card || card.unicode === 'empty' || card.unicode === '';
 }
 
 /**
@@ -177,6 +178,32 @@ export function canPlaceNumberedCard(card: Card, targetStack: CardStack): boolea
 }
 
 /**
+ * Check if a numbered card can be placed on any grid position
+ */
+export function canPlaceCardOnGrid(card: Card, cardsInPlay: CardsInPlay): boolean {
+	// Only numbered cards (2-10) can be placed on grid
+	const cardValue = card.value;
+	if (typeof cardValue !== 'number' || cardValue < 2 || cardValue > 10) {
+		return false;
+	}
+
+	const gridPositions: GridPosition[] = [
+		'upperLeft',
+		'upperMiddle',
+		'upperRight',
+		'middleLeft',
+		'middleMiddle',
+		'middleRight',
+		'bottomLeft',
+		'bottomMiddle',
+		'bottomRight'
+	];
+
+	// Check if card can be placed on at least one grid position
+	return gridPositions.some((pos) => canPlaceNumberedCard(card, cardsInPlay[pos]));
+}
+
+/**
  * Get the royal position(s) that a royal card should be placed at
  * Based on game rules:
  * 1. Highest value card of the same suit
@@ -203,10 +230,11 @@ export function getRoyalPlacementPosition(
 		'bottomRightRoyal'
 	];
 
-	// Find empty royal positions
-	const emptyPositions = royalPositions.filter(
-		(pos) => cardsInPlay[pos].length === 0 || isEmptyCard(cardsInPlay[pos][0])
-	);
+	// Find empty royal positions (excluding dead royals)
+	const emptyPositions = royalPositions.filter((pos) => {
+		const card = cardsInPlay[pos][0];
+		return (cardsInPlay[pos].length === 0 || isEmptyCard(card)) && !isRoyalDead(card);
+	});
 
 	if (emptyPositions.length === 0) return [];
 

@@ -3,6 +3,7 @@
 		gameState,
 		placeNumberedCard,
 		placeRoyalCard,
+		placeArmorCard,
 		selectRoyalPosition,
 		activateAce,
 		activateJoker,
@@ -72,9 +73,9 @@
 		return $gameState.alternativeRoyalPositions.includes(position);
 	}
 
-	// Handle clicks on the deck (for placing royals during gameplay)
+	// Handle clicks on the deck (for placing royals or armor during gameplay)
 	function handleDeckClick() {
-		// Only handle if not in setup phase and top card is a royal
+		// Only handle if not in setup phase
 		if ($gameState.isSetupPhase) return;
 
 		const topCard = $gameState.deck[0];
@@ -83,21 +84,44 @@
 		// Check if top card is a royal (Jack, Queen, or King)
 		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
 			placeRoyalCard();
+			return;
+		}
+
+		// Check if top card cannot be placed on grid -> place as armor (only for numbered cards 2-10)
+		if (!$gameState.canPlaceTopCardOnGrid && typeof topCard.value === 'number' && topCard.value >= 2 && topCard.value <= 10) {
+			placeArmorCard();
 		}
 	}
 
-	// Check if deck card should be clickable (when it's a royal during gameplay)
+	// Check if deck card should be clickable (royal or armor placement needed)
 	function isDeckClickable(): boolean {
 		if ($gameState.isSetupPhase) return false;
 		const topCard = $gameState.deck[0];
 		if (!topCard) return false;
-		return topCard.value === 11 || topCard.value === 12 || topCard.value === 13;
+
+		// Clickable if royal
+		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
+			return true;
+		}
+
+		// Clickable if numbered card (2-10) that cannot be placed on grid (needs armor)
+		if (typeof topCard.value === 'number' && topCard.value >= 2 && topCard.value <= 10 && !$gameState.canPlaceTopCardOnGrid) {
+			return true;
+		}
+
+		return false;
 	}
 </script>
 
 {#if $gameState.isSetupPhase && $gameState.setupPhaseReplaceMode}
 	<div class="replace-mode-indicator">
 		Klikk på et nummerkort for å bytte det ut
+	</div>
+{/if}
+
+{#if !$gameState.isSetupPhase && !$gameState.canPlaceTopCardOnGrid && $gameState.deck[0] && typeof $gameState.deck[0].value === 'number' && $gameState.deck[0].value >= 2 && $gameState.deck[0].value <= 10}
+	<div class="armor-placement-indicator">
+		Klikk på kortstokken for å plassere som armor
 	</div>
 {/if}
 
@@ -412,6 +436,18 @@
 
 	.replace-mode-indicator {
 		background-color: var(--color-button);
+		color: white;
+		padding: var(--spacing-md);
+		border-radius: var(--card-radius);
+		text-align: center;
+		font-weight: 600;
+		margin-bottom: var(--spacing-md);
+		box-shadow: var(--shadow-md);
+		animation: pulse 2s ease-in-out infinite;
+	}
+
+	.armor-placement-indicator {
+		background-color: #ff9800; /* Orange to indicate action needed */
 		color: white;
 		padding: var(--spacing-md);
 		border-radius: var(--card-radius);

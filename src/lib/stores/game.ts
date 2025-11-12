@@ -19,9 +19,12 @@ import {
 	getRoyalPlacementPosition,
 	getArmorPlacementPosition,
 	canPlaceNumberedCard,
+	canPlaceCardOnGrid,
 	checkGameWon,
 	checkGameLost,
-	countLivingRoyals
+	countLivingRoyals,
+	isRoyalDead,
+	isEmptyCard
 } from '$lib/utils/game-logic';
 
 /**
@@ -40,6 +43,7 @@ function createInitialGameState(): GameState {
 		isSetupPhase: true,
 		setupPhaseReplaceMode: false,
 		alternativeRoyalPositions: [],
+		canPlaceTopCardOnGrid: true, // During setup, this is not applicable yet
 		gameStatus: 'setup'
 	};
 }
@@ -62,6 +66,24 @@ export const topDeckCard = derived(gameState, ($state) => $state.deck[0] ?? null
 export const hasJokerActive = derived(gameState, ($state) => $state.jokerInUse !== null);
 
 export const hasAceActive = derived(gameState, ($state) => $state.aceInUse !== null);
+
+/**
+ * Helper: Update whether the top card can be placed on grid
+ * This should be called after any card placement or deck change
+ */
+function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
+	const topCard = state.deck[0];
+
+	// If no card in deck, or in setup phase, keep as true
+	if (!topCard || state.isSetupPhase) {
+		return { ...state, canPlaceTopCardOnGrid: true };
+	}
+
+	// Check if top card can be placed on grid
+	const canPlace = canPlaceCardOnGrid(topCard, state.cardsInPlay);
+
+	return { ...state, canPlaceTopCardOnGrid: canPlace };
+}
 
 // Action: Restart the game
 export function restartGame() {
@@ -167,12 +189,15 @@ export function placeNumberedCard(position: GridPosition) {
 		const won = checkGameWon(updatedCardsInPlay);
 		const lost = checkGameLost(newDeck, updatedCardsInPlay);
 
-		return {
+		const newState = {
 			...state,
 			deck: newDeck,
 			cardsInPlay: updatedCardsInPlay,
 			gameStatus: won ? 'won' : lost ? 'lost' : 'playing'
 		};
+
+		// Update whether top card can be placed on grid
+		return updateCanPlaceTopCardOnGrid(newState);
 	});
 }
 
@@ -239,6 +264,20 @@ function placeRoyalAtPosition(state: GameState, position: RoyalPosition): GameSt
 
 	if (!royal) return state;
 
+	// Validate that the position is safe to place a royal
+	const currentCard = state.cardsInPlay[position][0];
+	if (currentCard && !isEmptyCard(currentCard)) {
+		// Position is occupied by a real card
+		if (isRoyalDead(currentCard)) {
+			// Cannot place a royal on a dead royal
+			console.warn(`Cannot place royal at ${position}: position contains a dead royal`);
+			return state;
+		}
+		// Position is occupied by another card (shouldn't happen in normal gameplay)
+		console.warn(`Cannot place royal at ${position}: position is occupied`);
+		return state;
+	}
+
 	// Place the royal
 	let newDeck = state.deck;
 	let newRoyalsToBePlaced = state.cardsInPlay.royalsToBePlaced;
@@ -255,12 +294,15 @@ function placeRoyalAtPosition(state: GameState, position: RoyalPosition): GameSt
 		royalsToBePlaced: newRoyalsToBePlaced
 	};
 
-	return {
+	const newState = {
 		...state,
 		deck: newDeck,
 		cardsInPlay: newCardsInPlay,
 		alternativeRoyalPositions: [] // Clear alternatives
 	};
+
+	// Update whether top card can be placed on grid
+	return updateCanPlaceTopCardOnGrid(newState);
 }
 
 // Action: Place an armor card (automatically placed on lowest-value royal)
@@ -286,11 +328,14 @@ export function placeArmorCard() {
 			[position]: [card]
 		};
 
-		return {
+		const newState = {
 			...state,
 			deck: newDeck,
 			cardsInPlay: newCardsInPlay
 		};
+
+		// Update whether top card can be placed on grid
+		return updateCanPlaceTopCardOnGrid(newState);
 	});
 }
 
@@ -326,12 +371,15 @@ export function useAce(stackPosition: GridPosition) {
 			[state.aceInUse]: []
 		};
 
-		return {
+		const newState = {
 			...state,
 			deck: newDeck,
 			cardsInPlay: newCardsInPlay,
 			aceInUse: null
 		};
+
+		// Update whether top card can be placed on grid
+		return updateCanPlaceTopCardOnGrid(newState);
 	});
 }
 
@@ -404,12 +452,15 @@ export function useJoker(targetPosition: GridPosition) {
 			newCardsInPlay[jokerPos] = [];
 		}
 
-		return {
+		const newState = {
 			...state,
 			cardsInPlay: newCardsInPlay,
 			jokerInUse: null,
 			jokerSourceStack: null
 		};
+
+		// Update whether top card can be placed on grid
+		return updateCanPlaceTopCardOnGrid(newState);
 	});
 }
 
