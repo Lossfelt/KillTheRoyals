@@ -68,6 +68,14 @@ export function restartGame() {
 	gameState.set(createInitialGameState());
 }
 
+// Action: Enable card replacement mode during setup
+export function enableReplaceMode() {
+	gameState.update((state) => ({
+		...state,
+		setupPhaseReplaceMode: true
+	}));
+}
+
 // Action: Complete setup phase (either by replacing card or skipping)
 export function completeSetup(replaceCard: boolean, position?: GridPosition) {
 	gameState.update((state) => {

@@ -9,6 +9,7 @@
 	export let clickable: boolean = true;
 	export let empty: boolean = false;
 	export let alternative: boolean = false; // Golden glow for alternative royal positions
+	export let dimmed: boolean = false; // Lower opacity when disabled/waiting
 	export let onclick: (() => void) | undefined = undefined;
 	export let slotType: 'royal' | 'armor' | 'joker' | 'ace' | 'grid' | undefined = undefined;
 
@@ -24,6 +25,7 @@
 	class:card-clickable={clickable}
 	class:card-empty={empty}
 	class:card-alternative={alternative}
+	class:card-dimmed={dimmed}
 	on:click={onclick}
 	disabled={!clickable}
 	type="button"
@@ -137,6 +139,11 @@
 	.card:disabled {
 		cursor: default;
 		opacity: 0.9;
+	}
+
+	.card-dimmed {
+		opacity: 0.4;
+		pointer-events: none;
 	}
 
 	.card-alternative {
