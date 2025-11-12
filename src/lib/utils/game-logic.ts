@@ -166,7 +166,11 @@ export function canPlaceNumberedCard(card: Card, targetStack: CardStack): boolea
 
 /**
  * Get the royal position that a royal card should be placed at
- * Based on similarity rules: same suit > same color > highest value
+ * Based on game rules:
+ * 1. Highest value card of the same suit
+ * 2. If no suit match: Highest of same color
+ * 3. If no color match: Highest value
+ * 4. If tied: Player can choose (we auto-select first available)
  */
 export function getRoyalPlacementPosition(
 	royal: Card,
@@ -197,70 +201,82 @@ export function getRoyalPlacementPosition(
 	// If only one empty position, use it
 	if (emptyPositions.length === 1) return emptyPositions[0];
 
-	// Find the grid position with the most similar card
-	const gridPositions: GridPosition[] = [
-		'upperLeft',
-		'upperMiddle',
-		'upperRight',
-		'middleLeft',
-		'middleMiddle',
-		'middleRight',
-		'bottomLeft',
-		'bottomMiddle',
-		'bottomRight'
-	];
-
-	let bestScore = -1;
-	let bestPosition: RoyalPosition | null = null;
-
-	for (const gridPos of gridPositions) {
-		const gridCard = cardsInPlay[gridPos][0];
-		if (!gridCard || isEmptyCard(gridCard)) continue;
-
-		const score = getCardSimilarity(royal, gridCard);
-		if (score > bestScore) {
-			bestScore = score;
-			// Get adjacent royal positions for this grid position
-			const adjacentRoyals = getAdjacentRoyalPositions(gridPos);
-			// Find first empty adjacent royal position
-			const emptyAdjacent = adjacentRoyals.find((rPos) => emptyPositions.includes(rPos));
-			if (emptyAdjacent) {
-				bestPosition = emptyAdjacent;
-			}
-		}
-	}
-
-	// If no similar card found, just use first empty position
-	return bestPosition ?? emptyPositions[0];
-}
-
-/**
- * Get similarity score between two cards (for royal placement)
- * Same suit: 3, Same color: 2, Different color: 1
- */
-function getCardSimilarity(card1: Card, card2: Card): number {
-	if (card1.suit === card2.suit) return 3;
-	if (card1.color === card2.color) return 2;
-	return 1;
-}
-
-/**
- * Get royal positions adjacent to a grid position
- */
-function getAdjacentRoyalPositions(gridPos: GridPosition): RoyalPosition[] {
-	const adjacencyMap: Record<GridPosition, RoyalPosition[]> = {
-		upperLeft: ['upperLeftRoyal', 'leftUpperRoyal'],
-		upperMiddle: ['upperMiddleRoyal'],
-		upperRight: ['upperRightRoyal', 'rightUpperRoyal'],
-		middleLeft: ['leftMiddleRoyal'],
-		middleMiddle: [],
-		middleRight: ['rightMiddleRoyal'],
-		bottomLeft: ['bottomLeftRoyal', 'leftBottomRoyal'],
-		bottomMiddle: ['bottomMiddleRoyal'],
-		bottomRight: ['bottomRightRoyal', 'rightBottomRoyal']
+	// For each empty royal position, evaluate the "best" adjacent grid card
+	// and rank positions based on: same suit highest value > same color highest > highest value
+	type PositionScore = {
+		position: RoyalPosition;
+		priority: number; // 3 = same suit, 2 = same color, 1 = other
+		value: number;
 	};
 
-	return adjacencyMap[gridPos] ?? [];
+	const positionScores: PositionScore[] = [];
+
+	for (const emptyPos of emptyPositions) {
+		// Get adjacent grid positions for this royal position
+		const adjacentGrids = getGridPositionsAdjacentToRoyal(emptyPos);
+
+		let bestPriority = 0;
+		let bestValue = -1;
+
+		// Find the best adjacent grid card
+		for (const gridPos of adjacentGrids) {
+			const gridCard = cardsInPlay[gridPos][0];
+			if (!gridCard || isEmptyCard(gridCard)) continue;
+
+			const value = getCardNumericValue(gridCard);
+			let priority = 1; // other
+
+			if (gridCard.suit === royal.suit) {
+				priority = 3; // same suit
+			} else if (gridCard.color === royal.color) {
+				priority = 2; // same color
+			}
+
+			// Update best if this card is better
+			if (priority > bestPriority || (priority === bestPriority && value > bestValue)) {
+				bestPriority = priority;
+				bestValue = value;
+			}
+		}
+
+		// Record the score for this position
+		positionScores.push({
+			position: emptyPos,
+			priority: bestPriority,
+			value: bestValue
+		});
+	}
+
+	// Sort by priority (descending), then by value (descending)
+	positionScores.sort((a, b) => {
+		if (a.priority !== b.priority) return b.priority - a.priority;
+		return b.value - a.value;
+	});
+
+	// Return the best position
+	return positionScores[0].position;
+}
+
+/**
+ * Get grid positions adjacent to a royal position
+ */
+function getGridPositionsAdjacentToRoyal(royalPos: RoyalPosition): GridPosition[] {
+	const adjacencyMap: Record<RoyalPosition, GridPosition[]> = {
+		upperLeftRoyal: ['upperLeft'],
+		upperMiddleRoyal: ['upperMiddle'],
+		upperRightRoyal: ['upperRight'],
+		leftUpperRoyal: ['upperLeft'],
+		leftMiddleRoyal: ['middleLeft'],
+		leftBottomRoyal: ['bottomLeft'],
+		rightUpperRoyal: ['upperRight'],
+		rightMiddleRoyal: ['middleRight'],
+		rightBottomRoyal: ['bottomRight'],
+		bottomLeftRoyal: ['bottomLeft'],
+		bottomMiddleRoyal: ['bottomMiddle'],
+		bottomRightRoyal: ['bottomRight']
+	};
+
+	return adjacencyMap[royalPos] ?? [];
 }
 
 /**

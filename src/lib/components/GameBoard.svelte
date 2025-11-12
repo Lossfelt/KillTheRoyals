@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { gameState, placeNumberedCard, activateAce, activateJoker } from '$lib/stores/game';
+	import {
+		gameState,
+		placeNumberedCard,
+		placeRoyalCard,
+		activateAce,
+		activateJoker
+	} from '$lib/stores/game';
 	import Card from './Card.svelte';
 	import type { GridPosition, AcePosition, JokerPosition } from '$lib/types';
 
@@ -23,6 +29,13 @@
 	function handleJokerClick(position: JokerPosition) {
 		activateJoker(position);
 	}
+
+	function handleRoyalClick() {
+		// Place royal from royalsToBePlaced stack
+		if ($gameState.cardsInPlay.royalsToBePlaced.length > 0) {
+			placeRoyalCard();
+		}
+	}
 </script>
 
 <div class="game-board">
@@ -36,7 +49,8 @@
 	<Card
 		card={$gameState.cardsInPlay.royalsToBePlaced[0]}
 		stackDepth={$gameState.cardsInPlay.royalsToBePlaced.length}
-		clickable={false}
+		clickable={$gameState.cardsInPlay.royalsToBePlaced.length > 0}
+		onclick={handleRoyalClick}
 		slotType="royal"
 	/>
 
@@ -144,36 +158,42 @@
 	<Card
 		card={$gameState.cardsInPlay.joker1[0]}
 		active={$gameState.jokerInUse !== null}
+		clickable={!!$gameState.cardsInPlay.joker1[0]}
 		onclick={() => handleJokerClick('joker1')}
 		slotType="joker"
 	/>
 	<Card
 		card={$gameState.cardsInPlay.joker2[0]}
 		active={$gameState.jokerInUse !== null}
+		clickable={!!$gameState.cardsInPlay.joker2[0]}
 		onclick={() => handleJokerClick('joker2')}
 		slotType="joker"
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace1[0]}
 		active={$gameState.aceInUse === 'ace1'}
+		clickable={!!$gameState.cardsInPlay.ace1[0]}
 		onclick={() => handleAceClick('ace1')}
 		slotType="ace"
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace2[0]}
 		active={$gameState.aceInUse === 'ace2'}
+		clickable={!!$gameState.cardsInPlay.ace2[0]}
 		onclick={() => handleAceClick('ace2')}
 		slotType="ace"
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace3[0]}
 		active={$gameState.aceInUse === 'ace3'}
+		clickable={!!$gameState.cardsInPlay.ace3[0]}
 		onclick={() => handleAceClick('ace3')}
 		slotType="ace"
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace4[0]}
 		active={$gameState.aceInUse === 'ace4'}
+		clickable={!!$gameState.cardsInPlay.ace4[0]}
 		onclick={() => handleAceClick('ace4')}
 		slotType="ace"
 	/>

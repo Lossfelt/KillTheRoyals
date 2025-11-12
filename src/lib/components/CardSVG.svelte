@@ -3,17 +3,6 @@
 
 	export let card: Card;
 
-	// SVG paths for card suits
-	const suitPaths: Record<string, string> = {
-		hearts:
-			'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
-		diamonds: 'M12 2L2 12l10 10 10-10L12 2z',
-		clubs:
-			'M12 2C10.34 2 9 3.34 9 5c0 1.31.84 2.41 2 2.83V9H9c-1.66 0-3 1.34-3 3s1.34 3 3 3h2v2h2v-2h2c1.66 0 3-1.34 3-3s-1.34-3-3-3h-2V7.83c1.16-.42 2-1.52 2-2.83 0-1.66-1.34-3-3-3z',
-		spades:
-			'M12 2L3 12h3v3c0 1.66 1.34 3 3 3h6c1.66 0 3-1.34 3-3v-3h3L12 2z'
-	};
-
 	// Get suit display value
 	function getSuitSymbol(suit: string): string {
 		const symbols: Record<string, string> = {

@@ -132,16 +132,6 @@
 		transform: translateY(-2px);
 	}
 
-	.card-clickable:hover:not(:disabled) {
-		filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-		transform: translateY(-2px);
-	}
-
-	.card-clickable:active:not(:disabled) {
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-		transform: translateY(0);
-	}
-
 	.card:disabled {
 		cursor: default;
 		opacity: 0.9;
