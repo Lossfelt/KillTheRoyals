@@ -47,7 +47,6 @@ Each turn, draw **one card** from the deck and follow the rules based on card ty
 #### Royal Cards (Jack, Queen, King)
 - Use the **royal placement rule** (see Setup step 2)
 - Cannot be placed directly on the grid
-- Must go in positions **outside** the 3×3 grid
 
 #### Numbered Cards (2-10)
 - **Must** be placed on the grid
@@ -119,6 +118,7 @@ If you **can't play a card** on the grid (no valid positions), you can add it as
 3. Armor **increases the royal's health** by the card's value
    - Example: King (13) + 3♠ armor = **16 total health**
 4. You **cannot** make a royal invincible (armor limit applies)
+  - Highest payload is 10+10, so royal + armor cannot exceed 20
 
 ### Armor in Combat
 
@@ -204,56 +204,6 @@ You draw a card that:
 ### 2. Deck Runs Out
 
 Your deck is empty AND you don't have any unused Aces to continue playing.
-
----
-
-## Strategy Tips
-
-### General Tips
-1. **Plan your payloads** - Think ahead about which cards will create killing combinations
-2. **Save your Aces and Jokers** - Only use them when absolutely necessary (they're your score!)
-3. **Manage your stacks** - Try to keep multiple stacks buildable
-4. **Watch armor placement** - Don't let armor make royals too strong
-
-### Setup Phase
-- **Consider card replacement carefully** - Removing a high card might help, but you lose it from the deck
-- **Look for immediate threats** - Are any royals already adjacent to strong payloads?
-
-### Combat Priority
-1. **Kill weak royals first** - Jacks are easiest (any suits)
-2. **Prevent armor stacking** - Try to kill royals before they get too much armor
-3. **Use color/suit matching** - Plan your plays to match Queen/King requirements
-
-### Special Ability Usage
-- **Aces:** Use to clear high-value stacks that are blocking other plays
-- **Jokers:** Use to create suit/color matches for Queens and Kings
-
-### Emergency Tactics
-- If you're about to lose, use all your Aces and Jokers to survive
-- Sometimes it's better to armor a royal than to lose immediately
-- Remember: Auto-cycle will help if no royals are on the board
-
----
-
-## Quick Reference
-
-### Card Values
-- **2-10:** Numbered cards (can stack, create payloads)
-- **Jack (J):** 11 health, any suits
-- **Queen (Q):** 12 health, same color required
-- **King (K):** 13 health, same suit required
-- **Ace (A):** Special ability - remove stack
-- **Joker:** Special ability - move card
-
-### Valid Card Placements
-- **Numbered:** On grid, on card with ≤ value
-- **Royal:** Outside grid, by similarity rule
-- **Armor:** On royal, lowest value first
-- **Ace/Joker:** Bottom row only
-
-### Win/Loss
-- **Win:** All 12 royals killed
-- **Loss:** Can't play card, or deck empty with no Aces
 
 ---
 

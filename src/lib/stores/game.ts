@@ -3,19 +3,16 @@
  * Central state for the entire game
  */
 
-import { writable, derived, get } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import type {
 	GameState,
 	Card,
 	GridPosition,
-	RoyalPosition,
-	ArmorPosition,
 	AcePosition,
 	JokerPosition
 } from '$lib/types';
 import { createShuffledDeck } from '$lib/utils/deck';
 import {
-	createEmptyCardsInPlay,
 	setupFirstNineCards,
 	killRoyalsFromPosition,
 	getRoyalPlacementPosition,
@@ -82,12 +79,33 @@ export function completeSetup(replaceCard: boolean, position?: GridPosition) {
 			};
 		}
 
-		// Replace the card
+		// Replace the card (based on legacy funcPlaceNormalCard logic)
 		const card = state.cardsInPlay[position][0];
 		if (!card) return state;
 
-		const newDeck = [...state.deck, card]; // Add to bottom of deck
-		const newCard = newDeck.shift()!; // Draw new card
+		const newDeck = [...state.deck];
+		const lastCard = newDeck.pop(); // Save last card
+		newDeck.push(card); // Add replaced card to deck
+
+		// Cycle through deck until we find a numbered card (value < 11, not A, not Joker)
+		while (
+			newDeck.length > 0 &&
+			((typeof newDeck[0].value === 'number' && newDeck[0].value >= 11) ||
+				newDeck[0].value === 'A' ||
+				newDeck[0].value === 'Joker')
+		) {
+			const cycledCard = newDeck.shift()!;
+			newDeck.push(cycledCard);
+		}
+
+		// Take the numbered card from top
+		const newCard = newDeck.shift()!;
+
+		// Add the last card back to bottom of deck
+		if (lastCard) {
+			newDeck.push(lastCard);
+		}
+
 		const newCardsInPlay = {
 			...state.cardsInPlay,
 			[position]: [newCard]
@@ -109,6 +127,16 @@ export function placeNumberedCard(position: GridPosition) {
 	gameState.update((state) => {
 		const card = state.deck[0];
 		if (!card) return state;
+
+		// Legacy condition check: deck must have cards, all royals must be placed, card must be numbered
+		if (
+			state.deck.length === 0 ||
+			state.cardsInPlay.royalsToBePlaced.length > 0 ||
+			typeof card.value !== 'number' ||
+			card.value >= 11
+		) {
+			return state; // Cannot place
+		}
 
 		// Check if placement is valid
 		if (!canPlaceNumberedCard(card, state.cardsInPlay[position])) {
@@ -336,7 +364,7 @@ export function cycleDeckForRoyal() {
 		if (livingRoyals > 0) return state; // Royals exist, don't cycle
 
 		// Find next royal in deck
-		let cycledCards: Card[] = [];
+		const cycledCards: Card[] = [];
 		let foundRoyal = false;
 		let newDeck = [...state.deck];
 

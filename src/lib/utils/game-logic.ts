@@ -10,11 +10,9 @@ import type {
 	GridPosition,
 	RoyalPosition,
 	ArmorPosition,
-	AcePosition,
-	GameState,
 	Payload
 } from '$lib/types';
-import { FIRING_LINES, ROYAL_ARMOR_PAIRS, DEAD_CARD_UNICODE } from '$lib/types';
+import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS, DEAD_CARD_UNICODE } from '$lib/types';
 
 /**
  * Calculate numeric value from card (handles 'A' and 'Joker')
@@ -79,14 +77,20 @@ export function canKillRoyal(
 	// Jack (11): Any suit combination works
 	if (royal.value === 11) return true;
 
-	// Queen (12): Same color required
+	// Queen (12): Same color required AND must match royal's color
 	if (royal.value === 12) {
-		return payload[0].color === payload[1].color;
+		return (
+			payload[0].color === payload[1].color &&
+			payload[0].color === royal.color
+		);
 	}
 
-	// King (13): Same suit required
+	// King (13): Same suit required AND must match royal's suit
 	if (royal.value === 13) {
-		return payload[0].suit === payload[1].suit;
+		return (
+			payload[0].suit === payload[1].suit &&
+			payload[0].suit === royal.suit
+		);
 	}
 
 	return false;
@@ -102,31 +106,36 @@ export function killRoyalsFromPosition(
 ): CardsInPlay {
 	const newCardsInPlay = { ...cardsInPlay };
 	const deadCard: Card = {
-		value: 0 as any,
+		value: 11, // Use Jack value as placeholder for dead card
 		suit: 'spades',
 		unicode: DEAD_CARD_UNICODE,
 		color: 'black'
 	};
 
-	// Get the royals that can be targeted from this position
-	const targetRoyals = FIRING_LINES[position];
-	if (!targetRoyals || targetRoyals.length === 0) return newCardsInPlay;
+	// Get attack mappings for this position
+	const attacks = ATTACK_MAPPINGS[position];
+	if (!attacks || attacks.length === 0) return newCardsInPlay;
 
-	// Get the payload cards based on position
-	const payload = getPayloadForPosition(position, cardsInPlay);
-	if (!payload) return newCardsInPlay;
-
-	// Try to kill each targetable royal
-	for (const royalPos of targetRoyals) {
-		const royal = cardsInPlay[royalPos][0];
+	// Try each attack from this position
+	for (const attack of attacks) {
+		const royal = cardsInPlay[attack.royal][0];
 		if (!royal || isRoyalDead(royal)) continue;
 
-		const armorPos = getArmorPositionForRoyal(royalPos);
+		// Get the payload cards from the specified positions
+		const card1 = cardsInPlay[attack.payloadPositions[0]][0];
+		const card2 = cardsInPlay[attack.payloadPositions[1]][0];
+
+		if (!card1 || !card2 || isEmptyCard(card1) || isEmptyCard(card2)) continue;
+
+		const payload: Payload = [card1, card2];
+
+		// Check armor
+		const armorPos = getArmorPositionForRoyal(attack.royal);
 		const armor = cardsInPlay[armorPos][0];
 
 		if (canKillRoyal(payload, royal, armor)) {
 			// Kill the royal
-			newCardsInPlay[royalPos] = [deadCard, ...newCardsInPlay[royalPos]];
+			newCardsInPlay[attack.royal] = [deadCard, ...newCardsInPlay[attack.royal]];
 
 			// Kill the armor too if it exists
 			if (armor && !isEmptyCard(armor)) {
@@ -136,41 +145,6 @@ export function killRoyalsFromPosition(
 	}
 
 	return newCardsInPlay;
-}
-
-/**
- * Get the payload (2 cards) for a grid position
- * Returns null if payload cannot be formed
- */
-function getPayloadForPosition(
-	position: GridPosition,
-	cardsInPlay: CardsInPlay
-): Payload | null {
-	// Mapping of grid positions to their payload card positions
-	// Payload is: [card at adjacent position 1, card at adjacent position 2]
-	const payloadMap: Record<GridPosition, [GridPosition, GridPosition] | null> = {
-		upperLeft: ['upperMiddle', 'middleLeft'],
-		upperMiddle: ['upperLeft', 'upperRight'],
-		upperRight: ['upperMiddle', 'middleRight'],
-		middleLeft: ['upperLeft', 'bottomLeft'],
-		middleMiddle: null, // Center doesn't shoot
-		middleRight: ['upperRight', 'bottomRight'],
-		bottomLeft: ['middleLeft', 'bottomMiddle'],
-		bottomMiddle: ['bottomLeft', 'bottomRight'],
-		bottomRight: ['middleRight', 'bottomMiddle']
-	};
-
-	const payloadPositions = payloadMap[position];
-	if (!payloadPositions) return null;
-
-	const card1 = cardsInPlay[payloadPositions[0]][0];
-	const card2 = cardsInPlay[payloadPositions[1]][0];
-
-	if (!card1 || !card2 || isEmptyCard(card1) || isEmptyCard(card2)) {
-		return null;
-	}
-
-	return [card1, card2];
 }
 
 /**
@@ -290,8 +264,78 @@ function getAdjacentRoyalPositions(gridPos: GridPosition): RoyalPosition[] {
 }
 
 /**
+ * Check if a royal is eligible for armor
+ * Based on legacy checkArmorElegibility logic:
+ * A royal can only get armor if NO other living royal without armor has a lower value
+ */
+function isRoyalEligibleForArmor(
+	royalPos: RoyalPosition,
+	armorCard: Card,
+	cardsInPlay: CardsInPlay
+): boolean {
+	const currentRoyal = cardsInPlay[royalPos][0];
+	if (!currentRoyal) return false;
+
+	const currentValue = getCardNumericValue(currentRoyal);
+
+	// Check all other royals
+	const allRoyalPositions: RoyalPosition[] = [
+		'upperLeftRoyal',
+		'upperMiddleRoyal',
+		'upperRightRoyal',
+		'leftUpperRoyal',
+		'leftMiddleRoyal',
+		'leftBottomRoyal',
+		'rightUpperRoyal',
+		'rightMiddleRoyal',
+		'rightBottomRoyal',
+		'bottomLeftRoyal',
+		'bottomMiddleRoyal',
+		'bottomRightRoyal'
+	];
+
+	for (const otherRoyalPos of allRoyalPositions) {
+		if (otherRoyalPos === royalPos) continue;
+
+		const otherRoyal = cardsInPlay[otherRoyalPos][0];
+
+		// Skip if other royal is not alive
+		if (!otherRoyal || isRoyalDead(otherRoyal) || isEmptyCard(otherRoyal)) continue;
+
+		// Check if other royal has armor
+		const otherArmorPos = getArmorPositionForRoyal(otherRoyalPos);
+		const otherArmor = cardsInPlay[otherArmorPos][0];
+
+		// Skip if other royal already has armor
+		if (otherArmor && !isEmptyCard(otherArmor)) continue;
+
+		const otherValue = getCardNumericValue(otherRoyal);
+
+		// If other royal has lower value, current royal is not eligible
+		if (otherValue < currentValue) {
+			return false;
+		}
+
+		// If same value, check suit/color priority
+		if (otherValue === currentValue) {
+			// Other royal has same suit as armor, but current doesn't
+			if (otherRoyal.suit === armorCard.suit && currentRoyal.suit !== armorCard.suit) {
+				return false;
+			}
+			// Other royal has same color as armor, but current doesn't
+			if (otherRoyal.color === armorCard.color && currentRoyal.color !== armorCard.color) {
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+/**
  * Find the best armor position for a card
  * Armor must go to lowest-value royal first, with suit/color priority
+ * Based on legacy checkArmorElegibility logic
  */
 export function getArmorPlacementPosition(
 	armorCard: Card,
@@ -300,12 +344,12 @@ export function getArmorPlacementPosition(
 	const royalArmorPairs = ROYAL_ARMOR_PAIRS;
 
 	// Find royals that are alive and don't have armor yet
-	const eligiblePairs = royalArmorPairs.filter((pair) => {
+	const candidatePairs = royalArmorPairs.filter((pair) => {
 		const royal = cardsInPlay[pair.royal][0];
 		const armor = cardsInPlay[pair.armor][0];
 
 		// Royal must be alive
-		if (!royal || isRoyalDead(royal)) return false;
+		if (!royal || isRoyalDead(royal) || isEmptyCard(royal)) return false;
 
 		// Armor slot must be empty
 		if (armor && !isEmptyCard(armor)) return false;
@@ -318,40 +362,32 @@ export function getArmorPlacementPosition(
 		return true;
 	});
 
+	if (candidatePairs.length === 0) return null;
+
+	// Filter to only eligible pairs (based on legacy checkArmorElegibility)
+	const eligiblePairs = candidatePairs.filter((pair) =>
+		isRoyalEligibleForArmor(pair.royal, armorCard, cardsInPlay)
+	);
+
 	if (eligiblePairs.length === 0) return null;
 
-	// Find lowest value royal
-	let lowestValue = Infinity;
-	let bestPairs: typeof royalArmorPairs = [];
+	// Should only be one eligible royal (the lowest value one)
+	// But if multiple (same value), apply suit/color priority
+	if (eligiblePairs.length === 1) return eligiblePairs[0].armor;
 
+	// Multiple eligible royals with same value - apply suit/color priority
 	for (const pair of eligiblePairs) {
-		const royal = cardsInPlay[pair.royal][0];
-		const value = getCardNumericValue(royal);
-
-		if (value < lowestValue) {
-			lowestValue = value;
-			bestPairs = [pair];
-		} else if (value === lowestValue) {
-			bestPairs.push(pair);
-		}
-	}
-
-	// If only one option, return it
-	if (bestPairs.length === 1) return bestPairs[0].armor;
-
-	// Apply suit/color priority
-	for (const pair of bestPairs) {
 		const royal = cardsInPlay[pair.royal][0];
 		if (royal.suit === armorCard.suit) return pair.armor;
 	}
 
-	for (const pair of bestPairs) {
+	for (const pair of eligiblePairs) {
 		const royal = cardsInPlay[pair.royal][0];
 		if (royal.color === armorCard.color) return pair.armor;
 	}
 
 	// If no match, return first option
-	return bestPairs[0].armor;
+	return eligiblePairs[0].armor;
 }
 
 /**

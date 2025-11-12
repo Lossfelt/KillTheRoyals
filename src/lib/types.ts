@@ -218,15 +218,57 @@ export const ROYAL_ARMOR_PAIRS: RoyalArmorPair[] = [
 	{ royal: 'bottomRightRoyal', armor: 'bottomRightArmor' }
 ];
 
-// Grid-to-Royal firing lines (which grid position can shoot which royal)
-export const FIRING_LINES: Record<GridPosition, RoyalPosition[]> = {
-	upperLeft: ['upperLeftRoyal', 'leftUpperRoyal'],
-	upperMiddle: ['upperMiddleRoyal'],
-	upperRight: ['upperRightRoyal', 'rightUpperRoyal'],
-	middleLeft: ['leftMiddleRoyal'],
+// Attack mapping type: which royal and which two cards form the payload
+export type AttackMapping = {
+	royal: RoyalPosition;
+	payloadPositions: [GridPosition, GridPosition];
+};
+
+// Complete attack mappings based on legacy code (src-old/Functions/funcKillRoyals.js)
+// When a card is placed at a grid position, these are the royals that can be attacked
+// and the two cards that form the payload for each attack
+export const ATTACK_MAPPINGS: Record<GridPosition, AttackMapping[]> = {
+	upperLeft: [
+		{ royal: 'rightUpperRoyal', payloadPositions: ['upperMiddle', 'upperRight'] },
+		{ royal: 'bottomLeftRoyal', payloadPositions: ['middleLeft', 'bottomLeft'] }
+	],
+	upperMiddle: [
+		{ royal: 'bottomMiddleRoyal', payloadPositions: ['middleMiddle', 'bottomMiddle'] }
+	],
+	upperRight: [
+		{ royal: 'leftUpperRoyal', payloadPositions: ['upperMiddle', 'upperLeft'] },
+		{ royal: 'bottomRightRoyal', payloadPositions: ['middleRight', 'bottomRight'] }
+	],
+	middleLeft: [
+		{ royal: 'rightMiddleRoyal', payloadPositions: ['middleMiddle', 'middleRight'] }
+	],
 	middleMiddle: [], // Center can't shoot anything
-	middleRight: ['rightMiddleRoyal'],
-	bottomLeft: ['bottomLeftRoyal', 'leftBottomRoyal'],
-	bottomMiddle: ['bottomMiddleRoyal'],
-	bottomRight: ['bottomRightRoyal', 'rightBottomRoyal']
+	middleRight: [
+		{ royal: 'leftMiddleRoyal', payloadPositions: ['middleMiddle', 'middleLeft'] }
+	],
+	bottomLeft: [
+		{ royal: 'rightBottomRoyal', payloadPositions: ['bottomMiddle', 'bottomRight'] },
+		{ royal: 'upperLeftRoyal', payloadPositions: ['middleLeft', 'upperLeft'] }
+	],
+	bottomMiddle: [
+		{ royal: 'upperMiddleRoyal', payloadPositions: ['middleMiddle', 'upperMiddle'] }
+	],
+	bottomRight: [
+		{ royal: 'leftBottomRoyal', payloadPositions: ['bottomMiddle', 'bottomLeft'] },
+		{ royal: 'upperRightRoyal', payloadPositions: ['middleRight', 'upperRight'] }
+	]
+};
+
+// Grid-to-Royal firing lines (which grid position can shoot which royal)
+// Derived from ATTACK_MAPPINGS for convenience
+export const FIRING_LINES: Record<GridPosition, RoyalPosition[]> = {
+	upperLeft: ['rightUpperRoyal', 'bottomLeftRoyal'],
+	upperMiddle: ['bottomMiddleRoyal'],
+	upperRight: ['leftUpperRoyal', 'bottomRightRoyal'],
+	middleLeft: ['rightMiddleRoyal'],
+	middleMiddle: [], // Center can't shoot anything
+	middleRight: ['leftMiddleRoyal'],
+	bottomLeft: ['rightBottomRoyal', 'upperLeftRoyal'],
+	bottomMiddle: ['upperMiddleRoyal'],
+	bottomRight: ['leftBottomRoyal', 'upperRightRoyal']
 };
