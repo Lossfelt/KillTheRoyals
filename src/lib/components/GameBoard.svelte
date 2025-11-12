@@ -8,7 +8,10 @@
 		placeAceFromDeck,
 		selectRoyalPosition,
 		activateAce,
+		useAce,
 		activateJoker,
+		selectJokerSource,
+		useJoker,
 		completeSetup
 	} from '$lib/stores/game';
 	import Card from './Card.svelte';
@@ -25,6 +28,25 @@
 		// Block clicks during setup phase (unless in replace mode)
 		if ($gameState.isSetupPhase) return;
 
+		// Handle Ace usage: click grid to pick up stack
+		if ($gameState.aceInUse) {
+			useAce(position);
+			return;
+		}
+
+		// Handle Joker usage: two-click selection (source, then target)
+		if ($gameState.jokerInUse) {
+			if ($gameState.jokerSourceStack === null) {
+				// First click: select source stack
+				selectJokerSource(position);
+			} else {
+				// Second click: move card to target
+				useJoker(position);
+			}
+			return;
+		}
+
+		// Normal card placement from deck
 		const topCard = $gameState.deck[0];
 		if (!topCard) return;
 
@@ -208,6 +230,7 @@
 	<Card
 		card={$gameState.cardsInPlay.upperLeft[0]}
 		stackDepth={$gameState.cardsInPlay.upperLeft.length}
+		active={$gameState.jokerSourceStack === 'upperLeft'}
 		onclick={() => handleGridClick('upperLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -215,6 +238,7 @@
 	<Card
 		card={$gameState.cardsInPlay.upperMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.upperMiddle.length}
+		active={$gameState.jokerSourceStack === 'upperMiddle'}
 		onclick={() => handleGridClick('upperMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -222,6 +246,7 @@
 	<Card
 		card={$gameState.cardsInPlay.upperRight[0]}
 		stackDepth={$gameState.cardsInPlay.upperRight.length}
+		active={$gameState.jokerSourceStack === 'upperRight'}
 		onclick={() => handleGridClick('upperRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -249,6 +274,7 @@
 	<Card
 		card={$gameState.cardsInPlay.middleLeft[0]}
 		stackDepth={$gameState.cardsInPlay.middleLeft.length}
+		active={$gameState.jokerSourceStack === 'middleLeft'}
 		onclick={() => handleGridClick('middleLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -256,6 +282,7 @@
 	<Card
 		card={$gameState.cardsInPlay.middleMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.middleMiddle.length}
+		active={$gameState.jokerSourceStack === 'middleMiddle'}
 		onclick={() => handleGridClick('middleMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -263,6 +290,7 @@
 	<Card
 		card={$gameState.cardsInPlay.middleRight[0]}
 		stackDepth={$gameState.cardsInPlay.middleRight.length}
+		active={$gameState.jokerSourceStack === 'middleRight'}
 		onclick={() => handleGridClick('middleRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -290,6 +318,7 @@
 	<Card
 		card={$gameState.cardsInPlay.bottomLeft[0]}
 		stackDepth={$gameState.cardsInPlay.bottomLeft.length}
+		active={$gameState.jokerSourceStack === 'bottomLeft'}
 		onclick={() => handleGridClick('bottomLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -297,6 +326,7 @@
 	<Card
 		card={$gameState.cardsInPlay.bottomMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.bottomMiddle.length}
+		active={$gameState.jokerSourceStack === 'bottomMiddle'}
 		onclick={() => handleGridClick('bottomMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -304,6 +334,7 @@
 	<Card
 		card={$gameState.cardsInPlay.bottomRight[0]}
 		stackDepth={$gameState.cardsInPlay.bottomRight.length}
+		active={$gameState.jokerSourceStack === 'bottomRight'}
 		onclick={() => handleGridClick('bottomRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -367,7 +398,7 @@
 	/>
 	<Card
 		card={$gameState.cardsInPlay.joker1[0]}
-		active={$gameState.jokerInUse !== null}
+		active={$gameState.jokerInUse === 'joker1'}
 		clickable={!!$gameState.cardsInPlay.joker1[0]}
 		onclick={() => handleJokerClick('joker1')}
 		slotType="joker"
@@ -375,7 +406,7 @@
 	/>
 	<Card
 		card={$gameState.cardsInPlay.joker2[0]}
-		active={$gameState.jokerInUse !== null}
+		active={$gameState.jokerInUse === 'joker2'}
 		clickable={!!$gameState.cardsInPlay.joker2[0]}
 		onclick={() => handleJokerClick('joker2')}
 		slotType="joker"

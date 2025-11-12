@@ -467,17 +467,12 @@ export function activateJoker(position: JokerPosition) {
 		const joker = state.cardsInPlay[position][0];
 		if (!joker || joker.value !== 'Joker') return state;
 
-		// Deactivate if already active
-		if (state.jokerInUse !== null) {
-			return {
-				...state,
-				jokerInUse: null,
-				jokerSourceStack: null
-			};
-		}
-
-		// Activate joker (wait for stack selection)
-		return state;
+		// Toggle joker activation
+		return {
+			...state,
+			jokerInUse: state.jokerInUse === position ? null : position,
+			jokerSourceStack: null // Clear source when toggling
+		};
 	});
 }
 

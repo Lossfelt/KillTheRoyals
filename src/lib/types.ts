@@ -132,7 +132,7 @@ export interface CardsInPlay {
 export interface GameState {
 	deck: Card[];
 	cardsInPlay: CardsInPlay;
-	jokerInUse: GridPosition | null; // Which grid stack is selected for joker move
+	jokerInUse: JokerPosition | null; // Which joker is activated (joker1 or joker2)
 	jokerSourceStack: GridPosition | null; // Source stack when moving with joker
 	aceInUse: AcePosition | null; // Which ace is activated
 	isSetupPhase: boolean;
