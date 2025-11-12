@@ -71,6 +71,28 @@
 	function isAlternativePosition(position: RoyalPosition): boolean {
 		return $gameState.alternativeRoyalPositions.includes(position);
 	}
+
+	// Handle clicks on the deck (for placing royals during gameplay)
+	function handleDeckClick() {
+		// Only handle if not in setup phase and top card is a royal
+		if ($gameState.isSetupPhase) return;
+
+		const topCard = $gameState.deck[0];
+		if (!topCard) return;
+
+		// Check if top card is a royal (Jack, Queen, or King)
+		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
+			placeRoyalCard();
+		}
+	}
+
+	// Check if deck card should be clickable (when it's a royal during gameplay)
+	function isDeckClickable(): boolean {
+		if ($gameState.isSetupPhase) return false;
+		const topCard = $gameState.deck[0];
+		if (!topCard) return false;
+		return topCard.value === 11 || topCard.value === 12 || topCard.value === 13;
+	}
 </script>
 
 {#if $gameState.isSetupPhase && $gameState.setupPhaseReplaceMode}
@@ -288,7 +310,13 @@
 	<div class="cell empty"></div>
 
 	<!-- Row 8: Deck + Jokers + Aces -->
-	<Card card={$gameState.deck[0]} stackDepth={$gameState.deck.length} clickable={false} dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.deck[0]}
+		stackDepth={$gameState.deck.length}
+		clickable={isDeckClickable()}
+		onclick={handleDeckClick}
+		dimmed={shouldDimCard()}
+	/>
 	<Card
 		card={$gameState.cardsInPlay.joker1[0]}
 		active={$gameState.jokerInUse !== null}

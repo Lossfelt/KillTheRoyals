@@ -15,12 +15,13 @@ import type {
 import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS, DEAD_CARD_UNICODE } from '$lib/types';
 
 /**
- * Calculate numeric value from card (handles 'A' and 'Joker')
+ * Calculate numeric value from card (handles 'A', 'Joker', and 'DEAD')
  */
 function getCardNumericValue(card: Card | undefined): number {
 	if (!card) return 0;
-	if (card.value === 'A') return 1; // Aces have value 1 for combat
+	if (card.value === 'A') return 0; // Aces are special abilities, never used as armor
 	if (card.value === 'Joker') return 0;
+	if (card.value === 'DEAD') return 0; // Dead cards have no value
 	return card.value as number;
 }
 
@@ -32,10 +33,23 @@ export function isRoyalDead(royal: Card | undefined): boolean {
 }
 
 /**
- * Check if a card is empty (placeholder card)
+ * Check if a card is empty (placeholder card) or dead
  */
 export function isEmptyCard(card: Card | undefined): boolean {
-	return !card || card.unicode === 'empty' || card.unicode === '';
+	return !card || card.unicode === 'empty' || card.unicode === '' || card.value === 'DEAD';
+}
+
+/**
+ * Create a new dead card instance
+ * Returns a new object each time to avoid reference issues
+ */
+function createDeadCard(): Card {
+	return {
+		value: 'DEAD',
+		suit: 'spades', // Arbitrary suit, not used for dead cards
+		unicode: DEAD_CARD_UNICODE,
+		color: 'black'
+	};
 }
 
 /**
@@ -104,13 +118,11 @@ export function killRoyalsFromPosition(
 	position: GridPosition,
 	cardsInPlay: CardsInPlay
 ): CardsInPlay {
-	const newCardsInPlay = { ...cardsInPlay };
-	const deadCard: Card = {
-		value: 11, // Use Jack value as placeholder for dead card
-		suit: 'spades',
-		unicode: DEAD_CARD_UNICODE,
-		color: 'black'
-	};
+	// Deep copy cardsInPlay to avoid mutations
+	const newCardsInPlay: CardsInPlay = {} as CardsInPlay;
+	for (const key in cardsInPlay) {
+		newCardsInPlay[key as keyof CardsInPlay] = [...cardsInPlay[key as keyof CardsInPlay]];
+	}
 
 	// Get attack mappings for this position
 	const attacks = ATTACK_MAPPINGS[position];
@@ -134,12 +146,12 @@ export function killRoyalsFromPosition(
 		const armor = cardsInPlay[armorPos][0];
 
 		if (canKillRoyal(payload, royal, armor)) {
-			// Kill the royal
-			newCardsInPlay[attack.royal] = [deadCard, ...newCardsInPlay[attack.royal]];
+			// Kill the royal - create new dead card instance
+			newCardsInPlay[attack.royal] = [createDeadCard()];
 
-			// Kill the armor too if it exists
+			// Kill the armor too if it exists - create new dead card instance
 			if (armor && !isEmptyCard(armor)) {
-				newCardsInPlay[armorPos] = [deadCard, ...newCardsInPlay[armorPos]];
+				newCardsInPlay[armorPos] = [createDeadCard()];
 			}
 		}
 	}

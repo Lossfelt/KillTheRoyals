@@ -42,6 +42,13 @@
 				JOKER
 			</text>
 		</g>
+	{:else if card.value === 'DEAD'}
+		<!-- Dead royal card - diagonal text -->
+		<g transform="rotate(45 50 70)">
+			<text x="50" y="70" text-anchor="middle" dominant-baseline="middle" class="dead-text">
+				DEAD
+			</text>
+		</g>
 	{:else}
 		<!-- Top center - value -->
 		<text x="50" y="35" text-anchor="middle" dominant-baseline="middle" class="corner-value">{getDisplayValue(card.value)}</text>
@@ -75,6 +82,14 @@
 		font-family: sans-serif;
 		letter-spacing: 2px;
 		fill: #9b59b6; /* Purple color for joker */
+	}
+
+	.dead-text {
+		font-size: 28px;
+		font-weight: bold;
+		font-family: sans-serif;
+		letter-spacing: 2px;
+		fill: #666666; /* Gray color for dead cards */
 	}
 
 	/* Color based on card suit */

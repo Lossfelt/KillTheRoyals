@@ -269,6 +269,12 @@ export function placeArmorCard() {
 		const card = state.deck[0];
 		if (!card) return state;
 
+		// Aces and Jokers should never be armor - they go to special positions
+		if (card.value === 'A' || card.value === 'Joker') {
+			console.error('Attempted to place Ace or Joker as armor');
+			return state;
+		}
+
 		// Find armor placement position
 		const position = getArmorPlacementPosition(card, state.cardsInPlay);
 		if (!position) return state; // Can't place armor (game might be lost)

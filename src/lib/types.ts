@@ -8,7 +8,7 @@ export type Suit = 'hearts' | 'diamonds' | 'clubs' | 'spades' | 'joker';
 export type CardColor = 'red' | 'black';
 export type NumberedValue = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
 export type RoyalValue = 11 | 12 | 13; // Jack, Queen, King
-export type CardValue = NumberedValue | RoyalValue | 'A' | 'Joker';
+export type CardValue = NumberedValue | RoyalValue | 'A' | 'Joker' | 'DEAD';
 
 export interface Card {
 	value: CardValue;
