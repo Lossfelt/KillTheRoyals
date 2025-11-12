@@ -1,12 +1,33 @@
 <script lang="ts">
 	import { gameState, completeSetup, enableReplaceMode } from '$lib/stores/game';
 
+	let delayedShow = false;
+	let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
 	// Show modal when setup phase is done and all royals are placed
 	// BUT NOT when in replace mode (waiting for player to click a card)
-	$: showModal =
-		$gameState.isSetupPhase &&
-		$gameState.cardsInPlay.royalsToBePlaced.length === 0 &&
-		!$gameState.setupPhaseReplaceMode;
+	// Add 500ms delay before showing the modal
+	$: {
+		const shouldShow =
+			$gameState.isSetupPhase &&
+			$gameState.cardsInPlay.royalsToBePlaced.length === 0 &&
+			!$gameState.setupPhaseReplaceMode;
+
+		if (shouldShow && !delayedShow) {
+			// Clear any existing timeout
+			if (timeoutId) clearTimeout(timeoutId);
+			// Set delayed show after 500ms
+			timeoutId = setTimeout(() => {
+				delayedShow = true;
+			}, 500);
+		} else if (!shouldShow) {
+			// Reset if conditions are no longer met
+			if (timeoutId) clearTimeout(timeoutId);
+			delayedShow = false;
+		}
+	}
+
+	$: showModal = delayedShow;
 
 	function handleSkip() {
 		completeSetup(false);
