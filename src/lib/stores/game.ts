@@ -513,7 +513,7 @@ export function useJoker(targetPosition: GridPosition) {
 		}
 
 		// Move the card
-		const newCardsInPlay = {
+		let newCardsInPlay = {
 			...state.cardsInPlay,
 			[state.jokerSourceStack]: sourceStack.slice(1),
 			[targetPosition]: [cardToMove, ...targetStack]
@@ -525,11 +525,19 @@ export function useJoker(targetPosition: GridPosition) {
 			newCardsInPlay[jokerPos] = [];
 		}
 
+		// Check for royal kills from the target position
+		newCardsInPlay = killRoyalsFromPosition(targetPosition, newCardsInPlay);
+
+		// Check win/loss conditions
+		const won = checkGameWon(newCardsInPlay);
+		const lost = checkGameLost(state.deck, newCardsInPlay);
+
 		const newState = {
 			...state,
 			cardsInPlay: newCardsInPlay,
 			jokerInUse: null,
-			jokerSourceStack: null
+			jokerSourceStack: null,
+			gameStatus: won ? 'won' : lost ? 'lost' : state.gameStatus
 		};
 
 		// Update whether top card can be placed on grid

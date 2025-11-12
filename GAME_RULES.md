@@ -166,7 +166,8 @@ If there are **no more alive royals in play**, but you haven't yet killed all 12
 2. Click a stack to select it (only the **top card** moves)
 3. Click another stack to place the card there
 4. The card must be placeable (valid value rules apply)
-5. The Joker is turned **face down** (can't be used again)
+5. If placing the card would trigger one or two payloads to be shot at a royal, then that happens as normal
+6. The Joker is turned **face down** (can't be used again)
 
 **Strategic use:** Rearrange cards to create better payloads or free up space
 
