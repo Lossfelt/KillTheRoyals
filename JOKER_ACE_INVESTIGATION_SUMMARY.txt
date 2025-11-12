@@ -1,0 +1,195 @@
+================================================================================
+KILL THE ROYALS - JOKER & ACE BUG INVESTIGATION
+Investigation Date: 2025-11-12
+Status: COMPLETE - Root Causes Identified
+================================================================================
+
+QUICK SUMMARY
+=============
+
+Joker and Ace cards cannot be placed or used during gameplay due to 3 missing
+code components:
+
+1. No function to move Jokers/Aces from deck to their slots
+2. No UI logic to recognize Jokers/Aces as clickable
+3. No handler in the click function for these card types
+
+
+ROOT CAUSE ANALYSIS
+===================
+
+PROBLEM 1: handleDeckClick() - GameBoard.svelte (lines 77-94)
+-----------
+
+Current behavior:
+- Recognizes Royals (11, 12, 13) → calls placeRoyalCard()
+- Recognizes Numbered cards (2-10) needing armor → calls placeArmorCard()
+- Does NOT recognize Jokers or Aces → Does nothing
+
+Result: When Joker/Ace appears on top of deck, player cannot place it
+
+
+PROBLEM 2: isDeckClickable() - GameBoard.svelte (lines 97-113)
+-----------
+
+Current behavior:
+- Returns true if top card is a Royal (11, 12, 13)
+- Returns true if top card is Numbered (2-10) and can't be placed on grid
+- Returns false for Jokers and Aces
+
+Result: Deck is never clickable when Joker/Ace is on top
+         Player has no way to interact with the card
+
+
+PROBLEM 3: Missing Store Actions - src/lib/stores/game.ts
+-----------
+
+Missing functions:
+- placeJokerFromDeck() - should move deck Joker to joker1 or joker2 slot
+- placeAceFromDeck() - should move deck Ace to ace1/2/3/4 slot
+
+Current implementation:
+- activateJoker() only works if Joker already in a slot
+- activateAce() only works if Ace already in a slot
+- No way to get them into a slot from the deck
+
+
+WHAT WORKS CORRECTLY
+====================
+
+Setup Phase (setupFirstNineCards in game-logic.ts):
+- Correctly identifies Jokers and Aces during initial deal
+- Places them directly in their slots (joker1, joker2, ace1-4)
+- This is why they work if found during setup
+
+Activation & Usage (when already placed):
+- activateJoker(position) - toggles joker active state
+- activateAce(position) - toggles ace active state
+- useJoker(targetPosition) - moves card from grid using joker
+- useAce(stackPosition) - removes stack from grid using ace
+- UI rendering shows joker/ace slots correctly
+
+Type System:
+- AcePosition and JokerPosition types defined
+- isJoker() and isAce() type guards exist
+- CardsInPlay interface has joker1, joker2, ace1-4 slots
+- GameState has aceInUse and jokerInUse fields
+
+
+FILE STRUCTURE
+==============
+
+Current game flow for card placement from deck:
+
+src/lib/components/GameBoard.svelte:
+  - handleDeckClick() → Routes top card to handlers
+  - isDeckClickable() → Determines if deck is clickable
+
+src/lib/stores/game.ts:
+  - placeNumberedCard() → Places 2-10 on grid
+  - placeRoyalCard() → Places J/Q/K on royal positions
+  - placeArmorCard() → Places armor on royals
+  - activateAce() → Activates ace for use
+  - activateJoker() → Activates joker for use
+  - useAce() → Uses activated ace
+  - useJoker() → Uses activated joker
+  - (Missing: placeJokerFromDeck, placeAceFromDeck)
+
+src/lib/utils/game-logic.ts:
+  - setupFirstNineCards() → Initial placement including jokers/aces
+  - Various helper functions for game rules
+
+
+DETAILED CODE LOCATIONS
+=======================
+
+GameBoard.svelte:
+  Line 1-11:    Imports (need to add placeJokerFromDeck, placeAceFromDeck)
+  Line 77-94:   handleDeckClick() - BROKEN
+  Line 97-113:  isDeckClickable() - BROKEN
+  Line 344-391: Joker/Ace rendering - WORKS
+  Line 122-126: Armor indicator - can copy pattern for Joker/Ace
+
+game.ts:
+  Line 33-49:   GameState definition - COMPLETE
+  Line 158:     placeNumberedCard() - reference
+  Line 205:     placeRoyalCard() - reference
+  Line 309-340: placeArmorCard() - where new functions should go AFTER
+  Line 342-354: activateAce() - reference
+  Line 387-404: activateJoker() - reference
+
+game-logic.ts:
+  Line 582-664: setupFirstNineCards() - reference for placement logic
+
+
+IMPACT ASSESSMENT
+=================
+
+Severity: HIGH
+
+- Players cannot place Jokers/Aces when they appear during gameplay
+- Aces/Jokers placed during setup work fine
+- If both Jokers and Aces appear during setup, they work
+- But if they appear in deck during gameplay, game is stuck
+- Could lead to unwinnable game states
+
+
+ESTIMATED EFFORT
+================
+
+Easy (1-2 hours):
+- Add placeJokerFromDeck() function (20 lines)
+- Add placeAceFromDeck() function (30 lines)
+- Update handleDeckClick() (5 lines)
+- Update isDeckClickable() (10 lines)
+- Add imports (2 lines)
+
+Medium (add-ons):
+- Add UI indicators for Joker/Ace placement (like armor indicator)
+- Add CSS styling for indicators
+- Add deck cycling logic for Jokers/Aces (optional)
+
+
+TESTING CHECKLIST
+=================
+
+After fixes:
+[ ] Joker appears in deck during gameplay - can be placed
+[ ] Ace appears in deck during gameplay - can be placed
+[ ] Multiple Jokers/Aces - fills slots in order
+[ ] All Joker slots full - further Jokers cannot be placed
+[ ] All Ace slots full - further Aces cannot be placed
+[ ] Placed Joker can be activated
+[ ] Placed Ace can be activated
+[ ] Joker/Ace usage works after placement
+[ ] UI is clickable and responsive
+[ ] No error messages in console
+
+
+REFERENCE FILES
+===============
+
+Analysis documents created:
+- JOKER_ACE_BUG_ANALYSIS.md (overview of all 4 problems)
+- JOKER_ACE_CODE_DETAILS.md (detailed code with examples)
+- JOKER_ACE_INVESTIGATION_SUMMARY.txt (this file)
+
+Source code files:
+- c:\Users\LevinLøssfelt\Documents\Koding\KillTheRoyals\src\lib\components\GameBoard.svelte
+- c:\Users\LevinLøssfelt\Documents\Koding\KillTheRoyals\src\lib\stores\game.ts
+- c:\Users\LevinLøssfelt\Documents\Koding\KillTheRoyals\src\lib\utils\game-logic.ts
+- c:\Users\LevinLøssfelt\Documents\Koding\KillTheRoyals\src\lib\types.ts
+
+
+CONCLUSION
+==========
+
+The bug is not a logic error or a design flaw - it's a missing feature.
+The setup phase correctly places Jokers/Aces, and the activation/usage code
+works perfectly. What's missing is the bridge that connects "Joker on deck"
+to "Joker placed in slot".
+
+The fix is straightforward: add two placement functions and route Joker/Ace
+cards to them in the deck click handler.
+
+================================================================================

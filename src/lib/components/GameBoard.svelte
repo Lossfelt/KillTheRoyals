@@ -4,6 +4,8 @@
 		placeNumberedCard,
 		placeRoyalCard,
 		placeArmorCard,
+		placeJokerFromDeck,
+		placeAceFromDeck,
 		selectRoyalPosition,
 		activateAce,
 		activateJoker,
@@ -73,7 +75,7 @@
 		return $gameState.alternativeRoyalPositions.includes(position);
 	}
 
-	// Handle clicks on the deck (for placing royals or armor during gameplay)
+	// Handle clicks on the deck (for placing royals, armor, jokers, or aces during gameplay)
 	function handleDeckClick() {
 		// Only handle if not in setup phase
 		if ($gameState.isSetupPhase) return;
@@ -87,13 +89,25 @@
 			return;
 		}
 
+		// Check if top card is a Joker
+		if (topCard.value === 'Joker') {
+			placeJokerFromDeck();
+			return;
+		}
+
+		// Check if top card is an Ace
+		if (topCard.value === 'A') {
+			placeAceFromDeck();
+			return;
+		}
+
 		// Check if top card cannot be placed on grid -> place as armor (only for numbered cards 2-10)
 		if (!$gameState.canPlaceTopCardOnGrid && typeof topCard.value === 'number' && topCard.value >= 2 && topCard.value <= 10) {
 			placeArmorCard();
 		}
 	}
 
-	// Check if deck card should be clickable (royal or armor placement needed)
+	// Check if deck card should be clickable (royal, joker, ace, or armor placement needed)
 	function isDeckClickable(): boolean {
 		if ($gameState.isSetupPhase) return false;
 		const topCard = $gameState.deck[0];
@@ -101,6 +115,16 @@
 
 		// Clickable if royal
 		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
+			return true;
+		}
+
+		// Clickable if Joker
+		if (topCard.value === 'Joker') {
+			return true;
+		}
+
+		// Clickable if Ace
+		if (topCard.value === 'A') {
 			return true;
 		}
 
@@ -347,7 +371,7 @@
 		clickable={!!$gameState.cardsInPlay.joker1[0]}
 		onclick={() => handleJokerClick('joker1')}
 		slotType="joker"
-		dimmed={shouldDimCard()}
+		dimmed={false}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.joker2[0]}
@@ -355,7 +379,7 @@
 		clickable={!!$gameState.cardsInPlay.joker2[0]}
 		onclick={() => handleJokerClick('joker2')}
 		slotType="joker"
-		dimmed={shouldDimCard()}
+		dimmed={false}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace1[0]}
@@ -363,7 +387,7 @@
 		clickable={!!$gameState.cardsInPlay.ace1[0]}
 		onclick={() => handleAceClick('ace1')}
 		slotType="ace"
-		dimmed={shouldDimCard()}
+		dimmed={false}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace2[0]}
@@ -371,7 +395,7 @@
 		clickable={!!$gameState.cardsInPlay.ace2[0]}
 		onclick={() => handleAceClick('ace2')}
 		slotType="ace"
-		dimmed={shouldDimCard()}
+		dimmed={false}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace3[0]}
@@ -379,7 +403,7 @@
 		clickable={!!$gameState.cardsInPlay.ace3[0]}
 		onclick={() => handleAceClick('ace3')}
 		slotType="ace"
-		dimmed={shouldDimCard()}
+		dimmed={false}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace4[0]}
@@ -387,7 +411,7 @@
 		clickable={!!$gameState.cardsInPlay.ace4[0]}
 		onclick={() => handleAceClick('ace4')}
 		slotType="ace"
-		dimmed={shouldDimCard()}
+		dimmed={false}
 	/>
 </div>
 

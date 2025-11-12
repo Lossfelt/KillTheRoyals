@@ -339,6 +339,84 @@ export function placeArmorCard() {
 	});
 }
 
+// Action: Place a Joker from deck to its slot
+export function placeJokerFromDeck() {
+	gameState.update((state) => {
+		const card = state.deck[0];
+		if (!card || card.value !== 'Joker') return state;
+
+		// Find first empty joker slot
+		let targetPosition: JokerPosition | null = null;
+		if (!state.cardsInPlay.joker1[0]) {
+			targetPosition = 'joker1';
+		} else if (!state.cardsInPlay.joker2[0]) {
+			targetPosition = 'joker2';
+		}
+
+		if (!targetPosition) {
+			console.warn('No empty joker slot available');
+			return state; // Both joker slots occupied
+		}
+
+		// Place the joker
+		const newDeck = state.deck.slice(1);
+		const newCardsInPlay = {
+			...state.cardsInPlay,
+			[targetPosition]: [card]
+		};
+
+		const newState = {
+			...state,
+			deck: newDeck,
+			cardsInPlay: newCardsInPlay
+		};
+
+		// Update whether top card can be placed on grid
+		return updateCanPlaceTopCardOnGrid(newState);
+	});
+}
+
+// Action: Place an Ace from deck to its slot
+export function placeAceFromDeck() {
+	gameState.update((state) => {
+		const card = state.deck[0];
+		if (!card || card.value !== 'A') return state;
+
+		// Find first empty ace slot
+		let targetPosition: AcePosition | null = null;
+		if (!state.cardsInPlay.ace1[0]) {
+			targetPosition = 'ace1';
+		} else if (!state.cardsInPlay.ace2[0]) {
+			targetPosition = 'ace2';
+		} else if (!state.cardsInPlay.ace3[0]) {
+			targetPosition = 'ace3';
+		} else if (!state.cardsInPlay.ace4[0]) {
+			targetPosition = 'ace4';
+		}
+
+		if (!targetPosition) {
+			console.warn('No empty ace slot available');
+			return state; // All ace slots occupied
+		}
+
+		// Place the ace
+		const newDeck = state.deck.slice(1);
+		const newCardsInPlay = {
+			...state.cardsInPlay,
+			[targetPosition]: [card]
+		};
+
+		const newState = {
+			...state,
+			deck: newDeck,
+			cardsInPlay: newCardsInPlay
+		};
+
+		// Update whether top card can be placed on grid
+		return updateCanPlaceTopCardOnGrid(newState);
+	});
+}
+
 // Action: Activate an ace
 export function activateAce(position: AcePosition) {
 	gameState.update((state) => {
