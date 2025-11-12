@@ -582,6 +582,27 @@ export function setupFirstNineCards(deck: Card[]): {
 		}
 	}
 
+	// If no royals found yet, cycle through deck to find at least one
+	const cycledCards: Card[] = [];
+	while (royalsToPlace.length === 0 && newDeck.length > 0) {
+		const card = newDeck.shift()!;
+
+		if (card.value === 'Joker') {
+			jokersToPlace.push(card);
+		} else if (card.value === 'A') {
+			acesToPlace.push(card);
+		} else if (card.value === 11 || card.value === 12 || card.value === 13) {
+			// Found a royal! Add it to royalsToPlace
+			royalsToPlace.push(card);
+		} else {
+			// Numbered card: add to cycled cards (will go to bottom of deck)
+			cycledCards.push(card);
+		}
+	}
+
+	// Add cycled cards to bottom of deck
+	newDeck.push(...cycledCards);
+
 	// Place aces and jokers in their slots
 	if (jokersToPlace.length > 0) cardsInPlay.joker1 = [jokersToPlace[0]];
 	if (jokersToPlace.length > 1) cardsInPlay.joker2 = [jokersToPlace[1]];
