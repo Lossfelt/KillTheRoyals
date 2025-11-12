@@ -54,6 +54,20 @@ function createDeadCard(): Card {
 }
 
 /**
+ * Create a used card (for Ace/Joker after use)
+ * Shows the card back to indicate it's been used
+ * Returns a new object each time to avoid reference issues
+ */
+export function createUsedCard(): Card {
+	return {
+		value: 'USED',
+		suit: 'back', // Special suit indicating card back
+		unicode: DEAD_CARD_UNICODE,
+		color: 'black' // Arbitrary - not used for rendering card back
+	};
+}
+
+/**
  * Get the armor position for a royal position
  */
 function getArmorPositionForRoyal(royal: RoyalPosition): ArmorPosition {

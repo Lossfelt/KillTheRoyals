@@ -399,7 +399,7 @@
 	<Card
 		card={$gameState.cardsInPlay.joker1[0]}
 		active={$gameState.jokerInUse === 'joker1'}
-		clickable={!!$gameState.cardsInPlay.joker1[0]}
+		clickable={!!$gameState.cardsInPlay.joker1[0] && $gameState.cardsInPlay.joker1[0]?.value !== 'USED'}
 		onclick={() => handleJokerClick('joker1')}
 		slotType="joker"
 		dimmed={false}
@@ -407,7 +407,7 @@
 	<Card
 		card={$gameState.cardsInPlay.joker2[0]}
 		active={$gameState.jokerInUse === 'joker2'}
-		clickable={!!$gameState.cardsInPlay.joker2[0]}
+		clickable={!!$gameState.cardsInPlay.joker2[0] && $gameState.cardsInPlay.joker2[0]?.value !== 'USED'}
 		onclick={() => handleJokerClick('joker2')}
 		slotType="joker"
 		dimmed={false}
@@ -415,7 +415,7 @@
 	<Card
 		card={$gameState.cardsInPlay.ace1[0]}
 		active={$gameState.aceInUse === 'ace1'}
-		clickable={!!$gameState.cardsInPlay.ace1[0]}
+		clickable={!!$gameState.cardsInPlay.ace1[0] && $gameState.cardsInPlay.ace1[0]?.value !== 'USED'}
 		onclick={() => handleAceClick('ace1')}
 		slotType="ace"
 		dimmed={false}
@@ -423,7 +423,7 @@
 	<Card
 		card={$gameState.cardsInPlay.ace2[0]}
 		active={$gameState.aceInUse === 'ace2'}
-		clickable={!!$gameState.cardsInPlay.ace2[0]}
+		clickable={!!$gameState.cardsInPlay.ace2[0] && $gameState.cardsInPlay.ace2[0]?.value !== 'USED'}
 		onclick={() => handleAceClick('ace2')}
 		slotType="ace"
 		dimmed={false}
@@ -431,7 +431,7 @@
 	<Card
 		card={$gameState.cardsInPlay.ace3[0]}
 		active={$gameState.aceInUse === 'ace3'}
-		clickable={!!$gameState.cardsInPlay.ace3[0]}
+		clickable={!!$gameState.cardsInPlay.ace3[0] && $gameState.cardsInPlay.ace3[0]?.value !== 'USED'}
 		onclick={() => handleAceClick('ace3')}
 		slotType="ace"
 		dimmed={false}
@@ -439,7 +439,7 @@
 	<Card
 		card={$gameState.cardsInPlay.ace4[0]}
 		active={$gameState.aceInUse === 'ace4'}
-		clickable={!!$gameState.cardsInPlay.ace4[0]}
+		clickable={!!$gameState.cardsInPlay.ace4[0] && $gameState.cardsInPlay.ace4[0]?.value !== 'USED'}
 		onclick={() => handleAceClick('ace4')}
 		slotType="ace"
 		dimmed={false}

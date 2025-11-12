@@ -49,6 +49,45 @@
 				DEAD
 			</text>
 		</g>
+	{:else if card.value === 'USED'}
+		<!-- Used card - card back pattern -->
+		<rect x="5" y="5" width="90" height="130" rx="2" fill="#1a5490" />
+		<!-- Diagonal lines pattern -->
+		<g stroke="#3a7bc0" stroke-width="1.5" opacity="0.6">
+			<line x1="10" y1="10" x2="90" y2="130" />
+			<line x1="20" y1="10" x2="90" y2="120" />
+			<line x1="30" y1="10" x2="90" y2="110" />
+			<line x1="40" y1="10" x2="90" y2="100" />
+			<line x1="50" y1="10" x2="90" y2="90" />
+			<line x1="60" y1="10" x2="90" y2="80" />
+			<line x1="70" y1="10" x2="90" y2="70" />
+			<line x1="80" y1="10" x2="90" y2="60" />
+			<line x1="10" y1="20" x2="80" y2="130" />
+			<line x1="10" y1="30" x2="70" y2="130" />
+			<line x1="10" y1="40" x2="60" y2="130" />
+			<line x1="10" y1="50" x2="50" y2="130" />
+			<line x1="10" y1="60" x2="40" y2="130" />
+			<line x1="10" y1="70" x2="30" y2="130" />
+			<line x1="10" y1="80" x2="20" y2="130" />
+		</g>
+		<!-- Opposite diagonal lines -->
+		<g stroke="#5a9bd5" stroke-width="1.5" opacity="0.5">
+			<line x1="10" y1="130" x2="90" y2="10" />
+			<line x1="20" y1="130" x2="90" y2="20" />
+			<line x1="30" y1="130" x2="90" y2="30" />
+			<line x1="40" y1="130" x2="90" y2="40" />
+			<line x1="50" y1="130" x2="90" y2="50" />
+			<line x1="60" y1="130" x2="90" y2="60" />
+			<line x1="70" y1="130" x2="90" y2="70" />
+			<line x1="80" y1="130" x2="90" y2="80" />
+			<line x1="10" y1="120" x2="80" y2="10" />
+			<line x1="10" y1="110" x2="70" y2="10" />
+			<line x1="10" y1="100" x2="60" y2="10" />
+			<line x1="10" y1="90" x2="50" y2="10" />
+			<line x1="10" y1="80" x2="40" y2="10" />
+			<line x1="10" y1="70" x2="30" y2="10" />
+			<line x1="10" y1="60" x2="20" y2="10" />
+		</g>
 	{:else}
 		<!-- Top center - value -->
 		<text x="50" y="35" text-anchor="middle" dominant-baseline="middle" class="corner-value">{getDisplayValue(card.value)}</text>

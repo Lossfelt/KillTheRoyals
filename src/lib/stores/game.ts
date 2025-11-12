@@ -24,7 +24,8 @@ import {
 	checkGameLost,
 	countLivingRoyals,
 	isRoyalDead,
-	isEmptyCard
+	isEmptyCard,
+	createUsedCard
 } from '$lib/utils/game-logic';
 
 /**
@@ -442,11 +443,11 @@ export function useAce(stackPosition: GridPosition) {
 		// Add stack to bottom of deck
 		const newDeck = [...state.deck, ...stack];
 
-		// Remove the used ace
+		// Mark the ace as used (flip to card back)
 		const newCardsInPlay = {
 			...state.cardsInPlay,
 			[stackPosition]: [],
-			[state.aceInUse]: []
+			[state.aceInUse]: [createUsedCard()]
 		};
 
 		const newState = {
@@ -519,10 +520,10 @@ export function useJoker(targetPosition: GridPosition) {
 			[targetPosition]: [cardToMove, ...targetStack]
 		};
 
-		// Remove the used joker
+		// Mark the joker as used (flip to card back)
 		const jokerPos = state.jokerInUse;
 		if (jokerPos) {
-			newCardsInPlay[jokerPos] = [];
+			newCardsInPlay[jokerPos] = [createUsedCard()];
 		}
 
 		// Check for royal kills from the target position
