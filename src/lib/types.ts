@@ -137,6 +137,7 @@ export interface GameState {
 	aceInUse: AcePosition | null; // Which ace is activated
 	isSetupPhase: boolean;
 	setupPhaseReplaceMode: boolean; // Waiting for user to choose card to replace
+	alternativeRoyalPositions: RoyalPosition[]; // Available positions for player to choose when placing royal
 	gameStatus: GameStatus;
 }
 

@@ -165,17 +165,17 @@ export function canPlaceNumberedCard(card: Card, targetStack: CardStack): boolea
 }
 
 /**
- * Get the royal position that a royal card should be placed at
+ * Get the royal position(s) that a royal card should be placed at
  * Based on game rules:
  * 1. Highest value card of the same suit
  * 2. If no suit match: Highest of same color
  * 3. If no color match: Highest value
- * 4. If tied: Player can choose (we auto-select first available)
+ * 4. If tied: Player can choose (returns array with all tied positions)
  */
 export function getRoyalPlacementPosition(
 	royal: Card,
 	cardsInPlay: CardsInPlay
-): RoyalPosition | null {
+): RoyalPosition[] {
 	const royalPositions: RoyalPosition[] = [
 		'upperLeftRoyal',
 		'upperMiddleRoyal',
@@ -196,10 +196,10 @@ export function getRoyalPlacementPosition(
 		(pos) => cardsInPlay[pos].length === 0 || isEmptyCard(cardsInPlay[pos][0])
 	);
 
-	if (emptyPositions.length === 0) return null;
+	if (emptyPositions.length === 0) return [];
 
 	// If only one empty position, use it
-	if (emptyPositions.length === 1) return emptyPositions[0];
+	if (emptyPositions.length === 1) return [emptyPositions[0]];
 
 	// For each empty royal position, evaluate the "best" adjacent grid card
 	// and rank positions based on: same suit highest value > same color highest > highest value
@@ -253,8 +253,13 @@ export function getRoyalPlacementPosition(
 		return b.value - a.value;
 	});
 
-	// Return the best position
-	return positionScores[0].position;
+	// Return all positions with the same best score (tied positions)
+	const bestScore = positionScores[0];
+	const tiedPositions = positionScores
+		.filter((score) => score.priority === bestScore.priority && score.value === bestScore.value)
+		.map((score) => score.position);
+
+	return tiedPositions;
 }
 
 /**

@@ -8,6 +8,7 @@
 	export let active: boolean = false;
 	export let clickable: boolean = true;
 	export let empty: boolean = false;
+	export let alternative: boolean = false; // Golden glow for alternative royal positions
 	export let onclick: (() => void) | undefined = undefined;
 	export let slotType: 'royal' | 'armor' | 'joker' | 'ace' | 'grid' | undefined = undefined;
 
@@ -22,6 +23,7 @@
 	class:card-active={active}
 	class:card-clickable={clickable}
 	class:card-empty={empty}
+	class:card-alternative={alternative}
 	on:click={onclick}
 	disabled={!clickable}
 	type="button"
@@ -135,6 +137,28 @@
 	.card:disabled {
 		cursor: default;
 		opacity: 0.9;
+	}
+
+	.card-alternative {
+		animation: goldenGlow 1.5s ease-in-out infinite;
+		cursor: pointer;
+		box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.9),
+		            0 0 30px 8px rgba(255, 215, 0, 0.6);
+		outline: 3px solid rgba(255, 215, 0, 0.8);
+		outline-offset: 2px;
+	}
+
+	@keyframes goldenGlow {
+		0%, 100% {
+			box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.8),
+			            0 0 30px 8px rgba(255, 215, 0, 0.5);
+			outline-color: rgba(255, 215, 0, 0.7);
+		}
+		50% {
+			box-shadow: 0 0 30px 6px rgba(255, 215, 0, 1),
+			            0 0 50px 12px rgba(255, 215, 0, 0.8);
+			outline-color: rgba(255, 215, 0, 1);
+		}
 	}
 
 	.card-depth {

@@ -3,11 +3,12 @@
 		gameState,
 		placeNumberedCard,
 		placeRoyalCard,
+		selectRoyalPosition,
 		activateAce,
 		activateJoker
 	} from '$lib/stores/game';
 	import Card from './Card.svelte';
-	import type { GridPosition, AcePosition, JokerPosition } from '$lib/types';
+	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition } from '$lib/types';
 
 	// Handle clicks on grid positions
 	function handleGridClick(position: GridPosition) {
@@ -36,6 +37,18 @@
 			placeRoyalCard();
 		}
 	}
+
+	function handleRoyalPositionClick(position: RoyalPosition) {
+		// Select this position if it's an alternative
+		if ($gameState.alternativeRoyalPositions.includes(position)) {
+			selectRoyalPosition(position);
+		}
+	}
+
+	// Check if a royal position is an alternative choice
+	function isAlternativePosition(position: RoyalPosition): boolean {
+		return $gameState.alternativeRoyalPositions.includes(position);
+	}
 </script>
 
 <div class="game-board">
@@ -57,15 +70,39 @@
 	<!-- Row 2: Empty + Upper Royals + Empty -->
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
-	<Card card={$gameState.cardsInPlay.upperLeftRoyal[0]} clickable={false} slotType="royal" />
-	<Card card={$gameState.cardsInPlay.upperMiddleRoyal[0]} clickable={false} slotType="royal" />
-	<Card card={$gameState.cardsInPlay.upperRightRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.upperLeftRoyal[0]}
+		clickable={isAlternativePosition('upperLeftRoyal')}
+		alternative={isAlternativePosition('upperLeftRoyal')}
+		onclick={() => handleRoyalPositionClick('upperLeftRoyal')}
+		slotType="royal"
+	/>
+	<Card
+		card={$gameState.cardsInPlay.upperMiddleRoyal[0]}
+		clickable={isAlternativePosition('upperMiddleRoyal')}
+		alternative={isAlternativePosition('upperMiddleRoyal')}
+		onclick={() => handleRoyalPositionClick('upperMiddleRoyal')}
+		slotType="royal"
+	/>
+	<Card
+		card={$gameState.cardsInPlay.upperRightRoyal[0]}
+		clickable={isAlternativePosition('upperRightRoyal')}
+		alternative={isAlternativePosition('upperRightRoyal')}
+		onclick={() => handleRoyalPositionClick('upperRightRoyal')}
+		slotType="royal"
+	/>
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
 
 	<!-- Row 3: Left Upper + Grid Top Row + Right Upper -->
 	<Card card={$gameState.cardsInPlay.leftUpperArmor[0]} clickable={false} slotType="armor" />
-	<Card card={$gameState.cardsInPlay.leftUpperRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.leftUpperRoyal[0]}
+		clickable={isAlternativePosition('leftUpperRoyal')}
+		alternative={isAlternativePosition('leftUpperRoyal')}
+		onclick={() => handleRoyalPositionClick('leftUpperRoyal')}
+		slotType="royal"
+	/>
 	<Card
 		card={$gameState.cardsInPlay.upperLeft[0]}
 		stackDepth={$gameState.cardsInPlay.upperLeft.length}
@@ -84,12 +121,24 @@
 		onclick={() => handleGridClick('upperRight')}
 		slotType="grid"
 	/>
-	<Card card={$gameState.cardsInPlay.rightUpperRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.rightUpperRoyal[0]}
+		clickable={isAlternativePosition('rightUpperRoyal')}
+		alternative={isAlternativePosition('rightUpperRoyal')}
+		onclick={() => handleRoyalPositionClick('rightUpperRoyal')}
+		slotType="royal"
+	/>
 	<Card card={$gameState.cardsInPlay.rightUpperArmor[0]} clickable={false} slotType="armor" />
 
 	<!-- Row 4: Left Middle + Grid Middle Row + Right Middle -->
 	<Card card={$gameState.cardsInPlay.leftMiddleArmor[0]} clickable={false} slotType="armor" />
-	<Card card={$gameState.cardsInPlay.leftMiddleRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.leftMiddleRoyal[0]}
+		clickable={isAlternativePosition('leftMiddleRoyal')}
+		alternative={isAlternativePosition('leftMiddleRoyal')}
+		onclick={() => handleRoyalPositionClick('leftMiddleRoyal')}
+		slotType="royal"
+	/>
 	<Card
 		card={$gameState.cardsInPlay.middleLeft[0]}
 		stackDepth={$gameState.cardsInPlay.middleLeft.length}
@@ -108,12 +157,24 @@
 		onclick={() => handleGridClick('middleRight')}
 		slotType="grid"
 	/>
-	<Card card={$gameState.cardsInPlay.rightMiddleRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.rightMiddleRoyal[0]}
+		clickable={isAlternativePosition('rightMiddleRoyal')}
+		alternative={isAlternativePosition('rightMiddleRoyal')}
+		onclick={() => handleRoyalPositionClick('rightMiddleRoyal')}
+		slotType="royal"
+	/>
 	<Card card={$gameState.cardsInPlay.rightMiddleArmor[0]} clickable={false} slotType="armor" />
 
 	<!-- Row 5: Left Bottom + Grid Bottom Row + Right Bottom -->
 	<Card card={$gameState.cardsInPlay.leftBottomArmor[0]} clickable={false} slotType="armor" />
-	<Card card={$gameState.cardsInPlay.leftBottomRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.leftBottomRoyal[0]}
+		clickable={isAlternativePosition('leftBottomRoyal')}
+		alternative={isAlternativePosition('leftBottomRoyal')}
+		onclick={() => handleRoyalPositionClick('leftBottomRoyal')}
+		slotType="royal"
+	/>
 	<Card
 		card={$gameState.cardsInPlay.bottomLeft[0]}
 		stackDepth={$gameState.cardsInPlay.bottomLeft.length}
@@ -132,15 +193,39 @@
 		onclick={() => handleGridClick('bottomRight')}
 		slotType="grid"
 	/>
-	<Card card={$gameState.cardsInPlay.rightBottomRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.rightBottomRoyal[0]}
+		clickable={isAlternativePosition('rightBottomRoyal')}
+		alternative={isAlternativePosition('rightBottomRoyal')}
+		onclick={() => handleRoyalPositionClick('rightBottomRoyal')}
+		slotType="royal"
+	/>
 	<Card card={$gameState.cardsInPlay.rightBottomArmor[0]} clickable={false} slotType="armor" />
 
 	<!-- Row 6: Empty + Bottom Royals + Empty -->
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
-	<Card card={$gameState.cardsInPlay.bottomLeftRoyal[0]} clickable={false} slotType="royal" />
-	<Card card={$gameState.cardsInPlay.bottomMiddleRoyal[0]} clickable={false} slotType="royal" />
-	<Card card={$gameState.cardsInPlay.bottomRightRoyal[0]} clickable={false} slotType="royal" />
+	<Card
+		card={$gameState.cardsInPlay.bottomLeftRoyal[0]}
+		clickable={isAlternativePosition('bottomLeftRoyal')}
+		alternative={isAlternativePosition('bottomLeftRoyal')}
+		onclick={() => handleRoyalPositionClick('bottomLeftRoyal')}
+		slotType="royal"
+	/>
+	<Card
+		card={$gameState.cardsInPlay.bottomMiddleRoyal[0]}
+		clickable={isAlternativePosition('bottomMiddleRoyal')}
+		alternative={isAlternativePosition('bottomMiddleRoyal')}
+		onclick={() => handleRoyalPositionClick('bottomMiddleRoyal')}
+		slotType="royal"
+	/>
+	<Card
+		card={$gameState.cardsInPlay.bottomRightRoyal[0]}
+		clickable={isAlternativePosition('bottomRightRoyal')}
+		alternative={isAlternativePosition('bottomRightRoyal')}
+		onclick={() => handleRoyalPositionClick('bottomRightRoyal')}
+		slotType="royal"
+	/>
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
 

@@ -9,7 +9,8 @@ import type {
 	Card,
 	GridPosition,
 	AcePosition,
-	JokerPosition
+	JokerPosition,
+	RoyalPosition
 } from '$lib/types';
 import { createShuffledDeck } from '$lib/utils/deck';
 import {
@@ -38,6 +39,7 @@ function createInitialGameState(): GameState {
 		aceInUse: null,
 		isSetupPhase: true,
 		setupPhaseReplaceMode: false,
+		alternativeRoyalPositions: [],
 		gameStatus: 'setup'
 	};
 }
@@ -166,16 +168,14 @@ export function placeNumberedCard(position: GridPosition) {
 	});
 }
 
-// Action: Place a royal card (automatically placed based on similarity rules)
+// Action: Show alternatives for royal placement (or place if only one option)
 export function placeRoyalCard() {
 	gameState.update((state) => {
 		// Check royalsToBePlaced first
 		let royal: Card | null = null;
-		let sourceIsRoyalStack = false;
 
 		if (state.cardsInPlay.royalsToBePlaced.length > 0) {
 			royal = state.cardsInPlay.royalsToBePlaced[0];
-			sourceIsRoyalStack = true;
 		} else if (state.deck.length > 0) {
 			const topCard = state.deck[0];
 			if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
@@ -185,32 +185,74 @@ export function placeRoyalCard() {
 
 		if (!royal) return state;
 
-		// Find placement position
-		const position = getRoyalPlacementPosition(royal, state.cardsInPlay);
-		if (!position) return state; // No valid position
+		// Find placement position(s)
+		const positions = getRoyalPlacementPosition(royal, state.cardsInPlay);
+		if (positions.length === 0) return state; // No valid position
 
-		// Place the royal
-		let newDeck = state.deck;
-		let newRoyalsToBePlaced = state.cardsInPlay.royalsToBePlaced;
-
-		if (sourceIsRoyalStack) {
-			newRoyalsToBePlaced = newRoyalsToBePlaced.slice(1);
-		} else {
-			newDeck = newDeck.slice(1);
+		// If only one position, place immediately
+		if (positions.length === 1) {
+			return placeRoyalAtPosition(state, positions[0]);
 		}
 
-		const newCardsInPlay = {
-			...state.cardsInPlay,
-			[position]: [royal],
-			royalsToBePlaced: newRoyalsToBePlaced
-		};
-
+		// Multiple positions: show alternatives for player to choose
 		return {
 			...state,
-			deck: newDeck,
-			cardsInPlay: newCardsInPlay
+			alternativeRoyalPositions: positions
 		};
 	});
+}
+
+// Action: Place royal at a specific position (used when player chooses)
+export function selectRoyalPosition(position: RoyalPosition) {
+	gameState.update((state) => {
+		// Verify this is a valid alternative
+		if (!state.alternativeRoyalPositions.includes(position)) {
+			return state;
+		}
+
+		return placeRoyalAtPosition(state, position);
+	});
+}
+
+// Helper: Actually place the royal at a position
+function placeRoyalAtPosition(state: GameState, position: RoyalPosition): GameState {
+	let royal: Card | null = null;
+	let sourceIsRoyalStack = false;
+
+	if (state.cardsInPlay.royalsToBePlaced.length > 0) {
+		royal = state.cardsInPlay.royalsToBePlaced[0];
+		sourceIsRoyalStack = true;
+	} else if (state.deck.length > 0) {
+		const topCard = state.deck[0];
+		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
+			royal = topCard;
+		}
+	}
+
+	if (!royal) return state;
+
+	// Place the royal
+	let newDeck = state.deck;
+	let newRoyalsToBePlaced = state.cardsInPlay.royalsToBePlaced;
+
+	if (sourceIsRoyalStack) {
+		newRoyalsToBePlaced = newRoyalsToBePlaced.slice(1);
+	} else {
+		newDeck = newDeck.slice(1);
+	}
+
+	const newCardsInPlay = {
+		...state.cardsInPlay,
+		[position]: [royal],
+		royalsToBePlaced: newRoyalsToBePlaced
+	};
+
+	return {
+		...state,
+		deck: newDeck,
+		cardsInPlay: newCardsInPlay,
+		alternativeRoyalPositions: [] // Clear alternatives
+	};
 }
 
 // Action: Place an armor card (automatically placed on lowest-value royal)
