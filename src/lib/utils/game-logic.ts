@@ -486,12 +486,12 @@ export function checkGameWon(cardsInPlay: CardsInPlay): boolean {
 
 	for (const pos of royalPositions) {
 		const royal = cardsInPlay[pos][0];
-		if (royal && !isRoyalDead(royal)) {
-			return false; // Found a living royal
+		if (!royal || !isRoyalDead(royal)) {
+			return false; // Still missing or living royals
 		}
 	}
 
-	return true; // All royals are dead or not placed
+	return true; // All royal slots contain dead royals
 }
 
 /**

@@ -12,6 +12,7 @@ import type {
 	JokerPosition,
 	RoyalPosition
 } from '$lib/types';
+import { isRoyalValue } from '$lib/types';
 import { createShuffledDeck } from '$lib/utils/deck';
 import {
 	setupFirstNineCards,
@@ -73,17 +74,57 @@ export const hasAceActive = derived(gameState, ($state) => $state.aceInUse !== n
  * This should be called after any card placement or deck change
  */
 function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
-	const topCard = state.deck[0];
+	const stateWithRoyalReady = ensureNextRoyalAvailable(state);
+	const topCard = stateWithRoyalReady.deck[0];
 
 	// If no card in deck, or in setup phase, keep as true
-	if (!topCard || state.isSetupPhase) {
-		return { ...state, canPlaceTopCardOnGrid: true };
+	if (!topCard || stateWithRoyalReady.isSetupPhase) {
+		return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: true };
 	}
 
 	// Check if top card can be placed on grid
-	const canPlace = canPlaceCardOnGrid(topCard, state.cardsInPlay);
+	const canPlace = canPlaceCardOnGrid(topCard, stateWithRoyalReady.cardsInPlay);
 
-	return { ...state, canPlaceTopCardOnGrid: canPlace };
+	return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: canPlace };
+}
+
+function ensureNextRoyalAvailable(state: GameState): GameState {
+	if (
+		state.isSetupPhase ||
+		state.gameStatus !== 'playing' ||
+		state.cardsInPlay.royalsToBePlaced.length > 0 ||
+		countLivingRoyals(state.cardsInPlay) > 0 ||
+		state.deck.length === 0
+	) {
+		return state;
+	}
+
+	const topCard = state.deck[0];
+	if (topCard && isRoyalValue(topCard.value)) {
+		return state;
+	}
+
+	const deckHasRoyal = state.deck.some((card) => isRoyalValue(card.value));
+	if (!deckHasRoyal) {
+		return state;
+	}
+
+	const newDeck = [...state.deck];
+	const cycledCards: Card[] = [];
+
+	while (newDeck.length > 0) {
+		const card = newDeck.shift()!;
+		if (isRoyalValue(card.value)) {
+			newDeck.unshift(card);
+			break;
+		}
+		cycledCards.push(card);
+	}
+
+	return {
+		...state,
+		deck: [...newDeck, ...cycledCards]
+	};
 }
 
 // Action: Restart the game
@@ -548,34 +589,5 @@ export function useJoker(targetPosition: GridPosition) {
 
 // Action: Cycle deck to find next royal (when no royals on board)
 export function cycleDeckForRoyal() {
-	gameState.update((state) => {
-		const livingRoyals = countLivingRoyals(state.cardsInPlay);
-		if (livingRoyals > 0) return state; // Royals exist, don't cycle
-
-		// Find next royal in deck
-		const cycledCards: Card[] = [];
-		let foundRoyal = false;
-		let newDeck = [...state.deck];
-
-		while (newDeck.length > 0 && !foundRoyal) {
-			const card = newDeck.shift()!;
-
-			if (card.value === 11 || card.value === 12 || card.value === 13) {
-				// Found a royal, put it at the front
-				newDeck.unshift(card);
-				foundRoyal = true;
-			} else {
-				// Not a royal, add to cycled cards
-				cycledCards.push(card);
-			}
-		}
-
-		// Add cycled cards to bottom of deck
-		newDeck = [...newDeck, ...cycledCards];
-
-		return {
-			...state,
-			deck: newDeck
-		};
-	});
+	gameState.update((state) => ensureNextRoyalAvailable(state));
 }
