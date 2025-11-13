@@ -65,7 +65,7 @@
 		bottom: 0;
 		background-color: var(--color-modal-overlay);
 		display: flex;
-		align-items: center;
+		align-items: top;
 		justify-content: center;
 		z-index: var(--z-overlay);
 		padding: var(--spacing-md);
@@ -78,6 +78,8 @@
 		padding: var(--spacing-xl);
 		max-width: 500px;
 		width: 100%;
+		max-height: fit-content;
+		height: fit-content;
 		box-shadow: var(--shadow-lg);
 		text-align: center;
 	}
