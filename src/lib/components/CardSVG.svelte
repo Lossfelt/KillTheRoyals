@@ -26,11 +26,11 @@
 	}
 
 	const usedPatternRows = [
-		{ y: 18, columns: [22, 44, 66] },
-		{ y: 38, columns: [33, 55] },
-		{ y: 58, columns: [22, 44, 66] },
-		{ y: 78, columns: [33, 55] },
-		{ y: 98, columns: [22, 44, 66] }
+		{ y: 18, columns: [19, 41, 63] },
+		{ y: 38, columns: [30, 52] },
+		{ y: 58, columns: [19, 41, 63] },
+		{ y: 78, columns: [30, 52] },
+		{ y: 98, columns: [19, 41, 63] }
 	];
 
 	const usedPatternPositions = usedPatternRows.flatMap(({ y, columns }) =>
@@ -63,7 +63,7 @@
 		</g>
 	{:else if card.value === 'USED'}
 		<!-- Used card - card back pattern -->
-		<rect x="5" y="5" width="90" height="130" rx="4" fill="#ffffff" stroke="#111" stroke-width="2" />
+		<rect x="2" y="2" width="96" height="136" rx="4" fill="#ffffff" stroke="#111" stroke-width="2" />
 		<rect x="15" y="15" width="70" height="110" rx="2" fill="#ffffff" stroke="#111" stroke-width="2" />
 		<g fill="#111">
 			{#each usedPatternPositions as { x, y }}
