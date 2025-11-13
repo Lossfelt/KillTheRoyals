@@ -24,6 +24,18 @@
 		if (value === 13) return 'K';
 		return value.toString();
 	}
+
+	const usedPatternRows = [
+		{ y: 18, columns: [22, 44, 66] },
+		{ y: 38, columns: [33, 55] },
+		{ y: 58, columns: [22, 44, 66] },
+		{ y: 78, columns: [33, 55] },
+		{ y: 98, columns: [22, 44, 66] }
+	];
+
+	const usedPatternPositions = usedPatternRows.flatMap(({ y, columns }) =>
+		columns.map((x) => ({ x, y }))
+	);
 </script>
 
 <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" class="card-svg">
@@ -51,42 +63,12 @@
 		</g>
 	{:else if card.value === 'USED'}
 		<!-- Used card - card back pattern -->
-		<rect x="5" y="5" width="90" height="130" rx="2" fill="#1a5490" />
-		<!-- Diagonal lines pattern -->
-		<g stroke="#3a7bc0" stroke-width="1.5" opacity="0.6">
-			<line x1="10" y1="10" x2="90" y2="130" />
-			<line x1="20" y1="10" x2="90" y2="120" />
-			<line x1="30" y1="10" x2="90" y2="110" />
-			<line x1="40" y1="10" x2="90" y2="100" />
-			<line x1="50" y1="10" x2="90" y2="90" />
-			<line x1="60" y1="10" x2="90" y2="80" />
-			<line x1="70" y1="10" x2="90" y2="70" />
-			<line x1="80" y1="10" x2="90" y2="60" />
-			<line x1="10" y1="20" x2="80" y2="130" />
-			<line x1="10" y1="30" x2="70" y2="130" />
-			<line x1="10" y1="40" x2="60" y2="130" />
-			<line x1="10" y1="50" x2="50" y2="130" />
-			<line x1="10" y1="60" x2="40" y2="130" />
-			<line x1="10" y1="70" x2="30" y2="130" />
-			<line x1="10" y1="80" x2="20" y2="130" />
-		</g>
-		<!-- Opposite diagonal lines -->
-		<g stroke="#5a9bd5" stroke-width="1.5" opacity="0.5">
-			<line x1="10" y1="130" x2="90" y2="10" />
-			<line x1="20" y1="130" x2="90" y2="20" />
-			<line x1="30" y1="130" x2="90" y2="30" />
-			<line x1="40" y1="130" x2="90" y2="40" />
-			<line x1="50" y1="130" x2="90" y2="50" />
-			<line x1="60" y1="130" x2="90" y2="60" />
-			<line x1="70" y1="130" x2="90" y2="70" />
-			<line x1="80" y1="130" x2="90" y2="80" />
-			<line x1="10" y1="120" x2="80" y2="10" />
-			<line x1="10" y1="110" x2="70" y2="10" />
-			<line x1="10" y1="100" x2="60" y2="10" />
-			<line x1="10" y1="90" x2="50" y2="10" />
-			<line x1="10" y1="80" x2="40" y2="10" />
-			<line x1="10" y1="70" x2="30" y2="10" />
-			<line x1="10" y1="60" x2="20" y2="10" />
+		<rect x="5" y="5" width="90" height="130" rx="4" fill="#ffffff" stroke="#111" stroke-width="2" />
+		<rect x="15" y="15" width="70" height="110" rx="2" fill="#ffffff" stroke="#111" stroke-width="2" />
+		<g fill="#111">
+			{#each usedPatternPositions as { x, y }}
+				<polygon points="{x},{y + 10} {x + 9},{y} {x + 18},{y + 10} {x + 9},{y + 20}" />
+			{/each}
 		</g>
 	{:else}
 		<!-- Top center - value -->
