@@ -54,15 +54,8 @@
 				JOKER
 			</text>
 		</g>
-	{:else if card.value === 'DEAD'}
-		<!-- Dead royal card - diagonal text -->
-		<g transform="rotate(45 50 70)">
-			<text x="50" y="70" text-anchor="middle" dominant-baseline="middle" class="dead-text">
-				DEAD
-			</text>
-		</g>
-	{:else if card.value === 'USED'}
-		<!-- Used card - card back pattern -->
+	{:else if card.value === 'DEAD' || card.value === 'USED'}
+		<!-- Card back pattern - for dead royals/armor and used jokers/aces -->
 		<rect x="2" y="2" width="96" height="136" rx="4" fill="#ffffff" stroke="#111" stroke-width="2" />
 		<rect x="15" y="15" width="70" height="110" rx="2" fill="#ffffff" stroke="#111" stroke-width="2" />
 		<g fill="#111">
@@ -103,14 +96,6 @@
 		font-family: sans-serif;
 		letter-spacing: 2px;
 		fill: #9b59b6; /* Purple color for joker */
-	}
-
-	.dead-text {
-		font-size: 28px;
-		font-weight: bold;
-		font-family: sans-serif;
-		letter-spacing: 2px;
-		fill: #666666; /* Gray color for dead cards */
 	}
 
 	/* Color based on card suit */
