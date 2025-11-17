@@ -10,7 +10,8 @@ import type {
 	GridPosition,
 	AcePosition,
 	JokerPosition,
-	RoyalPosition
+	RoyalPosition,
+	CardsInPlay
 } from '$lib/types';
 import { isRoyalValue } from '$lib/types';
 import { createShuffledDeck } from '$lib/utils/deck';
@@ -64,30 +65,26 @@ export const livingRoyalsCount = derived(gameState, ($state) =>
 );
 
 /**
- * Check and update win/loss status based on current game state
- * Should be called reactively whenever game state changes
+ * Helper: Determine game status based on current state
+ * Returns 'won', 'lost', or the current status
  */
-export function checkAndUpdateGameStatus() {
-	gameState.update((state) => {
-		// Only check during active gameplay
-		if (state.gameStatus !== 'playing') {
-			return state;
-		}
+function determineGameStatus(
+	currentStatus: GameState['gameStatus'],
+	deck: Card[],
+	cardsInPlay: CardsInPlay
+): GameState['gameStatus'] {
+	// Only check during active gameplay
+	if (currentStatus !== 'playing') {
+		return currentStatus;
+	}
 
-		// Check win/loss conditions
-		const won = checkGameWon(state.cardsInPlay);
-		const lost = checkGameLost(state.deck, state.cardsInPlay);
+	// Check win/loss conditions
+	const won = checkGameWon(cardsInPlay);
+	const lost = checkGameLost(deck, cardsInPlay);
 
-		// Update status if game has ended
-		if (won || lost) {
-			return {
-				...state,
-				gameStatus: won ? 'won' : 'lost'
-			};
-		}
-
-		return state;
-	});
+	if (won) return 'won';
+	if (lost) return 'lost';
+	return 'playing';
 }
 
 /**
@@ -248,11 +245,14 @@ export function placeNumberedCard(position: GridPosition) {
 		// Check for royal kills
 		const updatedCardsInPlay = killRoyalsFromPosition(position, newCardsInPlay);
 
+		// Determine game status
+		const gameStatus = determineGameStatus(state.gameStatus, newDeck, updatedCardsInPlay);
+
 		const newState = {
 			...state,
 			deck: newDeck,
 			cardsInPlay: updatedCardsInPlay,
-			gameStatus: state.gameStatus
+			gameStatus
 		};
 
 		// Update whether top card can be placed on grid
@@ -353,11 +353,15 @@ function placeRoyalAtPosition(state: GameState, position: RoyalPosition): GameSt
 		royalsToBePlaced: newRoyalsToBePlaced
 	};
 
+	// Determine game status
+	const gameStatus = determineGameStatus(state.gameStatus, newDeck, newCardsInPlay);
+
 	const newState = {
 		...state,
 		deck: newDeck,
 		cardsInPlay: newCardsInPlay,
-		alternativeRoyalPositions: [] // Clear alternatives
+		alternativeRoyalPositions: [], // Clear alternatives
+		gameStatus
 	};
 
 	// Update whether top card can be placed on grid
@@ -387,10 +391,14 @@ export function placeArmorCard() {
 			[position]: [card]
 		};
 
+		// Determine game status (important: armor can make deck empty!)
+		const gameStatus = determineGameStatus(state.gameStatus, newDeck, newCardsInPlay);
+
 		const newState = {
 			...state,
 			deck: newDeck,
-			cardsInPlay: newCardsInPlay
+			cardsInPlay: newCardsInPlay,
+			gameStatus
 		};
 
 		// Update whether top card can be placed on grid
@@ -587,12 +595,15 @@ export function useJoker(targetPosition: GridPosition) {
 		// Check for royal kills from the target position
 		newCardsInPlay = killRoyalsFromPosition(targetPosition, newCardsInPlay);
 
+		// Determine game status
+		const gameStatus = determineGameStatus(state.gameStatus, state.deck, newCardsInPlay);
+
 		const newState = {
 			...state,
 			cardsInPlay: newCardsInPlay,
 			jokerInUse: null,
 			jokerSourceStack: null,
-			gameStatus: state.gameStatus
+			gameStatus
 		};
 
 		// Update whether top card can be placed on grid

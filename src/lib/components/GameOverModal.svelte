@@ -33,18 +33,20 @@
 {#if showModal}
 	<div class="modal-overlay">
 		<div class="modal-content" class:victory={isWin} class:defeat={!isWin}>
-			<h2>{isWin ? 'Victory! 🎉' : 'Defeat 😞'}</h2>
+			<h2>{isWin ? 'Victory! 🎉' : 'Defeat 💔'}</h2>
 
-			<div class="stats">
-				<div class="stat-row">
-					<span class="stat-label">Cards used:</span>
-					<span class="stat-value">{cardsUsed}/54</span>
+			{#if isWin}
+				<div class="stats">
+					<div class="stat-row">
+						<span class="stat-label">Cards used:</span>
+						<span class="stat-value">{cardsUsed}/54</span>
+					</div>
+					<div class="stat-row">
+						<span class="stat-label">Score:</span>
+						<span class="stat-value">{score}/6</span>
+					</div>
 				</div>
-				<div class="stat-row">
-					<span class="stat-label">Score:</span>
-					<span class="stat-value">{score}/6</span>
-				</div>
-			</div>
+			{/if}
 
 			<button class="button button-primary" on:click={handlePlayAgain}>
 				Play Again
