@@ -388,6 +388,9 @@
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
 
+	<!-- Break between board and supply -->
+	<div class="board-break" aria-hidden="true"></div>
+
 	<!-- Row 8: Deck + Jokers + Aces -->
 	<Card
 		card={$gameState.deck[0]}
@@ -458,6 +461,18 @@
 		background-color: var(--color-bg-secondary);
 		border-radius: calc(var(--card-radius) * 2);
 		box-sizing: border-box;
+		overflow: hidden;
+	}
+	
+	.board-break {
+	grid-column: 1 / -1;
+	height: var(--spacing-xl);
+	background: var(--color-bg);   /* samme som body-bakgrunn */
+	border-radius: 0;
+	/* Extend horizontally to cover both padding and grid gap */
+	margin-left: calc(-1 * (var(--spacing-sm) + var(--grid-gap)));
+	margin-right: calc(-1 * (var(--spacing-sm) + var(--grid-gap)));
+	width: calc(100% + (var(--spacing-sm) + var(--grid-gap)) * 2);
 	}
 
 	.cell {
