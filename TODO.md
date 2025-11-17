@@ -4,7 +4,8 @@
  - [ ] Legg til musikk
  - [ ] Finn en annen visning av armor-placement-behov enn banner
  - [ ] Sjekk hvorfor koden fortsatt bruker unicode her og der
- - [ ] Fjern statistikk fra loss-modalen
+ - [X] Fjern statistikk fra loss-modalen
+ - [ ] Persistant storage lokalt, samt lage en high-score modal
 
 ## 🚀 Modernization Tasks (Priority: High)
 

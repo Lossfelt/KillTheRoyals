@@ -37,27 +37,34 @@
 				<ul>
 					<li><strong>Numbered (2-10):</strong> Place on grid stacks (same or lower value)</li>
 					<li><strong>Royals (J/Q/K):</strong> Auto-placed adjacent to similar cards</li>
-					<li><strong>Armor:</strong> Goes to lowest-value royal (adds health)</li>
+					<li><strong>Armor:</strong> If card can't be placed on grid, it becomes armor on lowest-value royal (max: royal + armor ≤ 20)</li>
 				</ul>
 
 				<h3>Combat</h3>
-				<p>When you place a card, it creates a <strong>payload</strong> with 2 adjacent cards that can shoot royals:</p>
+				<p>When you place a card opposite a royal (with exactly 2 cards between them), those 2 cards form a <strong>payload</strong> that shoots the royal.</p>
+				<p><strong>Power = </strong>Sum of payload cards &nbsp;|&nbsp; <strong>Health = </strong>Royal value + armor</p>
+				<p>Royal is killed if <strong>Power ≥ Health</strong> AND suit requirement met:</p>
 				<ul>
-					<li><strong>Jack (11):</strong> Any suits, total ≥ 11</li>
-					<li><strong>Queen (12):</strong> Same color, total ≥ 12</li>
-					<li><strong>King (13):</strong> Same suit, total ≥ 13</li>
+					<li><strong>Jack (11):</strong> Any suits work</li>
+					<li><strong>Queen (12):</strong> Payload must be same color (both red or both black)</li>
+					<li><strong>King (13):</strong> Payload must be same suit</li>
 				</ul>
 
 				<h3>Special Cards</h3>
 				<ul>
-					<li><strong>Ace:</strong> Click to activate, then click a stack to remove it</li>
-					<li><strong>Joker:</strong> Click to activate, then move one card between stacks</li>
+					<li><strong>Ace:</strong> Click to activate, then click a stack. The entire stack is removed and placed on bottom of deck. Grid position becomes empty.</li>
+					<li><strong>Joker:</strong> Click to activate, then select a stack (top card only), then place it on another stack. Can trigger payloads if placed opposite a royal.</li>
 				</ul>
 
-				<h3>Win/Loss</h3>
+				<h3>Winning</h3>
+				<p>You win when all 12 royals are killed.</p>
+				<p><strong>Score:</strong> Number of unspent Jokers and Aces (0-6). Higher is better!</p>
+
+				<h3>Losing</h3>
+				<p>You lose if:</p>
 				<ul>
-					<li><strong>Win:</strong> All 12 royals killed</li>
-					<li><strong>Loss:</strong> Deck empty with royals still alive</li>
+					<li><strong>Stuck:</strong> You draw a card that can't be placed on grid AND can't be armored (no slots or would make royal invincible)</li>
+					<li><strong>Deck Empty:</strong> Deck runs out AND you have no unused Aces to continue playing</li>
 				</ul>
 
 				<p class="note">

@@ -390,7 +390,12 @@ export function placeArmorCard() {
 
 		// Find armor placement position
 		const position = getArmorPlacementPosition(card, state.cardsInPlay);
-		if (!position) return state; // Can't place armor (game might be lost)
+		if (!position) {
+			// Can't place armor - check if player is stuck
+			// Note: checkGameLost will check for unused Jokers/Aces before declaring loss
+			const gameStatus = determineGameStatus(state.gameStatus, state.deck, state.cardsInPlay);
+			return { ...state, gameStatus };
+		}
 
 		// Place the armor
 		const newDeck = state.deck.slice(1);
