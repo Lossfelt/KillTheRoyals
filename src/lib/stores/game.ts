@@ -80,7 +80,15 @@ function determineGameStatus(
 
 	// Check win/loss conditions
 	const won = checkGameWon(cardsInPlay);
-	const lost = checkGameLost(deck, cardsInPlay);
+
+	// Calculate if top card can be placed on grid
+	let canPlaceTopCardOnGrid = true;
+	const topCard = deck[0];
+	if (topCard) {
+		canPlaceTopCardOnGrid = canPlaceCardOnGrid(topCard, cardsInPlay);
+	}
+
+	const lost = checkGameLost(deck, cardsInPlay, canPlaceTopCardOnGrid);
 
 	if (won) return 'won';
 	if (lost) return 'lost';

@@ -495,13 +495,110 @@ export function checkGameWon(cardsInPlay: CardsInPlay): boolean {
 }
 
 /**
- * Check if game is lost (deck empty with living royals)
+ * Check if there are any unused Jokers available
  */
-export function checkGameLost(deck: Card[], cardsInPlay: CardsInPlay): boolean {
-	// Game is lost if deck is empty and royals still alive
-	if (deck.length > 0) return false;
+function hasUnusedJoker(cardsInPlay: CardsInPlay): boolean {
+	const joker1 = cardsInPlay.joker1[0];
+	const joker2 = cardsInPlay.joker2[0];
 
-	return !checkGameWon(cardsInPlay);
+	// Joker is unused if it exists and is not USED
+	const joker1Unused = joker1 && joker1.value !== 'USED';
+	const joker2Unused = joker2 && joker2.value !== 'USED';
+
+	return joker1Unused || joker2Unused;
+}
+
+/**
+ * Check if there are any unused Aces available
+ */
+function hasUnusedAce(cardsInPlay: CardsInPlay): boolean {
+	const ace1 = cardsInPlay.ace1[0];
+	const ace2 = cardsInPlay.ace2[0];
+	const ace3 = cardsInPlay.ace3[0];
+	const ace4 = cardsInPlay.ace4[0];
+
+	// Ace is unused if it exists and is not USED
+	return (
+		(ace1 && ace1.value !== 'USED') ||
+		(ace2 && ace2.value !== 'USED') ||
+		(ace3 && ace3.value !== 'USED') ||
+		(ace4 && ace4.value !== 'USED')
+	);
+}
+
+/**
+ * Check if there are any unused Aces with cards in stacks
+ */
+function hasUnusedAceWithCards(cardsInPlay: CardsInPlay): boolean {
+	if (!hasUnusedAce(cardsInPlay)) return false;
+
+	// Check if any grid position has cards (stack with 2+ cards)
+	const gridPositions: GridPosition[] = [
+		'upperLeft',
+		'upperMiddle',
+		'upperRight',
+		'middleLeft',
+		'middleMiddle',
+		'middleRight',
+		'bottomLeft',
+		'bottomMiddle',
+		'bottomRight'
+	];
+
+	for (const pos of gridPositions) {
+		if (cardsInPlay[pos].length > 1) {
+			return true; // Found a stack with cards
+		}
+	}
+
+	return false; // No stacks with cards to pull from
+}
+
+/**
+ * Check if game is lost
+ * Based on game rules: lose if stuck OR deck empty without Aces
+ */
+export function checkGameLost(
+	deck: Card[],
+	cardsInPlay: CardsInPlay,
+	canPlaceTopCardOnGrid: boolean
+): boolean {
+	// Already won? Not lost.
+	if (checkGameWon(cardsInPlay)) return false;
+
+	// Loss Condition 1: Stuck with current card (even with cards in deck)
+	if (deck.length > 0) {
+		const topCard = deck[0];
+
+		// Skip Royals, Jokers, and Aces - they can always be placed
+		if (
+			topCard.value === 11 ||
+			topCard.value === 12 ||
+			topCard.value === 13 ||
+			topCard.value === 'Joker' ||
+			topCard.value === 'A'
+		) {
+			return false;
+		}
+
+		// Can place on grid? Not stuck
+		if (canPlaceTopCardOnGrid) return false;
+
+		// Can armor? Not stuck
+		if (getArmorPlacementPosition(topCard, cardsInPlay) !== null) return false;
+
+		// Has unused Joker? Not stuck (can move cards around)
+		if (hasUnusedJoker(cardsInPlay)) return false;
+
+		// Has unused Ace with cards in stacks? Not stuck (can get cards back)
+		if (hasUnusedAceWithCards(cardsInPlay)) return false;
+
+		// Completely stuck!
+		return true;
+	}
+
+	// Loss Condition 2: Deck empty without unused Aces
+	return !hasUnusedAce(cardsInPlay);
 }
 
 /**
