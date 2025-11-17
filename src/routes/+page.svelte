@@ -3,6 +3,7 @@
 	import GameControls from '$lib/components/GameControls.svelte';
 	import RulesModal from '$lib/components/RulesModal.svelte';
 	import SetupCompleteModal from '$lib/components/SetupCompleteModal.svelte';
+	import GameOverModal from '$lib/components/GameOverModal.svelte';
 
 	let showRules = false;
 
@@ -27,6 +28,7 @@
 	<GameBoard />
 
 	<SetupCompleteModal />
+	<GameOverModal />
 	<RulesModal bind:show={showRules} />
 </main>
 

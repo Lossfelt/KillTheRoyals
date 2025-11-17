@@ -1,5 +1,9 @@
 # Kill The Royals - TODO List
 
+ # Definert av Levin
+ - [ ] Legg til musikk
+ - [ ] Finn en annen visning av armor-placement-behov enn banner
+
 ## 🚀 Modernization Tasks (Priority: High)
 
 ### Phase 1: Documentation ✅ COMPLETE
