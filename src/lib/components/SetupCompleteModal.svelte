@@ -41,15 +41,15 @@
 {#if showModal}
 	<div class="modal-overlay">
 		<div class="modal-content">
-			<h2>Vil du bytte ut ett kort?</h2>
-			<p>Du kan velge å bytte ut ett nummerkort på brettet med et nytt kort fra bunken.</p>
+			<h2>Replace a card?</h2>
+			<p>You can choose to replace one numbered card on the board with a new card from the deck.</p>
 
 			<div class="button-group">
 				<button class="button button-secondary" on:click={handleSkip}>
-					Nei, start spillet
+					No, start game
 				</button>
 				<button class="button button-primary" on:click={handleReplace}>
-					Ja, bytt kort
+					Yes, replace card
 				</button>
 			</div>
 		</div>

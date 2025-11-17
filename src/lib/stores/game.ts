@@ -63,12 +63,6 @@ export const livingRoyalsCount = derived(gameState, ($state) =>
 	countLivingRoyals($state.cardsInPlay)
 );
 
-export const topDeckCard = derived(gameState, ($state) => $state.deck[0] ?? null);
-
-export const hasJokerActive = derived(gameState, ($state) => $state.jokerInUse !== null);
-
-export const hasAceActive = derived(gameState, ($state) => $state.aceInUse !== null);
-
 /**
  * Helper: Update whether the top card can be placed on grid
  * This should be called after any card placement or deck change
@@ -587,7 +581,7 @@ export function useJoker(targetPosition: GridPosition) {
 	});
 }
 
-// Action: Cycle deck to find next royal (when no royals on board)
-export function cycleDeckForRoyal() {
+// Helper: Cycle deck to find next royal (when no royals on board)
+function cycleDeckForRoyal() {
 	gameState.update((state) => ensureNextRoyalAvailable(state));
 }

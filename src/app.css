@@ -58,8 +58,6 @@
 	--touch-target-min: 44px;
 
 	/* Z-index layers */
-	--z-base: 1;
-	--z-card: 10;
 	--z-modal: 100;
 	--z-overlay: 99;
 }
@@ -138,22 +136,3 @@ button {
 	color: inherit;
 }
 
-/* Utility Classes */
-.visually-hidden {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border-width: 0;
-}
-
-.no-select {
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}

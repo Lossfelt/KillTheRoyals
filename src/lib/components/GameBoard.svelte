@@ -161,13 +161,13 @@
 
 {#if $gameState.isSetupPhase && $gameState.setupPhaseReplaceMode}
 	<div class="replace-mode-indicator">
-		Klikk på et nummerkort for å bytte det ut
+		Click a numbered card to replace it
 	</div>
 {/if}
 
 {#if !$gameState.isSetupPhase && !$gameState.canPlaceTopCardOnGrid && $gameState.deck[0] && typeof $gameState.deck[0].value === 'number' && $gameState.deck[0].value >= 2 && $gameState.deck[0].value <= 10}
 	<div class="armor-placement-indicator">
-		Klikk på kortstokken for å plassere som armor
+		Click the deck to place as armor
 	</div>
 {/if}
 

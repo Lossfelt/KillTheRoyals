@@ -178,16 +178,3 @@ export function createShuffledDeck(): Card[] {
 	return shuffleDeck(createDeck());
 }
 
-/**
- * Get a card's display value (for debugging/display)
- */
-export function getCardDisplayValue(card: Card): string {
-	const valueMap: Record<number, string> = {
-		11: 'J',
-		12: 'Q',
-		13: 'K'
-	};
-
-	const displayValue = typeof card.value === 'number' ? valueMap[card.value] ?? card.value : card.value;
-	return card.value === 'Joker' ? 'Joker' : `${displayValue}${card.suit[0].toUpperCase()}`;
-}

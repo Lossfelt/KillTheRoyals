@@ -153,55 +153,10 @@ export type RoyalArmorPair = {
 
 // Constants
 export const DEAD_CARD_UNICODE = '\u{1F0A0}'; // Card back for dead royals
-export const GRID_SIZE = 3;
-export const TOTAL_ROYALS = 12;
 
 // Helper type guards
-export function isNumberedValue(value: CardValue): value is NumberedValue {
-	return typeof value === 'number' && value >= 2 && value <= 10;
-}
-
 export function isRoyalValue(value: CardValue): value is RoyalValue {
 	return value === 11 || value === 12 || value === 13;
-}
-
-export function isAce(value: CardValue): value is 'A' {
-	return value === 'A';
-}
-
-export function isJoker(value: CardValue): value is 'Joker' {
-	return value === 'Joker';
-}
-
-export function isGridPosition(position: string): position is GridPosition {
-	const gridPositions: GridPosition[] = [
-		'upperLeft',
-		'upperMiddle',
-		'upperRight',
-		'middleLeft',
-		'middleMiddle',
-		'middleRight',
-		'bottomLeft',
-		'bottomMiddle',
-		'bottomRight'
-	];
-	return gridPositions.includes(position as GridPosition);
-}
-
-export function isRoyalPosition(position: string): position is RoyalPosition {
-	return position.endsWith('Royal');
-}
-
-export function isArmorPosition(position: string): position is ArmorPosition {
-	return position.endsWith('Armor');
-}
-
-export function isAcePosition(position: string): position is AcePosition {
-	return position.startsWith('ace');
-}
-
-export function isJokerPosition(position: string): position is JokerPosition {
-	return position.startsWith('joker');
 }
 
 // Royal-Armor position mapping
@@ -261,16 +216,3 @@ export const ATTACK_MAPPINGS: Record<GridPosition, AttackMapping[]> = {
 	]
 };
 
-// Grid-to-Royal firing lines (which grid position can shoot which royal)
-// Derived from ATTACK_MAPPINGS for convenience
-export const FIRING_LINES: Record<GridPosition, RoyalPosition[]> = {
-	upperLeft: ['rightUpperRoyal', 'bottomLeftRoyal'],
-	upperMiddle: ['bottomMiddleRoyal'],
-	upperRight: ['leftUpperRoyal', 'bottomRightRoyal'],
-	middleLeft: ['rightMiddleRoyal'],
-	middleMiddle: [], // Center can't shoot anything
-	middleRight: ['leftMiddleRoyal'],
-	bottomLeft: ['rightBottomRoyal', 'upperLeftRoyal'],
-	bottomMiddle: ['upperMiddleRoyal'],
-	bottomRight: ['leftBottomRoyal', 'upperRightRoyal']
-};
