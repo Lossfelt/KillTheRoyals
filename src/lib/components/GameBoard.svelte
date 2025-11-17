@@ -12,10 +12,21 @@
 		activateJoker,
 		selectJokerSource,
 		useJoker,
-		completeSetup
+		completeSetup,
+		checkAndUpdateGameStatus
 	} from '$lib/stores/game';
 	import Card from './Card.svelte';
 	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition } from '$lib/types';
+
+	// Reactive effect: Check win/loss whenever game state changes
+	$effect(() => {
+		// Access reactive dependencies
+		$gameState.deck;
+		$gameState.cardsInPlay;
+
+		// Check and update game status
+		checkAndUpdateGameStatus();
+	});
 
 	// Handle clicks on grid positions
 	function handleGridClick(position: GridPosition) {

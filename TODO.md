@@ -3,6 +3,8 @@
  # Definert av Levin
  - [ ] Legg til musikk
  - [ ] Finn en annen visning av armor-placement-behov enn banner
+ - [ ] Sjekk hvorfor koden fortsatt bruker unicode her og der
+ - [ ] Fjern statistikk fra loss-modalen
 
 ## 🚀 Modernization Tasks (Priority: High)
 

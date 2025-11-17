@@ -64,6 +64,33 @@ export const livingRoyalsCount = derived(gameState, ($state) =>
 );
 
 /**
+ * Check and update win/loss status based on current game state
+ * Should be called reactively whenever game state changes
+ */
+export function checkAndUpdateGameStatus() {
+	gameState.update((state) => {
+		// Only check during active gameplay
+		if (state.gameStatus !== 'playing') {
+			return state;
+		}
+
+		// Check win/loss conditions
+		const won = checkGameWon(state.cardsInPlay);
+		const lost = checkGameLost(state.deck, state.cardsInPlay);
+
+		// Update status if game has ended
+		if (won || lost) {
+			return {
+				...state,
+				gameStatus: won ? 'won' : 'lost'
+			};
+		}
+
+		return state;
+	});
+}
+
+/**
  * Helper: Update whether the top card can be placed on grid
  * This should be called after any card placement or deck change
  */
@@ -221,15 +248,11 @@ export function placeNumberedCard(position: GridPosition) {
 		// Check for royal kills
 		const updatedCardsInPlay = killRoyalsFromPosition(position, newCardsInPlay);
 
-		// Check win/loss conditions
-		const won = checkGameWon(updatedCardsInPlay);
-		const lost = checkGameLost(newDeck, updatedCardsInPlay);
-
 		const newState = {
 			...state,
 			deck: newDeck,
 			cardsInPlay: updatedCardsInPlay,
-			gameStatus: won ? 'won' : lost ? 'lost' : 'playing'
+			gameStatus: state.gameStatus
 		};
 
 		// Update whether top card can be placed on grid
@@ -564,16 +587,12 @@ export function useJoker(targetPosition: GridPosition) {
 		// Check for royal kills from the target position
 		newCardsInPlay = killRoyalsFromPosition(targetPosition, newCardsInPlay);
 
-		// Check win/loss conditions
-		const won = checkGameWon(newCardsInPlay);
-		const lost = checkGameLost(state.deck, newCardsInPlay);
-
 		const newState = {
 			...state,
 			cardsInPlay: newCardsInPlay,
 			jokerInUse: null,
 			jokerSourceStack: null,
-			gameStatus: won ? 'won' : lost ? 'lost' : state.gameStatus
+			gameStatus: state.gameStatus
 		};
 
 		// Update whether top card can be placed on grid
