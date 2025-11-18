@@ -140,24 +140,18 @@
 	}
 
 	.card-alternative {
-		animation: goldenGlow 1.5s ease-in-out infinite;
+		animation: goldenGlow 2s ease-in-out infinite;
 		cursor: pointer;
-		box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.9),
-		            0 0 30px 8px rgba(255, 215, 0, 0.6);
-		outline: 3px solid rgba(255, 215, 0, 0.8);
-		outline-offset: 2px;
 	}
 
 	@keyframes goldenGlow {
 		0%, 100% {
-			box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.8),
-			            0 0 30px 8px rgba(255, 215, 0, 0.5);
-			outline-color: rgba(255, 215, 0, 0.7);
+			box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.2),
+			            0 0 25px 6px rgba(255, 215, 0, 0.1);
 		}
 		50% {
-			box-shadow: 0 0 30px 6px rgba(255, 215, 0, 1),
-			            0 0 50px 12px rgba(255, 215, 0, 0.8);
-			outline-color: rgba(255, 215, 0, 1);
+			box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.5),
+			            0 0 25px 6px rgba(255, 215, 0, 0.4);
 		}
 	}
 
