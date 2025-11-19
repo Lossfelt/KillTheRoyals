@@ -545,7 +545,7 @@ function hasUnusedAceWithCards(cardsInPlay: CardsInPlay): boolean {
 	];
 
 	for (const pos of gridPositions) {
-		if (cardsInPlay[pos].length > 1) {
+		if (cardsInPlay[pos].length > 0) {
 			return true; // Found a stack with cards
 		}
 	}
