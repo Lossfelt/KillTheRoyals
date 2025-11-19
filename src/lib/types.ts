@@ -13,7 +13,6 @@ export type CardValue = NumberedValue | RoyalValue | 'A' | 'Joker' | 'DEAD' | 'U
 export interface Card {
 	value: CardValue;
 	suit: Suit;
-	unicode: string; // Unicode character for display (U+1F0A1 - U+1F0DF)
 	color: CardColor;
 }
 
@@ -151,9 +150,6 @@ export type RoyalArmorPair = {
 	royal: RoyalPosition;
 	armor: ArmorPosition;
 };
-
-// Constants
-export const DEAD_CARD_UNICODE = '\u{1F0A0}'; // Card back for dead royals
 
 // Helper type guards
 export function isRoyalValue(value: CardValue): value is RoyalValue {

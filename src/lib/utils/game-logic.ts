@@ -12,7 +12,7 @@ import type {
 	ArmorPosition,
 	Payload
 } from '$lib/types';
-import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS, DEAD_CARD_UNICODE } from '$lib/types';
+import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS } from '$lib/types';
 
 /**
  * Calculate numeric value from card (handles 'A', 'Joker', and 'DEAD')
@@ -26,10 +26,10 @@ function getCardNumericValue(card: Card | undefined): number {
 }
 
 /**
- * Check if a royal is dead (has card back symbol)
+ * Check if a royal is dead
  */
 export function isRoyalDead(royal: Card | undefined): boolean {
-	return royal?.unicode === DEAD_CARD_UNICODE;
+	return royal?.value === 'DEAD';
 }
 
 /**
@@ -37,7 +37,7 @@ export function isRoyalDead(royal: Card | undefined): boolean {
  * Note: Dead royals are NOT considered empty - they occupy the position permanently
  */
 export function isEmptyCard(card: Card | undefined): boolean {
-	return !card || card.unicode === 'empty' || card.unicode === '';
+	return !card;
 }
 
 /**
@@ -47,8 +47,7 @@ export function isEmptyCard(card: Card | undefined): boolean {
 function createDeadCard(): Card {
 	return {
 		value: 'DEAD',
-		suit: 'spades', // Arbitrary suit, not used for dead cards
-		unicode: DEAD_CARD_UNICODE,
+		suit: 'back',
 		color: 'black'
 	};
 }
@@ -61,9 +60,8 @@ function createDeadCard(): Card {
 export function createUsedCard(): Card {
 	return {
 		value: 'USED',
-		suit: 'back', // Special suit indicating card back
-		unicode: DEAD_CARD_UNICODE,
-		color: 'black' // Arbitrary - not used for rendering card back
+		suit: 'back',
+		color: 'black'
 	};
 }
 
