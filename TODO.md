@@ -3,6 +3,7 @@
  # Definert av Levin
  - [ ] Legg til musikk
  - [ ] Finn en annen visning av armor-placement-behov enn banner
+ - [ ] Hvis man er stuck fordi korter hverken kan plasseres som armor eller på grid, men man har joker/ess, bør grid dimmes
  - [ ] Sjekk hvorfor koden fortsatt bruker unicode her og der
  - [X] Fjern statistikk fra loss-modalen
  - [ ] Persistant storage lokalt, samt lage en high-score modal

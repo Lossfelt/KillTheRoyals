@@ -11,6 +11,7 @@ import type {
 	AcePosition,
 	JokerPosition,
 	RoyalPosition,
+	ArmorPosition,
 	CardsInPlay
 } from '$lib/types';
 import { isRoyalValue } from '$lib/types';
@@ -46,6 +47,7 @@ function createInitialGameState(): GameState {
 		isSetupPhase: true,
 		setupPhaseReplaceMode: false,
 		alternativeRoyalPositions: [],
+		alternativeArmorPositions: [],
 		canPlaceTopCardOnGrid: true, // During setup, this is not applicable yet
 		gameStatus: 'setup'
 	};
@@ -98,20 +100,37 @@ function determineGameStatus(
 /**
  * Helper: Update whether the top card can be placed on grid
  * This should be called after any card placement or deck change
+ * Also calculates armor positions if card needs to be placed as armor
  */
 function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 	const stateWithRoyalReady = ensureNextRoyalAvailable(state);
 	const topCard = stateWithRoyalReady.deck[0];
 
-	// If no card in deck, or in setup phase, keep as true
+	// If no card in deck, or in setup phase, keep as true and clear armor positions
 	if (!topCard || stateWithRoyalReady.isSetupPhase) {
-		return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: true };
+		return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: true, alternativeArmorPositions: [] };
 	}
 
 	// Check if top card can be placed on grid
 	const canPlace = canPlaceCardOnGrid(topCard, stateWithRoyalReady.cardsInPlay);
 
-	return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: canPlace };
+	// If card can be placed on grid, clear armor positions
+	if (canPlace) {
+		return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: true, alternativeArmorPositions: [] };
+	}
+
+	// Card cannot be placed on grid - check if it's a numbered card that needs armor placement
+	if (typeof topCard.value === 'number' && topCard.value >= 2 && topCard.value <= 10) {
+		const armorPositions = getArmorPlacementPosition(topCard, stateWithRoyalReady.cardsInPlay);
+		return {
+			...stateWithRoyalReady,
+			canPlaceTopCardOnGrid: false,
+			alternativeArmorPositions: armorPositions
+		};
+	}
+
+	// Non-numbered card (royal, ace, joker) - no armor positions
+	return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: false, alternativeArmorPositions: [] };
 }
 
 function ensureNextRoyalAvailable(state: GameState): GameState {
@@ -376,7 +395,7 @@ function placeRoyalAtPosition(state: GameState, position: RoyalPosition): GameSt
 	return updateCanPlaceTopCardOnGrid(newState);
 }
 
-// Action: Place an armor card (automatically placed on lowest-value royal)
+// Action: Place an armor card (or show alternatives if player must choose)
 export function placeArmorCard() {
 	gameState.update((state) => {
 		const card = state.deck[0];
@@ -388,35 +407,65 @@ export function placeArmorCard() {
 			return state;
 		}
 
-		// Find armor placement position
-		const position = getArmorPlacementPosition(card, state.cardsInPlay);
-		if (!position) {
+		// Find armor placement position(s)
+		const positions = getArmorPlacementPosition(card, state.cardsInPlay);
+		if (positions.length === 0) {
 			// Can't place armor - check if player is stuck
 			// Note: checkGameLost will check for unused Jokers/Aces before declaring loss
 			const gameStatus = determineGameStatus(state.gameStatus, state.deck, state.cardsInPlay);
 			return { ...state, gameStatus };
 		}
 
-		// Place the armor
-		const newDeck = state.deck.slice(1);
-		const newCardsInPlay = {
-			...state.cardsInPlay,
-			[position]: [card]
-		};
+		// If only one position: highlight it to show player where card would be placed as armor
+		if (positions.length === 1) {
+			return placeArmorAtPosition(state, positions[0]);
+		}
 
-		// Determine game status (important: armor can make deck empty!)
-		const gameStatus = determineGameStatus(state.gameStatus, newDeck, newCardsInPlay);
-
-		const newState = {
+		// Multiple positions: show alternatives for player to choose
+		return {
 			...state,
-			deck: newDeck,
-			cardsInPlay: newCardsInPlay,
-			gameStatus
+			alternativeArmorPositions: positions
 		};
-
-		// Update whether top card can be placed on grid
-		return updateCanPlaceTopCardOnGrid(newState);
 	});
+}
+
+// Action: Place armor at a specific position (used when player chooses)
+export function selectArmorPosition(position: ArmorPosition) {
+	gameState.update((state) => {
+		// Verify this is a valid alternative
+		if (!state.alternativeArmorPositions.includes(position)) {
+			return state;
+		}
+
+		return placeArmorAtPosition(state, position);
+	});
+}
+
+// Helper: Actually place the armor at a position
+function placeArmorAtPosition(state: GameState, position: ArmorPosition): GameState {
+	const card = state.deck[0];
+	if (!card) return state;
+
+	// Place the armor
+	const newDeck = state.deck.slice(1);
+	const newCardsInPlay = {
+		...state.cardsInPlay,
+		[position]: [card]
+	};
+
+	// Determine game status (important: armor can make deck empty!)
+	const gameStatus = determineGameStatus(state.gameStatus, newDeck, newCardsInPlay);
+
+	const newState = {
+		...state,
+		deck: newDeck,
+		cardsInPlay: newCardsInPlay,
+		alternativeArmorPositions: [], // Clear alternatives
+		gameStatus
+	};
+
+	// Update whether top card can be placed on grid
+	return updateCanPlaceTopCardOnGrid(newState);
 }
 
 // Action: Place a Joker from deck to its slot

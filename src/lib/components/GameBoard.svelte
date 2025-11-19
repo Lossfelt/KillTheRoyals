@@ -3,10 +3,10 @@
 		gameState,
 		placeNumberedCard,
 		placeRoyalCard,
-		placeArmorCard,
 		placeJokerFromDeck,
 		placeAceFromDeck,
 		selectRoyalPosition,
+		selectArmorPosition,
 		activateAce,
 		useAce,
 		activateJoker,
@@ -15,7 +15,7 @@
 		completeSetup
 	} from '$lib/stores/game';
 	import Card from './Card.svelte';
-	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition } from '$lib/types';
+	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition, ArmorPosition } from '$lib/types';
 
 	// Handle clicks on grid positions
 	function handleGridClick(position: GridPosition) {
@@ -97,6 +97,26 @@
 		return $gameState.alternativeRoyalPositions.includes(position);
 	}
 
+	// Check if an armor position is an alternative choice
+	function isAlternativeArmorPosition(position: ArmorPosition): boolean {
+		return $gameState.alternativeArmorPositions.includes(position);
+	}
+
+	// Check if a specific armor position should be dimmed
+	function shouldDimArmorPosition(position: ArmorPosition): boolean {
+		if (isAlternativeArmorPosition(position)) {
+			return false; // Never dim alternative positions - they need to be clickable!
+		}
+		return shouldDimCard();
+	}
+
+	function handleArmorPositionClick(position: ArmorPosition) {
+		// Select this position if it's an alternative
+		if ($gameState.alternativeArmorPositions.includes(position)) {
+			selectArmorPosition(position);
+		}
+	}
+
 	// Handle clicks on the deck (for placing royals, armor, jokers, or aces during gameplay)
 	function handleDeckClick() {
 		// Only handle if not in setup phase
@@ -123,13 +143,10 @@
 			return;
 		}
 
-		// Check if top card cannot be placed on grid -> place as armor (only for numbered cards 2-10)
-		if (!$gameState.canPlaceTopCardOnGrid && typeof topCard.value === 'number' && topCard.value >= 2 && topCard.value <= 10) {
-			placeArmorCard();
-		}
+		// Armor is now placed by clicking directly on armor positions, not the deck
 	}
 
-	// Check if deck card should be clickable (royal, joker, ace, or armor placement needed)
+	// Check if deck card should be clickable (royal, joker, or ace)
 	function isDeckClickable(): boolean {
 		if ($gameState.isSetupPhase) return false;
 		const topCard = $gameState.deck[0];
@@ -150,11 +167,7 @@
 			return true;
 		}
 
-		// Clickable if numbered card (2-10) that cannot be placed on grid (needs armor)
-		if (typeof topCard.value === 'number' && topCard.value >= 2 && topCard.value <= 10 && !$gameState.canPlaceTopCardOnGrid) {
-			return true;
-		}
-
+		// Armor is placed by clicking directly on armor positions, not the deck
 		return false;
 	}
 </script>
@@ -165,9 +178,13 @@
 	</div>
 {/if}
 
-{#if !$gameState.isSetupPhase && !$gameState.canPlaceTopCardOnGrid && $gameState.deck[0] && typeof $gameState.deck[0].value === 'number' && $gameState.deck[0].value >= 2 && $gameState.deck[0].value <= 10}
-	<div class="armor-placement-indicator">
-		Click the deck to place as armor
+{#if $gameState.alternativeArmorPositions.length > 0}
+	<div class="armor-choice-indicator">
+		{#if $gameState.alternativeArmorPositions.length === 1}
+			Click the armor position to place the card
+		{:else}
+			Choose an armor position
+		{/if}
 	</div>
 {/if}
 
@@ -175,9 +192,30 @@
 	<!-- Row 1: Empty + Upper Armors + Empty + RoyalsToBePlaced -->
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
-	<Card card={$gameState.cardsInPlay.upperLeftArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
-	<Card card={$gameState.cardsInPlay.upperMiddleArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
-	<Card card={$gameState.cardsInPlay.upperRightArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.upperLeftArmor[0]}
+		clickable={isAlternativeArmorPosition('upperLeftArmor')}
+		alternative={isAlternativeArmorPosition('upperLeftArmor')}
+		onclick={() => handleArmorPositionClick('upperLeftArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('upperLeftArmor')}
+	/>
+	<Card
+		card={$gameState.cardsInPlay.upperMiddleArmor[0]}
+		clickable={isAlternativeArmorPosition('upperMiddleArmor')}
+		alternative={isAlternativeArmorPosition('upperMiddleArmor')}
+		onclick={() => handleArmorPositionClick('upperMiddleArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('upperMiddleArmor')}
+	/>
+	<Card
+		card={$gameState.cardsInPlay.upperRightArmor[0]}
+		clickable={isAlternativeArmorPosition('upperRightArmor')}
+		alternative={isAlternativeArmorPosition('upperRightArmor')}
+		onclick={() => handleArmorPositionClick('upperRightArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('upperRightArmor')}
+	/>
 	<div class="cell empty"></div>
 	<Card
 		card={$gameState.cardsInPlay.royalsToBePlaced[0]}
@@ -218,7 +256,14 @@
 	<div class="cell empty"></div>
 
 	<!-- Row 3: Left Upper + Grid Top Row + Right Upper -->
-	<Card card={$gameState.cardsInPlay.leftUpperArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.leftUpperArmor[0]}
+		clickable={isAlternativeArmorPosition('leftUpperArmor')}
+		alternative={isAlternativeArmorPosition('leftUpperArmor')}
+		onclick={() => handleArmorPositionClick('leftUpperArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('leftUpperArmor')}
+	/>
 	<Card
 		card={$gameState.cardsInPlay.leftUpperRoyal[0]}
 		clickable={isAlternativePosition('leftUpperRoyal')}
@@ -259,10 +304,24 @@
 		slotType="royal"
 		dimmed={shouldDimRoyalPosition('rightUpperRoyal')}
 	/>
-	<Card card={$gameState.cardsInPlay.rightUpperArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.rightUpperArmor[0]}
+		clickable={isAlternativeArmorPosition('rightUpperArmor')}
+		alternative={isAlternativeArmorPosition('rightUpperArmor')}
+		onclick={() => handleArmorPositionClick('rightUpperArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('rightUpperArmor')}
+	/>
 
 	<!-- Row 4: Left Middle + Grid Middle Row + Right Middle -->
-	<Card card={$gameState.cardsInPlay.leftMiddleArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.leftMiddleArmor[0]}
+		clickable={isAlternativeArmorPosition('leftMiddleArmor')}
+		alternative={isAlternativeArmorPosition('leftMiddleArmor')}
+		onclick={() => handleArmorPositionClick('leftMiddleArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('leftMiddleArmor')}
+	/>
 	<Card
 		card={$gameState.cardsInPlay.leftMiddleRoyal[0]}
 		clickable={isAlternativePosition('leftMiddleRoyal')}
@@ -303,10 +362,24 @@
 		slotType="royal"
 		dimmed={shouldDimRoyalPosition('rightMiddleRoyal')}
 	/>
-	<Card card={$gameState.cardsInPlay.rightMiddleArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.rightMiddleArmor[0]}
+		clickable={isAlternativeArmorPosition('rightMiddleArmor')}
+		alternative={isAlternativeArmorPosition('rightMiddleArmor')}
+		onclick={() => handleArmorPositionClick('rightMiddleArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('rightMiddleArmor')}
+	/>
 
 	<!-- Row 5: Left Bottom + Grid Bottom Row + Right Bottom -->
-	<Card card={$gameState.cardsInPlay.leftBottomArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.leftBottomArmor[0]}
+		clickable={isAlternativeArmorPosition('leftBottomArmor')}
+		alternative={isAlternativeArmorPosition('leftBottomArmor')}
+		onclick={() => handleArmorPositionClick('leftBottomArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('leftBottomArmor')}
+	/>
 	<Card
 		card={$gameState.cardsInPlay.leftBottomRoyal[0]}
 		clickable={isAlternativePosition('leftBottomRoyal')}
@@ -347,7 +420,14 @@
 		slotType="royal"
 		dimmed={shouldDimRoyalPosition('rightBottomRoyal')}
 	/>
-	<Card card={$gameState.cardsInPlay.rightBottomArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.rightBottomArmor[0]}
+		clickable={isAlternativeArmorPosition('rightBottomArmor')}
+		alternative={isAlternativeArmorPosition('rightBottomArmor')}
+		onclick={() => handleArmorPositionClick('rightBottomArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('rightBottomArmor')}
+	/>
 
 	<!-- Row 6: Empty + Bottom Royals + Empty -->
 	<div class="cell empty"></div>
@@ -382,9 +462,30 @@
 	<!-- Row 7: Empty + Bottom Armors + Empty -->
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
-	<Card card={$gameState.cardsInPlay.bottomLeftArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
-	<Card card={$gameState.cardsInPlay.bottomMiddleArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
-	<Card card={$gameState.cardsInPlay.bottomRightArmor[0]} clickable={false} slotType="armor" dimmed={shouldDimCard()} />
+	<Card
+		card={$gameState.cardsInPlay.bottomLeftArmor[0]}
+		clickable={isAlternativeArmorPosition('bottomLeftArmor')}
+		alternative={isAlternativeArmorPosition('bottomLeftArmor')}
+		onclick={() => handleArmorPositionClick('bottomLeftArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('bottomLeftArmor')}
+	/>
+	<Card
+		card={$gameState.cardsInPlay.bottomMiddleArmor[0]}
+		clickable={isAlternativeArmorPosition('bottomMiddleArmor')}
+		alternative={isAlternativeArmorPosition('bottomMiddleArmor')}
+		onclick={() => handleArmorPositionClick('bottomMiddleArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('bottomMiddleArmor')}
+	/>
+	<Card
+		card={$gameState.cardsInPlay.bottomRightArmor[0]}
+		clickable={isAlternativeArmorPosition('bottomRightArmor')}
+		alternative={isAlternativeArmorPosition('bottomRightArmor')}
+		onclick={() => handleArmorPositionClick('bottomRightArmor')}
+		slotType="armor"
+		dimmed={shouldDimArmorPosition('bottomRightArmor')}
+	/>
 	<div class="cell empty"></div>
 	<div class="cell empty"></div>
 
@@ -519,6 +620,18 @@
 	.armor-placement-indicator {
 		background-color: #ff9800; /* Orange to indicate action needed */
 		color: white;
+		padding: var(--spacing-md);
+		border-radius: var(--card-radius);
+		text-align: center;
+		font-weight: 600;
+		margin-bottom: var(--spacing-md);
+		box-shadow: var(--shadow-md);
+		animation: pulse 2s ease-in-out infinite;
+	}
+
+	.armor-choice-indicator {
+		background-color: #ffd700; /* Gold to match the glow */
+		color: #1a1a1a;
 		padding: var(--spacing-md);
 		border-radius: var(--card-radius);
 		text-align: center;

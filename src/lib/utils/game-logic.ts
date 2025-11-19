@@ -408,14 +408,15 @@ function isRoyalEligibleForArmor(
 }
 
 /**
- * Find the best armor position for a card
+ * Find the best armor position(s) for a card
  * Armor must go to lowest-value royal first, with suit/color priority
+ * Returns array of positions - multiple means player must choose
  * Based on legacy checkArmorElegibility logic
  */
 export function getArmorPlacementPosition(
 	armorCard: Card,
 	cardsInPlay: CardsInPlay
-): ArmorPosition | null {
+): ArmorPosition[] {
 	const royalArmorPairs = ROYAL_ARMOR_PAIRS;
 
 	// Find royals that are alive and don't have armor yet
@@ -437,32 +438,32 @@ export function getArmorPlacementPosition(
 		return true;
 	});
 
-	if (candidatePairs.length === 0) return null;
+	if (candidatePairs.length === 0) return [];
 
 	// Filter to only eligible pairs (based on legacy checkArmorElegibility)
 	const eligiblePairs = candidatePairs.filter((pair) =>
 		isRoyalEligibleForArmor(pair.royal, armorCard, cardsInPlay)
 	);
 
-	if (eligiblePairs.length === 0) return null;
+	if (eligiblePairs.length === 0) return [];
 
 	// Should only be one eligible royal (the lowest value one)
 	// But if multiple (same value), apply suit/color priority
-	if (eligiblePairs.length === 1) return eligiblePairs[0].armor;
+	if (eligiblePairs.length === 1) return [eligiblePairs[0].armor];
 
 	// Multiple eligible royals with same value - apply suit/color priority
 	for (const pair of eligiblePairs) {
 		const royal = cardsInPlay[pair.royal][0];
-		if (royal.suit === armorCard.suit) return pair.armor;
+		if (royal.suit === armorCard.suit) return [pair.armor];
 	}
 
 	for (const pair of eligiblePairs) {
 		const royal = cardsInPlay[pair.royal][0];
-		if (royal.color === armorCard.color) return pair.armor;
+		if (royal.color === armorCard.color) return [pair.armor];
 	}
 
-	// If no match, return first option
-	return eligiblePairs[0].armor;
+	// No suit or color match - player must choose
+	return eligiblePairs.map((pair) => pair.armor);
 }
 
 /**
