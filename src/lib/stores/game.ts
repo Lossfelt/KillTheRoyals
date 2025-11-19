@@ -100,7 +100,8 @@ function determineGameStatus(
 /**
  * Helper: Update whether the top card can be placed on grid
  * This should be called after any card placement or deck change
- * Also calculates armor positions if card needs to be placed as armor
+ * Also populates alternativeArmorPositions if card needs armor placement,
+ * which triggers the armor position highlighting for player to click directly
  */
 function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 	const stateWithRoyalReady = ensureNextRoyalAvailable(state);
@@ -395,41 +396,8 @@ function placeRoyalAtPosition(state: GameState, position: RoyalPosition): GameSt
 	return updateCanPlaceTopCardOnGrid(newState);
 }
 
-// Action: Place an armor card (or show alternatives if player must choose)
-export function placeArmorCard() {
-	gameState.update((state) => {
-		const card = state.deck[0];
-		if (!card) return state;
-
-		// Aces and Jokers should never be armor - they go to special positions
-		if (card.value === 'A' || card.value === 'Joker') {
-			console.error('Attempted to place Ace or Joker as armor');
-			return state;
-		}
-
-		// Find armor placement position(s)
-		const positions = getArmorPlacementPosition(card, state.cardsInPlay);
-		if (positions.length === 0) {
-			// Can't place armor - check if player is stuck
-			// Note: checkGameLost will check for unused Jokers/Aces before declaring loss
-			const gameStatus = determineGameStatus(state.gameStatus, state.deck, state.cardsInPlay);
-			return { ...state, gameStatus };
-		}
-
-		// If only one position: highlight it to show player where card would be placed as armor
-		if (positions.length === 1) {
-			return placeArmorAtPosition(state, positions[0]);
-		}
-
-		// Multiple positions: show alternatives for player to choose
-		return {
-			...state,
-			alternativeArmorPositions: positions
-		};
-	});
-}
-
-// Action: Place armor at a specific position (used when player chooses)
+// Action: Place armor at a specific position (player clicks directly on armor position)
+// alternativeArmorPositions is populated by updateCanPlaceTopCardOnGrid() when top card needs armor placement
 export function selectArmorPosition(position: ArmorPosition) {
 	gameState.update((state) => {
 		// Verify this is a valid alternative
