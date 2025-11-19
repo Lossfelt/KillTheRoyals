@@ -5,13 +5,6 @@
 import type { Card, Suit, CardValue, CardColor } from '$lib/types';
 
 /**
- * Get color for a suit
- */
-function getSuitColor(suit: Suit): CardColor {
-	return suit === 'hearts' || suit === 'diamonds' ? 'red' : 'black';
-}
-
-/**
  * Create a standard 52-card deck + 2 Jokers (54 cards total)
  * Returns unshuffled deck
  */
@@ -26,7 +19,7 @@ export function createDeck(): Card[] {
 			deck.push({
 				value,
 				suit,
-				color: getSuitColor(suit)
+				color: suit === 'hearts' || suit === 'diamonds' ? 'red' : 'black'
 			});
 		}
 	}
@@ -71,4 +64,3 @@ export function shuffleDeck<T>(deck: T[]): T[] {
 export function createShuffledDeck(): Card[] {
 	return shuffleDeck(createDeck());
 }
-
