@@ -136,7 +136,6 @@
 
 	.card-dimmed {
 		opacity: 0.2;
-		pointer-events: none;
 	}
 
 	.card-alternative {

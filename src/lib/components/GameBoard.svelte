@@ -56,10 +56,10 @@
 		}
 	}
 
-	// Check if cards should be dimmed (when royals need to be placed or armor must be placed)
+	// Check if cards should be dimmed (when royals need to be placed or grid cannot be used)
 	function shouldDimCard(): boolean {
 		return $gameState.cardsInPlay.royalsToBePlaced.length > 0
-			|| $gameState.alternativeArmorPositions.length > 0;
+			|| !$gameState.canPlaceTopCardOnGrid;
 	}
 
 	// Check if a specific royal position should be dimmed
@@ -489,7 +489,7 @@
 		stackDepth={$gameState.deck.length}
 		clickable={isDeckClickable()}
 		onclick={handleDeckClick}
-		dimmed={shouldDimCard()}
+		dimmed={false}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.joker1[0]}
