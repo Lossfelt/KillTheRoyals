@@ -135,7 +135,7 @@
 	}
 
 	.card-dimmed {
-		opacity: 0.4;
+		opacity: 0.2;
 		pointer-events: none;
 	}
 
