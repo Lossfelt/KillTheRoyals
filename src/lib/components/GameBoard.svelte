@@ -178,16 +178,6 @@
 	</div>
 {/if}
 
-{#if $gameState.alternativeArmorPositions.length > 0}
-	<div class="armor-choice-indicator">
-		{#if $gameState.alternativeArmorPositions.length === 1}
-			Click the armor position to place the card
-		{:else}
-			Choose an armor position
-		{/if}
-	</div>
-{/if}
-
 <div class="game-board">
 	<!-- Row 1: Empty + Upper Armors + Empty + RoyalsToBePlaced -->
 	<div class="cell empty"></div>
@@ -608,30 +598,6 @@
 	.replace-mode-indicator {
 		background-color: var(--color-button);
 		color: white;
-		padding: var(--spacing-md);
-		border-radius: var(--card-radius);
-		text-align: center;
-		font-weight: 600;
-		margin-bottom: var(--spacing-md);
-		box-shadow: var(--shadow-md);
-		animation: pulse 2s ease-in-out infinite;
-	}
-
-	.armor-placement-indicator {
-		background-color: #ff9800; /* Orange to indicate action needed */
-		color: white;
-		padding: var(--spacing-md);
-		border-radius: var(--card-radius);
-		text-align: center;
-		font-weight: 600;
-		margin-bottom: var(--spacing-md);
-		box-shadow: var(--shadow-md);
-		animation: pulse 2s ease-in-out infinite;
-	}
-
-	.armor-choice-indicator {
-		background-color: #ffd700; /* Gold to match the glow */
-		color: #1a1a1a;
 		padding: var(--spacing-md);
 		border-radius: var(--card-radius);
 		text-align: center;
