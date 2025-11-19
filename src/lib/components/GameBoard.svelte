@@ -56,9 +56,10 @@
 		}
 	}
 
-	// Check if cards should be dimmed (when royals need to be placed)
+	// Check if cards should be dimmed (when royals need to be placed or armor must be placed)
 	function shouldDimCard(): boolean {
-		return $gameState.cardsInPlay.royalsToBePlaced.length > 0;
+		return $gameState.cardsInPlay.royalsToBePlaced.length > 0
+			|| $gameState.alternativeArmorPositions.length > 0;
 	}
 
 	// Check if a specific royal position should be dimmed
