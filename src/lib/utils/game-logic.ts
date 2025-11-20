@@ -526,34 +526,6 @@ function hasUnusedAce(cardsInPlay: CardsInPlay): boolean {
 }
 
 /**
- * Check if there are any unused Aces with cards in stacks
- */
-function hasUnusedAceWithCards(cardsInPlay: CardsInPlay): boolean {
-	if (!hasUnusedAce(cardsInPlay)) return false;
-
-	// Check if any grid position has cards (stack with 2+ cards)
-	const gridPositions: GridPosition[] = [
-		'upperLeft',
-		'upperMiddle',
-		'upperRight',
-		'middleLeft',
-		'middleMiddle',
-		'middleRight',
-		'bottomLeft',
-		'bottomMiddle',
-		'bottomRight'
-	];
-
-	for (const pos of gridPositions) {
-		if (cardsInPlay[pos].length > 0) {
-			return true; // Found a stack with cards
-		}
-	}
-
-	return false; // No stacks with cards to pull from
-}
-
-/**
  * Check if game is lost
  * Based on game rules: lose if stuck OR deck empty without Aces
  */
@@ -589,8 +561,8 @@ export function checkGameLost(
 		// Has unused Joker? Not stuck (can move cards around)
 		if (hasUnusedJoker(cardsInPlay)) return false;
 
-		// Has unused Ace with cards in stacks? Not stuck (can get cards back)
-		if (hasUnusedAceWithCards(cardsInPlay)) return false;
+		// Has unused Ace? Not stuck (can get cards back)
+		if (hasUnusedAce(cardsInPlay)) return false;
 
 		// Completely stuck!
 		return true;
