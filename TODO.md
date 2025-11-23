@@ -9,6 +9,7 @@
  - [ ] Persistant storage lokalt, samt lage en high-score modal
  - [X] Gjør bruk av joker og ess litt mer synlig
  - [ ] Vurder å legge til gull-markering for plassering av absolutt alle kort.
+ - [ ] Bytt ett kort under setup har et banner. Finn en annen visning.
 
 ## 🚀 Modernization Tasks (Priority: High)
 

@@ -138,6 +138,8 @@ export interface GameState {
 	setupPhaseReplaceMode: boolean; // Waiting for user to choose card to replace
 	alternativeRoyalPositions: RoyalPosition[]; // Available positions for player to choose when placing royal
 	alternativeArmorPositions: ArmorPosition[]; // Available positions for player to choose when placing armor
+	alternativeJokerPositions: JokerPosition[]; // Available positions for player to choose when placing joker
+	alternativeAcePositions: AcePosition[]; // Available positions for player to choose when placing ace
 	canPlaceTopCardOnGrid: boolean; // Whether the top card in deck can be placed on any grid position
 	gameStatus: GameStatus;
 }

@@ -48,6 +48,8 @@ function createInitialGameState(): GameState {
 		setupPhaseReplaceMode: false,
 		alternativeRoyalPositions: [],
 		alternativeArmorPositions: [],
+		alternativeJokerPositions: [],
+		alternativeAcePositions: [],
 		canPlaceTopCardOnGrid: true, // During setup, this is not applicable yet
 		gameStatus: 'setup'
 	};
@@ -117,7 +119,9 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			...stateWithRoyalReady,
 			canPlaceTopCardOnGrid: false,
 			alternativeArmorPositions: [],
-			alternativeRoyalPositions: royalPositions
+			alternativeRoyalPositions: royalPositions,
+			alternativeJokerPositions: [],
+			alternativeAcePositions: []
 		};
 	}
 
@@ -127,7 +131,9 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			...stateWithRoyalReady,
 			canPlaceTopCardOnGrid: true,
 			alternativeArmorPositions: [],
-			alternativeRoyalPositions: []
+			alternativeRoyalPositions: [],
+			alternativeJokerPositions: [],
+			alternativeAcePositions: []
 		};
 	}
 
@@ -138,7 +144,41 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			...stateWithRoyalReady,
 			canPlaceTopCardOnGrid: false,
 			alternativeArmorPositions: [],
-			alternativeRoyalPositions: royalPositions
+			alternativeRoyalPositions: royalPositions,
+			alternativeJokerPositions: [],
+			alternativeAcePositions: []
+		};
+	}
+
+	// Priority 4: Joker on deck
+	if (topCard.value === 'Joker') {
+		const jokerPositions: JokerPosition[] = [];
+		if (!stateWithRoyalReady.cardsInPlay.joker1[0]) jokerPositions.push('joker1');
+		if (!stateWithRoyalReady.cardsInPlay.joker2[0]) jokerPositions.push('joker2');
+		return {
+			...stateWithRoyalReady,
+			canPlaceTopCardOnGrid: false,
+			alternativeArmorPositions: [],
+			alternativeRoyalPositions: [],
+			alternativeJokerPositions: jokerPositions,
+			alternativeAcePositions: []
+		};
+	}
+
+	// Priority 5: Ace on deck
+	if (topCard.value === 'A') {
+		const acePositions: AcePosition[] = [];
+		if (!stateWithRoyalReady.cardsInPlay.ace1[0]) acePositions.push('ace1');
+		if (!stateWithRoyalReady.cardsInPlay.ace2[0]) acePositions.push('ace2');
+		if (!stateWithRoyalReady.cardsInPlay.ace3[0]) acePositions.push('ace3');
+		if (!stateWithRoyalReady.cardsInPlay.ace4[0]) acePositions.push('ace4');
+		return {
+			...stateWithRoyalReady,
+			canPlaceTopCardOnGrid: false,
+			alternativeArmorPositions: [],
+			alternativeRoyalPositions: [],
+			alternativeJokerPositions: [],
+			alternativeAcePositions: acePositions
 		};
 	}
 
@@ -151,7 +191,9 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			...stateWithRoyalReady,
 			canPlaceTopCardOnGrid: true,
 			alternativeArmorPositions: [],
-			alternativeRoyalPositions: []
+			alternativeRoyalPositions: [],
+			alternativeJokerPositions: [],
+			alternativeAcePositions: []
 		};
 	}
 
@@ -162,16 +204,20 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			...stateWithRoyalReady,
 			canPlaceTopCardOnGrid: false,
 			alternativeArmorPositions: armorPositions,
-			alternativeRoyalPositions: []
+			alternativeRoyalPositions: [],
+			alternativeJokerPositions: [],
+			alternativeAcePositions: []
 		};
 	}
 
-	// Non-numbered card (ace, joker) - no armor/royal positions
+	// Should not reach here (Joker/Ace already handled above)
 	return {
 		...stateWithRoyalReady,
 		canPlaceTopCardOnGrid: false,
 		alternativeArmorPositions: [],
-		alternativeRoyalPositions: []
+		alternativeRoyalPositions: [],
+		alternativeJokerPositions: [],
+		alternativeAcePositions: []
 	};
 }
 
@@ -446,82 +492,94 @@ function placeArmorAtPosition(state: GameState, position: ArmorPosition): GameSt
 	return updateCanPlaceTopCardOnGrid(newState);
 }
 
-// Action: Place a Joker from deck to its slot
-export function placeJokerFromDeck() {
+// Action: Place joker at a specific position (player clicks directly on joker slot)
+export function selectJokerPosition(position: JokerPosition) {
 	gameState.update((state) => {
-		const card = state.deck[0];
-		if (!card || card.value !== 'Joker') return state;
-
-		// Find first empty joker slot
-		let targetPosition: JokerPosition | null = null;
-		if (!state.cardsInPlay.joker1[0]) {
-			targetPosition = 'joker1';
-		} else if (!state.cardsInPlay.joker2[0]) {
-			targetPosition = 'joker2';
+		// Verify this is a valid alternative
+		if (!state.alternativeJokerPositions.includes(position)) {
+			return state;
 		}
 
-		if (!targetPosition) {
-			console.warn('No empty joker slot available');
-			return state; // Both joker slots occupied
-		}
-
-		// Place the joker
-		const newDeck = state.deck.slice(1);
-		const newCardsInPlay = {
-			...state.cardsInPlay,
-			[targetPosition]: [card]
-		};
-
-		const newState = {
-			...state,
-			deck: newDeck,
-			cardsInPlay: newCardsInPlay
-		};
-
-		// Update whether top card can be placed on grid
-		return updateCanPlaceTopCardOnGrid(newState);
+		return placeJokerAtPosition(state, position);
 	});
 }
 
-// Action: Place an Ace from deck to its slot
-export function placeAceFromDeck() {
+// Helper: Actually place the joker at a position
+function placeJokerAtPosition(state: GameState, position: JokerPosition): GameState {
+	const card = state.deck[0];
+	if (!card || card.value !== 'Joker') return state;
+
+	// Verify position is empty
+	if (state.cardsInPlay[position][0]) {
+		console.warn(`Cannot place joker at ${position}: position is occupied`);
+		return state;
+	}
+
+	// Place the joker
+	const newDeck = state.deck.slice(1);
+	const newCardsInPlay = {
+		...state.cardsInPlay,
+		[position]: [card]
+	};
+
+	// Determine game status
+	const gameStatus = determineGameStatus(state.gameStatus, newDeck, newCardsInPlay);
+
+	const newState = {
+		...state,
+		deck: newDeck,
+		cardsInPlay: newCardsInPlay,
+		alternativeJokerPositions: [], // Clear alternatives
+		gameStatus
+	};
+
+	// Update whether top card can be placed on grid
+	return updateCanPlaceTopCardOnGrid(newState);
+}
+
+// Action: Place ace at a specific position (player clicks directly on ace slot)
+export function selectAcePosition(position: AcePosition) {
 	gameState.update((state) => {
-		const card = state.deck[0];
-		if (!card || card.value !== 'A') return state;
-
-		// Find first empty ace slot
-		let targetPosition: AcePosition | null = null;
-		if (!state.cardsInPlay.ace1[0]) {
-			targetPosition = 'ace1';
-		} else if (!state.cardsInPlay.ace2[0]) {
-			targetPosition = 'ace2';
-		} else if (!state.cardsInPlay.ace3[0]) {
-			targetPosition = 'ace3';
-		} else if (!state.cardsInPlay.ace4[0]) {
-			targetPosition = 'ace4';
+		// Verify this is a valid alternative
+		if (!state.alternativeAcePositions.includes(position)) {
+			return state;
 		}
 
-		if (!targetPosition) {
-			console.warn('No empty ace slot available');
-			return state; // All ace slots occupied
-		}
-
-		// Place the ace
-		const newDeck = state.deck.slice(1);
-		const newCardsInPlay = {
-			...state.cardsInPlay,
-			[targetPosition]: [card]
-		};
-
-		const newState = {
-			...state,
-			deck: newDeck,
-			cardsInPlay: newCardsInPlay
-		};
-
-		// Update whether top card can be placed on grid
-		return updateCanPlaceTopCardOnGrid(newState);
+		return placeAceAtPosition(state, position);
 	});
+}
+
+// Helper: Actually place the ace at a position
+function placeAceAtPosition(state: GameState, position: AcePosition): GameState {
+	const card = state.deck[0];
+	if (!card || card.value !== 'A') return state;
+
+	// Verify position is empty
+	if (state.cardsInPlay[position][0]) {
+		console.warn(`Cannot place ace at ${position}: position is occupied`);
+		return state;
+	}
+
+	// Place the ace
+	const newDeck = state.deck.slice(1);
+	const newCardsInPlay = {
+		...state.cardsInPlay,
+		[position]: [card]
+	};
+
+	// Determine game status
+	const gameStatus = determineGameStatus(state.gameStatus, newDeck, newCardsInPlay);
+
+	const newState = {
+		...state,
+		deck: newDeck,
+		cardsInPlay: newCardsInPlay,
+		alternativeAcePositions: [], // Clear alternatives
+		gameStatus
+	};
+
+	// Update whether top card can be placed on grid
+	return updateCanPlaceTopCardOnGrid(newState);
 }
 
 // Action: Activate an ace

@@ -2,8 +2,8 @@
 	import {
 		gameState,
 		placeNumberedCard,
-		placeJokerFromDeck,
-		placeAceFromDeck,
+		selectJokerPosition,
+		selectAcePosition,
 		selectRoyalPosition,
 		selectArmorPosition,
 		activateAce,
@@ -70,14 +70,6 @@
 		return shouldDimCard();
 	}
 
-	function handleAceClick(position: AcePosition) {
-		activateAce(position);
-	}
-
-	function handleJokerClick(position: JokerPosition) {
-		activateJoker(position);
-	}
-
 	function handleRoyalPositionClick(position: RoyalPosition) {
 		// Select this position if it's an alternative
 		if ($gameState.alternativeRoyalPositions.includes(position)) {
@@ -110,57 +102,66 @@
 		}
 	}
 
-	// Handle clicks on the deck (for placing royals, armor, jokers, or aces during gameplay)
-	function handleDeckClick() {
-		// Only handle if not in setup phase
-		if ($gameState.isSetupPhase) return;
-
-		const topCard = $gameState.deck[0];
-		if (!topCard) return;
-
-		// Check if top card is a royal (Jack, Queen, or King)
-		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
-			// Royals are now placed by clicking directly on royal positions, not the deck
-			return;
-		}
-
-		// Check if top card is a Joker
-		if (topCard.value === 'Joker') {
-			placeJokerFromDeck();
-			return;
-		}
-
-		// Check if top card is an Ace
-		if (topCard.value === 'A') {
-			placeAceFromDeck();
-			return;
-		}
-
-		// Armor is now placed by clicking directly on armor positions, not the deck
+	// Check if a joker position is an alternative choice
+	function isAlternativeJokerPosition(position: JokerPosition): boolean {
+		return $gameState.alternativeJokerPositions.includes(position);
 	}
 
-	// Check if deck card should be clickable (royal, joker, or ace)
+	// Check if a joker position should be dimmed
+	function shouldDimJokerPosition(position: JokerPosition): boolean {
+		if (isAlternativeJokerPosition(position)) {
+			return false; // Never dim alternative positions - they need to be clickable!
+		}
+		return shouldDimCard();
+	}
+
+	// Handle clicks on joker positions (both placement and activation)
+	function handleJokerPositionClick(position: JokerPosition) {
+		// Check if this is a placement click (alternative position highlighted)
+		if ($gameState.alternativeJokerPositions.includes(position)) {
+			selectJokerPosition(position);
+			return;
+		}
+
+		// Otherwise, it's an activation click (joker already placed)
+		activateJoker(position);
+	}
+
+	// Check if an ace position is an alternative choice
+	function isAlternativeAcePosition(position: AcePosition): boolean {
+		return $gameState.alternativeAcePositions.includes(position);
+	}
+
+	// Check if an ace position should be dimmed
+	function shouldDimAcePosition(position: AcePosition): boolean {
+		if (isAlternativeAcePosition(position)) {
+			return false; // Never dim alternative positions - they need to be clickable!
+		}
+		return shouldDimCard();
+	}
+
+	// Handle clicks on ace positions (both placement and activation)
+	function handleAcePositionClick(position: AcePosition) {
+		// Check if this is a placement click (alternative position highlighted)
+		if ($gameState.alternativeAcePositions.includes(position)) {
+			selectAcePosition(position);
+			return;
+		}
+
+		// Otherwise, it's an activation click (ace already placed)
+		activateAce(position);
+	}
+
+	// Handle clicks on the deck (for placing royals, armor, jokers, or aces during gameplay)
+	function handleDeckClick() {
+		// Deck is no longer clickable for Joker, Ace, Royal, or Armor placement
+		// All special cards are now placed by clicking directly on their positions
+		return;
+	}
+
+	// Check if deck card should be clickable
 	function isDeckClickable(): boolean {
-		if ($gameState.isSetupPhase) return false;
-		const topCard = $gameState.deck[0];
-		if (!topCard) return false;
-
-		// Clickable if royal
-		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
-			return false; // Royals are placed by clicking the grid
-		}
-
-		// Clickable if Joker
-		if (topCard.value === 'Joker') {
-			return true;
-		}
-
-		// Clickable if Ace
-		if (topCard.value === 'A') {
-			return true;
-		}
-
-		// Armor is placed by clicking directly on armor positions, not the deck
+		// Deck is no longer clickable - all cards are placed by clicking their positions
 		return false;
 	}
 </script>
@@ -488,50 +489,56 @@
 	<Card
 		card={$gameState.cardsInPlay.joker1[0]}
 		active={$gameState.jokerInUse === 'joker1'}
-		clickable={!!$gameState.cardsInPlay.joker1[0] && $gameState.cardsInPlay.joker1[0]?.value !== 'USED'}
-		onclick={() => handleJokerClick('joker1')}
+		clickable={isAlternativeJokerPosition('joker1') || (!!$gameState.cardsInPlay.joker1[0] && $gameState.cardsInPlay.joker1[0]?.value !== 'USED')}
+		alternative={isAlternativeJokerPosition('joker1')}
+		onclick={() => handleJokerPositionClick('joker1')}
 		slotType="joker"
-		dimmed={false}
+		dimmed={shouldDimJokerPosition('joker1')}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.joker2[0]}
 		active={$gameState.jokerInUse === 'joker2'}
-		clickable={!!$gameState.cardsInPlay.joker2[0] && $gameState.cardsInPlay.joker2[0]?.value !== 'USED'}
-		onclick={() => handleJokerClick('joker2')}
+		clickable={isAlternativeJokerPosition('joker2') || (!!$gameState.cardsInPlay.joker2[0] && $gameState.cardsInPlay.joker2[0]?.value !== 'USED')}
+		alternative={isAlternativeJokerPosition('joker2')}
+		onclick={() => handleJokerPositionClick('joker2')}
 		slotType="joker"
-		dimmed={false}
+		dimmed={shouldDimJokerPosition('joker2')}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace1[0]}
 		active={$gameState.aceInUse === 'ace1'}
-		clickable={!!$gameState.cardsInPlay.ace1[0] && $gameState.cardsInPlay.ace1[0]?.value !== 'USED'}
-		onclick={() => handleAceClick('ace1')}
+		clickable={isAlternativeAcePosition('ace1') || (!!$gameState.cardsInPlay.ace1[0] && $gameState.cardsInPlay.ace1[0]?.value !== 'USED')}
+		alternative={isAlternativeAcePosition('ace1')}
+		onclick={() => handleAcePositionClick('ace1')}
 		slotType="ace"
-		dimmed={false}
+		dimmed={shouldDimAcePosition('ace1')}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace2[0]}
 		active={$gameState.aceInUse === 'ace2'}
-		clickable={!!$gameState.cardsInPlay.ace2[0] && $gameState.cardsInPlay.ace2[0]?.value !== 'USED'}
-		onclick={() => handleAceClick('ace2')}
+		clickable={isAlternativeAcePosition('ace2') || (!!$gameState.cardsInPlay.ace2[0] && $gameState.cardsInPlay.ace2[0]?.value !== 'USED')}
+		alternative={isAlternativeAcePosition('ace2')}
+		onclick={() => handleAcePositionClick('ace2')}
 		slotType="ace"
-		dimmed={false}
+		dimmed={shouldDimAcePosition('ace2')}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace3[0]}
 		active={$gameState.aceInUse === 'ace3'}
-		clickable={!!$gameState.cardsInPlay.ace3[0] && $gameState.cardsInPlay.ace3[0]?.value !== 'USED'}
-		onclick={() => handleAceClick('ace3')}
+		clickable={isAlternativeAcePosition('ace3') || (!!$gameState.cardsInPlay.ace3[0] && $gameState.cardsInPlay.ace3[0]?.value !== 'USED')}
+		alternative={isAlternativeAcePosition('ace3')}
+		onclick={() => handleAcePositionClick('ace3')}
 		slotType="ace"
-		dimmed={false}
+		dimmed={shouldDimAcePosition('ace3')}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.ace4[0]}
 		active={$gameState.aceInUse === 'ace4'}
-		clickable={!!$gameState.cardsInPlay.ace4[0] && $gameState.cardsInPlay.ace4[0]?.value !== 'USED'}
-		onclick={() => handleAceClick('ace4')}
+		clickable={isAlternativeAcePosition('ace4') || (!!$gameState.cardsInPlay.ace4[0] && $gameState.cardsInPlay.ace4[0]?.value !== 'USED')}
+		alternative={isAlternativeAcePosition('ace4')}
+		onclick={() => handleAcePositionClick('ace4')}
 		slotType="ace"
-		dimmed={false}
+		dimmed={shouldDimAcePosition('ace4')}
 	/>
 </div>
 
