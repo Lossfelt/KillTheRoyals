@@ -125,7 +125,7 @@
 	}
 
 	.card-active {
-		filter: brightness(1.2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+		filter: brightness(2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 		transform: translateY(-2px);
 	}
 

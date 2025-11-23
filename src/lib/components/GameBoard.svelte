@@ -200,12 +200,15 @@
 		dimmed={shouldDimArmorPosition('upperRightArmor')}
 	/>
 	<div class="cell empty"></div>
-	<Card
-		card={$gameState.cardsInPlay.royalsToBePlaced[0]}
-		stackDepth={$gameState.cardsInPlay.royalsToBePlaced.length}
-		clickable={false}
-		slotType="royal"
-	/>
+	{#if $gameState.cardsInPlay.royalsToBePlaced[0]}
+		<Card
+			card={$gameState.cardsInPlay.royalsToBePlaced[0]}
+			stackDepth={$gameState.cardsInPlay.royalsToBePlaced.length}
+			clickable={false}
+		/>
+	{:else}
+		<div class="cell empty"></div>
+	{/if}
 
 	<!-- Row 2: Empty + Upper Royals + Empty -->
 	<div class="cell empty"></div>

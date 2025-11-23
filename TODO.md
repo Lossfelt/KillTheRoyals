@@ -7,7 +7,7 @@
  - [X] Sjekk hvorfor koden fortsatt bruker unicode her og der
  - [X] Fjern statistikk fra loss-modalen
  - [ ] Persistant storage lokalt, samt lage en high-score modal
- - [ ] Gjør bruk av joker og ess litt mer synlig
+ - [X] Gjør bruk av joker og ess litt mer synlig
  - [ ] Vurder å legge til gull-markering for plassering av absolutt alle kort.
 
 ## 🚀 Modernization Tasks (Priority: High)
