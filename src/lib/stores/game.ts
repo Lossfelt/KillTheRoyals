@@ -38,7 +38,7 @@ function createInitialGameState(): GameState {
 	const deck = createShuffledDeck();
 	const { cardsInPlay, remainingDeck } = setupFirstNineCards(deck);
 
-	return {
+	const initialState: GameState = {
 		deck: remainingDeck,
 		cardsInPlay,
 		jokerInUse: null,
@@ -51,6 +51,8 @@ function createInitialGameState(): GameState {
 		canPlaceTopCardOnGrid: true, // During setup, this is not applicable yet
 		gameStatus: 'setup'
 	};
+
+	return updateCanPlaceTopCardOnGrid(initialState);
 }
 
 // Main game state store
@@ -100,24 +102,57 @@ function determineGameStatus(
 /**
  * Helper: Update whether the top card can be placed on grid
  * This should be called after any card placement or deck change
- * Also populates alternativeArmorPositions if card needs armor placement,
- * which triggers the armor position highlighting for player to click directly
+ * Also populates alternativeRoyalPositions or alternativeArmorPositions when needed,
+ * which triggers position highlighting for player to click directly
  */
 function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 	const stateWithRoyalReady = ensureNextRoyalAvailable(state);
 	const topCard = stateWithRoyalReady.deck[0];
+	const royalsToBePlaced = stateWithRoyalReady.cardsInPlay.royalsToBePlaced;
 
-	// If no card in deck, or in setup phase, keep as true and clear armor positions
-	if (!topCard || stateWithRoyalReady.isSetupPhase) {
-		return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: true, alternativeArmorPositions: [] };
+	// Priority 1: Royals awaiting placement (overrides all other states)
+	if (royalsToBePlaced.length > 0) {
+		const royalPositions = getRoyalPlacementPosition(royalsToBePlaced[0], stateWithRoyalReady.cardsInPlay);
+		return {
+			...stateWithRoyalReady,
+			canPlaceTopCardOnGrid: false,
+			alternativeArmorPositions: [],
+			alternativeRoyalPositions: royalPositions
+		};
+	}
+
+	// Priority 2: Setup phase or empty deck - no special positions
+	if (stateWithRoyalReady.isSetupPhase || !topCard) {
+		return {
+			...stateWithRoyalReady,
+			canPlaceTopCardOnGrid: true,
+			alternativeArmorPositions: [],
+			alternativeRoyalPositions: []
+		};
+	}
+
+	// Priority 3: Royal on deck
+	if (isRoyalValue(topCard.value)) {
+		const royalPositions = getRoyalPlacementPosition(topCard, stateWithRoyalReady.cardsInPlay);
+		return {
+			...stateWithRoyalReady,
+			canPlaceTopCardOnGrid: false,
+			alternativeArmorPositions: [],
+			alternativeRoyalPositions: royalPositions
+		};
 	}
 
 	// Check if top card can be placed on grid
 	const canPlace = canPlaceCardOnGrid(topCard, stateWithRoyalReady.cardsInPlay);
 
-	// If card can be placed on grid, clear armor positions
+	// If card can be placed on grid, clear armor/royal positions
 	if (canPlace) {
-		return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: true, alternativeArmorPositions: [] };
+		return {
+			...stateWithRoyalReady,
+			canPlaceTopCardOnGrid: true,
+			alternativeArmorPositions: [],
+			alternativeRoyalPositions: []
+		};
 	}
 
 	// Card cannot be placed on grid - check if it's a numbered card that needs armor placement
@@ -126,12 +161,18 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 		return {
 			...stateWithRoyalReady,
 			canPlaceTopCardOnGrid: false,
-			alternativeArmorPositions: armorPositions
+			alternativeArmorPositions: armorPositions,
+			alternativeRoyalPositions: []
 		};
 	}
 
-	// Non-numbered card (royal, ace, joker) - no armor positions
-	return { ...stateWithRoyalReady, canPlaceTopCardOnGrid: false, alternativeArmorPositions: [] };
+	// Non-numbered card (ace, joker) - no armor/royal positions
+	return {
+		...stateWithRoyalReady,
+		canPlaceTopCardOnGrid: false,
+		alternativeArmorPositions: [],
+		alternativeRoyalPositions: []
+	};
 }
 
 function ensureNextRoyalAvailable(state: GameState): GameState {
@@ -191,12 +232,13 @@ export function completeSetup(replaceCard: boolean, position?: GridPosition) {
 	gameState.update((state) => {
 		if (!replaceCard || !position) {
 			// Skip replacement
-			return {
+			const newState = {
 				...state,
 				isSetupPhase: false,
 				setupPhaseReplaceMode: false,
-				gameStatus: 'playing'
+				gameStatus: 'playing' as const
 			};
+			return updateCanPlaceTopCardOnGrid(newState);
 		}
 
 		// Replace the card (based on legacy funcPlaceNormalCard logic)
@@ -231,14 +273,16 @@ export function completeSetup(replaceCard: boolean, position?: GridPosition) {
 			[position]: [newCard]
 		};
 
-		return {
+		const newState = {
 			...state,
 			deck: newDeck,
 			cardsInPlay: newCardsInPlay,
 			isSetupPhase: false,
 			setupPhaseReplaceMode: false,
-			gameStatus: 'playing'
+			gameStatus: 'playing' as const
 		};
+
+		return updateCanPlaceTopCardOnGrid(newState);
 	});
 }
 
@@ -285,40 +329,6 @@ export function placeNumberedCard(position: GridPosition) {
 
 		// Update whether top card can be placed on grid
 		return updateCanPlaceTopCardOnGrid(newState);
-	});
-}
-
-// Action: Show alternatives for royal placement (or place if only one option)
-export function placeRoyalCard() {
-	gameState.update((state) => {
-		// Check royalsToBePlaced first
-		let royal: Card | null = null;
-
-		if (state.cardsInPlay.royalsToBePlaced.length > 0) {
-			royal = state.cardsInPlay.royalsToBePlaced[0];
-		} else if (state.deck.length > 0) {
-			const topCard = state.deck[0];
-			if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
-				royal = topCard;
-			}
-		}
-
-		if (!royal) return state;
-
-		// Find placement position(s)
-		const positions = getRoyalPlacementPosition(royal, state.cardsInPlay);
-		if (positions.length === 0) return state; // No valid position
-
-		// If only one position, place immediately
-		if (positions.length === 1) {
-			return placeRoyalAtPosition(state, positions[0]);
-		}
-
-		// Multiple positions: show alternatives for player to choose
-		return {
-			...state,
-			alternativeRoyalPositions: positions
-		};
 	});
 }
 
@@ -639,9 +649,4 @@ export function useJoker(targetPosition: GridPosition) {
 		// Update whether top card can be placed on grid
 		return updateCanPlaceTopCardOnGrid(newState);
 	});
-}
-
-// Helper: Cycle deck to find next royal (when no royals on board)
-function cycleDeckForRoyal() {
-	gameState.update((state) => ensureNextRoyalAvailable(state));
 }

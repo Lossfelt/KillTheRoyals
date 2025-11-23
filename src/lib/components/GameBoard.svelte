@@ -2,7 +2,6 @@
 	import {
 		gameState,
 		placeNumberedCard,
-		placeRoyalCard,
 		placeJokerFromDeck,
 		placeAceFromDeck,
 		selectRoyalPosition,
@@ -79,13 +78,6 @@
 		activateJoker(position);
 	}
 
-	function handleRoyalClick() {
-		// Place royal from royalsToBePlaced stack
-		if ($gameState.cardsInPlay.royalsToBePlaced.length > 0) {
-			placeRoyalCard();
-		}
-	}
-
 	function handleRoyalPositionClick(position: RoyalPosition) {
 		// Select this position if it's an alternative
 		if ($gameState.alternativeRoyalPositions.includes(position)) {
@@ -128,7 +120,7 @@
 
 		// Check if top card is a royal (Jack, Queen, or King)
 		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
-			placeRoyalCard();
+			// Royals are now placed by clicking directly on royal positions, not the deck
 			return;
 		}
 
@@ -155,7 +147,7 @@
 
 		// Clickable if royal
 		if (topCard.value === 11 || topCard.value === 12 || topCard.value === 13) {
-			return true;
+			return false; // Royals are placed by clicking the grid
 		}
 
 		// Clickable if Joker
@@ -211,8 +203,7 @@
 	<Card
 		card={$gameState.cardsInPlay.royalsToBePlaced[0]}
 		stackDepth={$gameState.cardsInPlay.royalsToBePlaced.length}
-		clickable={$gameState.cardsInPlay.royalsToBePlaced.length > 0}
-		onclick={handleRoyalClick}
+		clickable={false}
 		slotType="royal"
 	/>
 
