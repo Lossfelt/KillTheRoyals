@@ -151,19 +151,6 @@
 		// Otherwise, it's an activation click (ace already placed)
 		activateAce(position);
 	}
-
-	// Handle clicks on the deck (for placing royals, armor, jokers, or aces during gameplay)
-	function handleDeckClick() {
-		// Deck is no longer clickable for Joker, Ace, Royal, or Armor placement
-		// All special cards are now placed by clicking directly on their positions
-		return;
-	}
-
-	// Check if deck card should be clickable
-	function isDeckClickable(): boolean {
-		// Deck is no longer clickable - all cards are placed by clicking their positions
-		return false;
-	}
 </script>
 
 {#if $gameState.isSetupPhase && $gameState.setupPhaseReplaceMode}
@@ -482,9 +469,7 @@
 	<Card
 		card={$gameState.deck[0]}
 		stackDepth={$gameState.deck.length}
-		clickable={isDeckClickable()}
-		onclick={handleDeckClick}
-		dimmed={false}
+		clickable={false}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.joker1[0]}
