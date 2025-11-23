@@ -112,7 +112,18 @@
 		if (isAlternativeJokerPosition(position)) {
 			return false; // Never dim alternative positions - they need to be clickable!
 		}
-		return shouldDimCard();
+
+		// Don't dim when armor is being placed (numbered cards can still use joker)
+		if ($gameState.alternativeArmorPositions.length > 0) {
+			return false;
+		}
+
+		// Dim when setup, royals, or other special cards are being placed
+		return $gameState.isSetupPhase
+			|| $gameState.cardsInPlay.royalsToBePlaced.length > 0
+			|| $gameState.alternativeRoyalPositions.length > 0
+			|| $gameState.alternativeAcePositions.length > 0
+			|| $gameState.alternativeJokerPositions.length > 0;
 	}
 
 	// Handle clicks on joker positions (both placement and activation)
@@ -137,7 +148,18 @@
 		if (isAlternativeAcePosition(position)) {
 			return false; // Never dim alternative positions - they need to be clickable!
 		}
-		return shouldDimCard();
+
+		// Don't dim when armor is being placed (numbered cards can still use ace)
+		if ($gameState.alternativeArmorPositions.length > 0) {
+			return false;
+		}
+
+		// Dim when setup, royals, or other special cards are being placed
+		return $gameState.isSetupPhase
+			|| $gameState.cardsInPlay.royalsToBePlaced.length > 0
+			|| $gameState.alternativeRoyalPositions.length > 0
+			|| $gameState.alternativeJokerPositions.length > 0
+			|| $gameState.alternativeAcePositions.length > 0;
 	}
 
 	// Handle clicks on ace positions (both placement and activation)
