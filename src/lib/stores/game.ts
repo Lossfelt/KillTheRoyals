@@ -311,23 +311,17 @@ export function completeSetup(replaceCard: boolean, position?: GridPosition) {
 			return updateCanPlaceTopCardOnGrid(newState);
 		}
 
-		// Replace the card (based on legacy funcPlaceNormalCard logic)
+		// Replace the card
 		const card = state.cardsInPlay[position][0];
 		if (!card) return state;
 
 		const newDeck = [...state.deck];
-		const lastCard = newDeck.pop(); // Save last card
 
 		// Take the numbered card from top (already cycled by enableReplaceMode)
 		const newCard = newDeck.shift()!;
 
-		// Add replaced card to deck
+		// Add replaced card to bottom of deck
 		newDeck.push(card);
-
-		// Add the last card back to bottom of deck
-		if (lastCard) {
-			newDeck.push(lastCard);
-		}
 
 		const newCardsInPlay = {
 			...state.cardsInPlay,
