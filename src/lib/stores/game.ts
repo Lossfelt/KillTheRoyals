@@ -265,10 +265,34 @@ export function restartGame() {
 	gameState.set(createInitialGameState());
 }
 
+/**
+ * Helper: Cycle deck until a numbered card (2-10) is on top
+ * Used during setup card replacement to show user which card they'll get
+ * @param deck - Current deck
+ * @returns New deck with numbered card on top
+ */
+function cycleDeckToNumberedCard(deck: Card[]): Card[] {
+	const newDeck = [...deck];
+
+	// Cycle through deck until we find a numbered card (value < 11, not A, not Joker)
+	while (
+		newDeck.length > 0 &&
+		((typeof newDeck[0].value === 'number' && newDeck[0].value >= 11) ||
+			newDeck[0].value === 'A' ||
+			newDeck[0].value === 'Joker')
+	) {
+		const cycledCard = newDeck.shift()!;
+		newDeck.push(cycledCard);
+	}
+
+	return newDeck;
+}
+
 // Action: Enable card replacement mode during setup
 export function enableReplaceMode() {
 	gameState.update((state) => ({
 		...state,
+		deck: cycleDeckToNumberedCard(state.deck),
 		setupPhaseReplaceMode: true
 	}));
 }
@@ -293,21 +317,12 @@ export function completeSetup(replaceCard: boolean, position?: GridPosition) {
 
 		const newDeck = [...state.deck];
 		const lastCard = newDeck.pop(); // Save last card
-		newDeck.push(card); // Add replaced card to deck
 
-		// Cycle through deck until we find a numbered card (value < 11, not A, not Joker)
-		while (
-			newDeck.length > 0 &&
-			((typeof newDeck[0].value === 'number' && newDeck[0].value >= 11) ||
-				newDeck[0].value === 'A' ||
-				newDeck[0].value === 'Joker')
-		) {
-			const cycledCard = newDeck.shift()!;
-			newDeck.push(cycledCard);
-		}
-
-		// Take the numbered card from top
+		// Take the numbered card from top (already cycled by enableReplaceMode)
 		const newCard = newDeck.shift()!;
+
+		// Add replaced card to deck
+		newDeck.push(card);
 
 		// Add the last card back to bottom of deck
 		if (lastCard) {

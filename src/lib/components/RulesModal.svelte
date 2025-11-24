@@ -30,7 +30,7 @@
 				<ul>
 					<li>Draw 9 numbered cards to fill the 3×3 grid</li>
 					<li>Royals, Aces, and Jokers are set aside during setup</li>
-					<li>Optionally replace one card after setup</li>
+					<li>Optionally replace one card on the grid with the top card in the deck after setup</li>
 				</ul>
 
 				<h3>Card Placement</h3>
