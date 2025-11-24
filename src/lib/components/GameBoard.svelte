@@ -102,6 +102,13 @@
 		}
 	}
 
+	// Check if a grid card should show golden glow during replace mode
+	function isNumberedCardForReplacement(position: GridPosition): boolean {
+		if (!$gameState.setupPhaseReplaceMode) return false;
+		const card = $gameState.cardsInPlay[position][0];
+		return card !== undefined && typeof card.value === 'number' && card.value >= 2 && card.value <= 10;
+	}
+
 	// Check if a joker position is an alternative choice
 	function isAlternativeJokerPosition(position: JokerPosition): boolean {
 		return $gameState.alternativeJokerPositions.includes(position);
@@ -271,6 +278,7 @@
 		card={$gameState.cardsInPlay.upperLeft[0]}
 		stackDepth={$gameState.cardsInPlay.upperLeft.length}
 		active={$gameState.jokerSourceStack === 'upperLeft'}
+		alternative={isNumberedCardForReplacement('upperLeft')}
 		onclick={() => handleGridClick('upperLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -279,6 +287,7 @@
 		card={$gameState.cardsInPlay.upperMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.upperMiddle.length}
 		active={$gameState.jokerSourceStack === 'upperMiddle'}
+		alternative={isNumberedCardForReplacement('upperMiddle')}
 		onclick={() => handleGridClick('upperMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -287,6 +296,7 @@
 		card={$gameState.cardsInPlay.upperRight[0]}
 		stackDepth={$gameState.cardsInPlay.upperRight.length}
 		active={$gameState.jokerSourceStack === 'upperRight'}
+		alternative={isNumberedCardForReplacement('upperRight')}
 		onclick={() => handleGridClick('upperRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -329,6 +339,7 @@
 		card={$gameState.cardsInPlay.middleLeft[0]}
 		stackDepth={$gameState.cardsInPlay.middleLeft.length}
 		active={$gameState.jokerSourceStack === 'middleLeft'}
+		alternative={isNumberedCardForReplacement('middleLeft')}
 		onclick={() => handleGridClick('middleLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -337,6 +348,7 @@
 		card={$gameState.cardsInPlay.middleMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.middleMiddle.length}
 		active={$gameState.jokerSourceStack === 'middleMiddle'}
+		alternative={isNumberedCardForReplacement('middleMiddle')}
 		onclick={() => handleGridClick('middleMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -345,6 +357,7 @@
 		card={$gameState.cardsInPlay.middleRight[0]}
 		stackDepth={$gameState.cardsInPlay.middleRight.length}
 		active={$gameState.jokerSourceStack === 'middleRight'}
+		alternative={isNumberedCardForReplacement('middleRight')}
 		onclick={() => handleGridClick('middleRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -387,6 +400,7 @@
 		card={$gameState.cardsInPlay.bottomLeft[0]}
 		stackDepth={$gameState.cardsInPlay.bottomLeft.length}
 		active={$gameState.jokerSourceStack === 'bottomLeft'}
+		alternative={isNumberedCardForReplacement('bottomLeft')}
 		onclick={() => handleGridClick('bottomLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -395,6 +409,7 @@
 		card={$gameState.cardsInPlay.bottomMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.bottomMiddle.length}
 		active={$gameState.jokerSourceStack === 'bottomMiddle'}
+		alternative={isNumberedCardForReplacement('bottomMiddle')}
 		onclick={() => handleGridClick('bottomMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -403,6 +418,7 @@
 		card={$gameState.cardsInPlay.bottomRight[0]}
 		stackDepth={$gameState.cardsInPlay.bottomRight.length}
 		active={$gameState.jokerSourceStack === 'bottomRight'}
+		alternative={isNumberedCardForReplacement('bottomRight')}
 		onclick={() => handleGridClick('bottomRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -605,23 +621,30 @@
 	}
 
 	.replace-mode-indicator {
+		position: fixed;
+		top: var(--spacing-md);
+		left: 50%;
+		transform: translateX(-50%);
+		z-index: 50;
+		max-width: 90%;
 		background-color: var(--color-button);
 		color: white;
 		padding: var(--spacing-md);
 		border-radius: var(--card-radius);
 		text-align: center;
 		font-weight: 600;
-		margin-bottom: var(--spacing-md);
 		box-shadow: var(--shadow-md);
-		animation: pulse 2s ease-in-out infinite;
+		animation: slideDown 0.3s ease-out;
 	}
 
-	@keyframes pulse {
-		0%, 100% {
-			opacity: 1;
+	@keyframes slideDown {
+		from {
+			opacity: 0;
+			transform: translate(-50%, -20px);
 		}
-		50% {
-			opacity: 0.7;
+		to {
+			opacity: 1;
+			transform: translate(-50%, 0);
 		}
 	}
 </style>
