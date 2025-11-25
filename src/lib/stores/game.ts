@@ -39,7 +39,7 @@ function createInitialGameState(): GameState {
 	const { cardsInPlay, remainingDeck } = setupFirstNineCards(deck);
 
 	const initialState: GameState = {
-		deck: remainingDeck,
+		deck: cycleDeckToNumberedCard(remainingDeck),
 		cardsInPlay,
 		jokerInUse: null,
 		jokerSourceStack: null,
@@ -330,7 +330,6 @@ function cycleDeckToNumberedCard(deck: Card[]): Card[] {
 export function enableReplaceMode() {
 	gameState.update((state) => ({
 		...state,
-		deck: cycleDeckToNumberedCard(state.deck),
 		setupPhaseReplaceMode: true
 	}));
 }
