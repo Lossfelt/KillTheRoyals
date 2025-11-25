@@ -8,9 +8,10 @@
  - [X] Fjern statistikk fra loss-modalen
  - [ ] Persistant storage lokalt, samt lage en high-score modal
  - [X] Gjør bruk av joker og ess litt mer synlig
- - [ ] Vurder å legge til gull-markering for plassering av absolutt alle kort.
+ - [X] Vurder å legge til gull-markering for plassering av absolutt alle kort.
  - [X] Bytt ett kort under setup har et banner. Finn en annen visning.
- - [ ] Cylcing til nummerkort bør komme idet modal for kortbytte dukker opp
+ - [X] Cylcing til nummerkort bør komme idet modal for kortbytte dukker opp
+ - [ ] CSS for markering av gyldige plasseringer på grid må bli bedre
 
 ## 🚀 Modernization Tasks (Priority: High)
 
