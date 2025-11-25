@@ -1,29 +1,51 @@
 <script lang="ts">
 	import { gameState, restartGame } from '$lib/stores/game';
+	import { saveHighScore, highScores } from '$lib/stores/highScores';
 
-	$: showModal = $gameState.gameStatus === 'won' || $gameState.gameStatus === 'lost';
-	$: isWin = $gameState.gameStatus === 'won';
-	$: cardsUsed = 54 - $gameState.deck.length; // Total cards - remaining cards
+	const showModal = $derived($gameState.gameStatus === 'won' || $gameState.gameStatus === 'lost');
+	const isWin = $derived($gameState.gameStatus === 'won');
 
-	// Score: Number of unspent Jokers and Aces (0-6)
-	$: {
-		let unusedCount = 0;
+	// Score: Start at 6, subtract 1 for each USED Joker or Ace (0-6)
+	const score = $derived.by(() => {
+		let baseScore = 6;
 		const cards = $gameState.cardsInPlay;
 
-		// Count unused Jokers (2)
-		if (cards.joker1[0] && cards.joker1[0].value !== 'USED') unusedCount++;
-		if (cards.joker2[0] && cards.joker2[0].value !== 'USED') unusedCount++;
+		// Subtract 1 for each used Joker (2)
+		if (cards.joker1[0] && cards.joker1[0].value === 'USED') baseScore--;
+		if (cards.joker2[0] && cards.joker2[0].value === 'USED') baseScore--;
 
-		// Count unused Aces (4)
-		if (cards.ace1[0] && cards.ace1[0].value !== 'USED') unusedCount++;
-		if (cards.ace2[0] && cards.ace2[0].value !== 'USED') unusedCount++;
-		if (cards.ace3[0] && cards.ace3[0].value !== 'USED') unusedCount++;
-		if (cards.ace4[0] && cards.ace4[0].value !== 'USED') unusedCount++;
+		// Subtract 1 for each used Ace (4)
+		if (cards.ace1[0] && cards.ace1[0].value === 'USED') baseScore--;
+		if (cards.ace2[0] && cards.ace2[0].value === 'USED') baseScore--;
+		if (cards.ace3[0] && cards.ace3[0].value === 'USED') baseScore--;
+		if (cards.ace4[0] && cards.ace4[0].value === 'USED') baseScore--;
 
-		score = unusedCount;
-	}
+		return baseScore;
+	});
 
-	let score = 0;
+	let hasScoreSaved = $state(false);
+
+	// Check if current score qualifies as top 5
+	const isNewHighScore = $derived(
+		isWin &&
+			($highScores.length < 5 ||
+				score > $highScores[Math.min(4, $highScores.length - 1)].score)
+	);
+
+	// Save high score when player wins
+	$effect(() => {
+		if (isWin && showModal && !hasScoreSaved) {
+			saveHighScore(score);
+			hasScoreSaved = true;
+		}
+	});
+
+	// Reset saved flag when modal closes
+	$effect(() => {
+		if (!showModal) {
+			hasScoreSaved = false;
+		}
+	});
 
 	function handlePlayAgain() {
 		restartGame();
@@ -36,11 +58,11 @@
 			<h2>{isWin ? 'Victory! 🎉' : 'Defeat 💔'}</h2>
 
 			{#if isWin}
+				{#if isNewHighScore}
+					<div class="new-high-score-badge">🎉 New High Score!</div>
+				{/if}
+
 				<div class="stats">
-					<div class="stat-row">
-						<span class="stat-label">Cards used:</span>
-						<span class="stat-value">{cardsUsed}/54</span>
-					</div>
 					<div class="stat-row">
 						<span class="stat-label">Score:</span>
 						<span class="stat-value">{score}/6</span>
@@ -48,7 +70,7 @@
 				</div>
 			{/if}
 
-			<button class="button button-primary" on:click={handlePlayAgain}>
+			<button class="button button-primary" onclick={handlePlayAgain}>
 				Play Again
 			</button>
 		</div>
@@ -132,6 +154,28 @@
 		font-size: 1.2rem;
 		font-weight: bold;
 		color: var(--color-text);
+	}
+
+	.new-high-score-badge {
+		background: linear-gradient(135deg, #ffd700, #ffed4e);
+		color: #1a472a;
+		font-weight: bold;
+		font-size: 1.1rem;
+		padding: var(--spacing-sm) var(--spacing-md);
+		border-radius: var(--card-radius);
+		margin-bottom: var(--spacing-md);
+		text-align: center;
+		animation: pulse 1s ease-in-out infinite;
+	}
+
+	@keyframes pulse {
+		0%,
+		100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.05);
+		}
 	}
 
 	.button {

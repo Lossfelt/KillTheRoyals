@@ -2,11 +2,15 @@
 	import { restartGame } from '$lib/stores/game';
 
 	export let onShowRules: () => void;
+	export let onShowHighScores: () => void;
 </script>
 
 <div class="game-controls">
 	<button class="btn btn-secondary" on:click={onShowRules} type="button">
 		Rules
+	</button>
+	<button class="btn btn-secondary" on:click={onShowHighScores} type="button">
+		High Scores
 	</button>
 	<button class="btn btn-primary" on:click={restartGame} type="button">
 		Restart

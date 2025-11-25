@@ -181,6 +181,18 @@ export type AttackMapping = {
 	payloadPositions: [GridPosition, GridPosition];
 };
 
+// High Score Types
+export interface HighScoreEntry {
+	id: string; // Unique identifier (timestamp-based)
+	score: number; // 0-6 (number of unused Jokers + Aces)
+	timestamp: string; // ISO 8601 format
+}
+
+export interface HighScoresData {
+	entries: HighScoreEntry[];
+	version: number; // For future schema migrations
+}
+
 // Complete attack mappings based on legacy code (src-old/Functions/funcKillRoyals.js)
 // When a card is placed at a grid position, these are the royals that can be attacked
 // and the two cards that form the payload for each attack

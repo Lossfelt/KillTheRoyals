@@ -4,11 +4,17 @@
 	import RulesModal from '$lib/components/RulesModal.svelte';
 	import SetupCompleteModal from '$lib/components/SetupCompleteModal.svelte';
 	import GameOverModal from '$lib/components/GameOverModal.svelte';
+	import HighScoresModal from '$lib/components/HighScoresModal.svelte';
 
 	let showRules = false;
+	let showHighScores = false;
 
 	function toggleRules() {
 		showRules = !showRules;
+	}
+
+	function toggleHighScores() {
+		showHighScores = !showHighScores;
 	}
 </script>
 
@@ -23,13 +29,14 @@
 		<p class="subtitle">A card game by Tom Francis</p>
 	</header>
 
-	<GameControls onShowRules={toggleRules} />
+	<GameControls onShowRules={toggleRules} onShowHighScores={toggleHighScores} />
 
 	<GameBoard />
 
 	<SetupCompleteModal />
 	<GameOverModal />
 	<RulesModal bind:show={showRules} />
+	<HighScoresModal bind:show={showHighScores} />
 </main>
 
 <style>

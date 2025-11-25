@@ -6,7 +6,8 @@
  - [X] Hvis man er stuck fordi kortet hverken kan plasseres som armor eller på grid, men man har joker/ess, bør grid dimmes
  - [X] Sjekk hvorfor koden fortsatt bruker unicode her og der
  - [X] Fjern statistikk fra loss-modalen
- - [ ] Persistant storage lokalt, samt lage en high-score modal
+ - [X] Persistant storage lokalt, samt lage en high-score modal
+ - [X] Beregningen av score må ikke glemme joker/ess som fortsatt er i kortstokken
  - [X] Gjør bruk av joker og ess litt mer synlig
  - [X] Vurder å legge til gull-markering for plassering av absolutt alle kort.
  - [X] Bytt ett kort under setup har et banner. Finn en annen visning.
