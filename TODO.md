@@ -10,6 +10,7 @@
  - [X] Gjør bruk av joker og ess litt mer synlig
  - [ ] Vurder å legge til gull-markering for plassering av absolutt alle kort.
  - [X] Bytt ett kort under setup har et banner. Finn en annen visning.
+ - [ ] Cylcing til nummerkort bør komme idet modal for kortbytte dukker opp
 
 ## 🚀 Modernization Tasks (Priority: High)
 

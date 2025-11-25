@@ -50,6 +50,7 @@ function createInitialGameState(): GameState {
 		alternativeArmorPositions: [],
 		alternativeJokerPositions: [],
 		alternativeAcePositions: [],
+		alternativeGridPositions: [],
 		canPlaceTopCardOnGrid: true, // During setup, this is not applicable yet
 		gameStatus: 'setup'
 	};
@@ -121,7 +122,8 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			alternativeArmorPositions: [],
 			alternativeRoyalPositions: royalPositions,
 			alternativeJokerPositions: [],
-			alternativeAcePositions: []
+			alternativeAcePositions: [],
+			alternativeGridPositions: []
 		};
 	}
 
@@ -133,7 +135,8 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			alternativeArmorPositions: [],
 			alternativeRoyalPositions: [],
 			alternativeJokerPositions: [],
-			alternativeAcePositions: []
+			alternativeAcePositions: [],
+			alternativeGridPositions: []
 		};
 	}
 
@@ -146,7 +149,8 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			alternativeArmorPositions: [],
 			alternativeRoyalPositions: royalPositions,
 			alternativeJokerPositions: [],
-			alternativeAcePositions: []
+			alternativeAcePositions: [],
+			alternativeGridPositions: []
 		};
 	}
 
@@ -161,7 +165,8 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			alternativeArmorPositions: [],
 			alternativeRoyalPositions: [],
 			alternativeJokerPositions: jokerPositions,
-			alternativeAcePositions: []
+			alternativeAcePositions: [],
+			alternativeGridPositions: []
 		};
 	}
 
@@ -178,27 +183,29 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			alternativeArmorPositions: [],
 			alternativeRoyalPositions: [],
 			alternativeJokerPositions: [],
-			alternativeAcePositions: acePositions
+			alternativeAcePositions: acePositions,
+			alternativeGridPositions: []
 		};
 	}
 
-	// Check if top card can be placed on grid
-	const canPlace = canPlaceCardOnGrid(topCard, stateWithRoyalReady.cardsInPlay);
-
-	// If card can be placed on grid, clear armor/royal positions
-	if (canPlace) {
-		return {
-			...stateWithRoyalReady,
-			canPlaceTopCardOnGrid: true,
-			alternativeArmorPositions: [],
-			alternativeRoyalPositions: [],
-			alternativeJokerPositions: [],
-			alternativeAcePositions: []
-		};
-	}
-
-	// Card cannot be placed on grid - check if it's a numbered card that needs armor placement
+	// Priority 6: Numbered card on deck
 	if (typeof topCard.value === 'number' && topCard.value >= 2 && topCard.value <= 10) {
+		const validGridPositions = getValidGridPositions(topCard, stateWithRoyalReady.cardsInPlay);
+
+		if (validGridPositions.length > 0) {
+			// Highlight valid grid positions
+			return {
+				...stateWithRoyalReady,
+				canPlaceTopCardOnGrid: true,
+				alternativeArmorPositions: [],
+				alternativeRoyalPositions: [],
+				alternativeJokerPositions: [],
+				alternativeAcePositions: [],
+				alternativeGridPositions: validGridPositions
+			};
+		}
+
+		// Priority 7: No valid grid positions - needs armor placement
 		const armorPositions = getArmorPlacementPosition(topCard, stateWithRoyalReady.cardsInPlay);
 		return {
 			...stateWithRoyalReady,
@@ -206,7 +213,8 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 			alternativeArmorPositions: armorPositions,
 			alternativeRoyalPositions: [],
 			alternativeJokerPositions: [],
-			alternativeAcePositions: []
+			alternativeAcePositions: [],
+			alternativeGridPositions: []
 		};
 	}
 
@@ -217,8 +225,38 @@ function updateCanPlaceTopCardOnGrid(state: GameState): GameState {
 		alternativeArmorPositions: [],
 		alternativeRoyalPositions: [],
 		alternativeJokerPositions: [],
-		alternativeAcePositions: []
+		alternativeAcePositions: [],
+		alternativeGridPositions: []
 	};
+}
+
+/**
+ * Get all valid grid positions where a numbered card can be placed
+ * Returns empty array if card is not a numbered card (2-10)
+ * @param card - The card to check
+ * @param cardsInPlay - Current cards in play
+ * @returns Array of grid positions where the card can be legally placed
+ */
+function getValidGridPositions(card: Card, cardsInPlay: CardsInPlay): GridPosition[] {
+	// Only numbered cards (2-10) can be placed on grid
+	if (typeof card.value !== 'number' || card.value < 2 || card.value > 10) {
+		return [];
+	}
+
+	const allGridPositions: GridPosition[] = [
+		'upperLeft',
+		'upperMiddle',
+		'upperRight',
+		'middleLeft',
+		'middleMiddle',
+		'middleRight',
+		'bottomLeft',
+		'bottomMiddle',
+		'bottomRight'
+	];
+
+	// Filter to positions where the card can be placed
+	return allGridPositions.filter((pos) => canPlaceNumberedCard(card, cardsInPlay[pos]));
 }
 
 function ensureNextRoyalAvailable(state: GameState): GameState {

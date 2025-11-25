@@ -140,6 +140,7 @@ export interface GameState {
 	alternativeArmorPositions: ArmorPosition[]; // Available positions for player to choose when placing armor
 	alternativeJokerPositions: JokerPosition[]; // Available positions for player to choose when placing joker
 	alternativeAcePositions: AcePosition[]; // Available positions for player to choose when placing ace
+	alternativeGridPositions: GridPosition[]; // Available grid positions when numbered card can be placed
 	canPlaceTopCardOnGrid: boolean; // Whether the top card in deck can be placed on any grid position
 	gameStatus: GameStatus;
 }

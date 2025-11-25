@@ -102,11 +102,25 @@
 		}
 	}
 
-	// Check if a grid card should show golden glow during replace mode
-	function isNumberedCardForReplacement(position: GridPosition): boolean {
-		if (!$gameState.setupPhaseReplaceMode) return false;
-		const card = $gameState.cardsInPlay[position][0];
-		return card !== undefined && typeof card.value === 'number' && card.value >= 2 && card.value <= 10;
+	// Check if a grid position is an alternative choice for numbered card placement
+	function isAlternativeGridPosition(position: GridPosition): boolean {
+		return $gameState.alternativeGridPositions.includes(position);
+	}
+
+	// Check if a grid card should show golden glow
+	// Two scenarios: 1) Setup replace mode, 2) Numbered card placement from deck
+	function shouldShowGridAlternative(position: GridPosition): boolean {
+		// Don't show grid highlighting during joker/ace usage (clearer UX)
+		if ($gameState.jokerInUse || $gameState.aceInUse) return false;
+
+		// Scenario 1: Setup replace mode - highlight numbered cards to replace
+		if ($gameState.setupPhaseReplaceMode) {
+			const card = $gameState.cardsInPlay[position][0];
+			return card !== undefined && typeof card.value === 'number' && card.value >= 2 && card.value <= 10;
+		}
+
+		// Scenario 2: Normal play - highlight positions where card can go
+		return isAlternativeGridPosition(position);
 	}
 
 	// Check if a joker position is an alternative choice
@@ -278,7 +292,7 @@
 		card={$gameState.cardsInPlay.upperLeft[0]}
 		stackDepth={$gameState.cardsInPlay.upperLeft.length}
 		active={$gameState.jokerSourceStack === 'upperLeft'}
-		alternative={isNumberedCardForReplacement('upperLeft')}
+		alternative={shouldShowGridAlternative('upperLeft')}
 		onclick={() => handleGridClick('upperLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -287,7 +301,7 @@
 		card={$gameState.cardsInPlay.upperMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.upperMiddle.length}
 		active={$gameState.jokerSourceStack === 'upperMiddle'}
-		alternative={isNumberedCardForReplacement('upperMiddle')}
+		alternative={shouldShowGridAlternative('upperMiddle')}
 		onclick={() => handleGridClick('upperMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -296,7 +310,7 @@
 		card={$gameState.cardsInPlay.upperRight[0]}
 		stackDepth={$gameState.cardsInPlay.upperRight.length}
 		active={$gameState.jokerSourceStack === 'upperRight'}
-		alternative={isNumberedCardForReplacement('upperRight')}
+		alternative={shouldShowGridAlternative('upperRight')}
 		onclick={() => handleGridClick('upperRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -339,7 +353,7 @@
 		card={$gameState.cardsInPlay.middleLeft[0]}
 		stackDepth={$gameState.cardsInPlay.middleLeft.length}
 		active={$gameState.jokerSourceStack === 'middleLeft'}
-		alternative={isNumberedCardForReplacement('middleLeft')}
+		alternative={shouldShowGridAlternative('middleLeft')}
 		onclick={() => handleGridClick('middleLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -348,7 +362,7 @@
 		card={$gameState.cardsInPlay.middleMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.middleMiddle.length}
 		active={$gameState.jokerSourceStack === 'middleMiddle'}
-		alternative={isNumberedCardForReplacement('middleMiddle')}
+		alternative={shouldShowGridAlternative('middleMiddle')}
 		onclick={() => handleGridClick('middleMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -357,7 +371,7 @@
 		card={$gameState.cardsInPlay.middleRight[0]}
 		stackDepth={$gameState.cardsInPlay.middleRight.length}
 		active={$gameState.jokerSourceStack === 'middleRight'}
-		alternative={isNumberedCardForReplacement('middleRight')}
+		alternative={shouldShowGridAlternative('middleRight')}
 		onclick={() => handleGridClick('middleRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -400,7 +414,7 @@
 		card={$gameState.cardsInPlay.bottomLeft[0]}
 		stackDepth={$gameState.cardsInPlay.bottomLeft.length}
 		active={$gameState.jokerSourceStack === 'bottomLeft'}
-		alternative={isNumberedCardForReplacement('bottomLeft')}
+		alternative={shouldShowGridAlternative('bottomLeft')}
 		onclick={() => handleGridClick('bottomLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -409,7 +423,7 @@
 		card={$gameState.cardsInPlay.bottomMiddle[0]}
 		stackDepth={$gameState.cardsInPlay.bottomMiddle.length}
 		active={$gameState.jokerSourceStack === 'bottomMiddle'}
-		alternative={isNumberedCardForReplacement('bottomMiddle')}
+		alternative={shouldShowGridAlternative('bottomMiddle')}
 		onclick={() => handleGridClick('bottomMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
@@ -418,7 +432,7 @@
 		card={$gameState.cardsInPlay.bottomRight[0]}
 		stackDepth={$gameState.cardsInPlay.bottomRight.length}
 		active={$gameState.jokerSourceStack === 'bottomRight'}
-		alternative={isNumberedCardForReplacement('bottomRight')}
+		alternative={shouldShowGridAlternative('bottomRight')}
 		onclick={() => handleGridClick('bottomRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
