@@ -113,11 +113,8 @@
 		// Don't show grid highlighting during joker/ace usage (clearer UX)
 		if ($gameState.jokerInUse || $gameState.aceInUse) return false;
 
-		// Scenario 1: Setup replace mode - highlight numbered cards to replace
-		if ($gameState.setupPhaseReplaceMode) {
-			const card = $gameState.cardsInPlay[position][0];
-			return card !== undefined && typeof card.value === 'number' && card.value >= 2 && card.value <= 10;
-		}
+		// Scenario 1: Setup replace mode - all grid cards can be replaced
+		if ($gameState.setupPhaseReplaceMode) return true;
 
 		// Scenario 2: Normal play - highlight positions where card can go
 		return isAlternativeGridPosition(position);
