@@ -13,7 +13,7 @@
  - [X] Bytt ett kort under setup har et banner. Finn en annen visning.
  - [X] Cylcing til nummerkort bør komme idet modal for kortbytte dukker opp
  - [ ] CSS for markering av gyldige plasseringer på grid må bli bedre
- - [ ] Finn bug om duplikat kort (brukte joker, samme source og target, så samlet bunken med ess. Testet: bruk av joker på samme stack dupliserer toppkort)
+ - [X] Finn bug om duplikat kort (brukte joker, samme source og target, så samlet bunken med ess. Testet: bruk av joker på samme stack dupliserer toppkort)
  - [ ] Lag en knapp for å se hva som ligger i en stack på grid
 
 ## 🚀 Modernization Tasks (Priority: High)

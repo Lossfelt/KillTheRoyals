@@ -711,6 +711,11 @@ export function useJoker(targetPosition: GridPosition) {
 	gameState.update((state) => {
 		if (!state.jokerSourceStack) return state;
 
+		// Prevent moving card to same position (would cause duplication bug)
+		if (state.jokerSourceStack === targetPosition) {
+			return state;
+		}
+
 		const sourceStack = state.cardsInPlay[state.jokerSourceStack];
 		const targetStack = state.cardsInPlay[targetPosition];
 
