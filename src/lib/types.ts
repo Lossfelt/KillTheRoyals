@@ -193,6 +193,13 @@ export interface HighScoresData {
 	version: number; // For future schema migrations
 }
 
+// Audio State Types
+export interface AudioState {
+	isInitialized: boolean; // Whether AudioManager has been initialized
+	isPlaying: boolean; // Whether music is currently playing
+	isMuted: boolean; // Whether music is muted (persisted in localStorage)
+}
+
 // Complete attack mappings based on legacy code (src-old/Functions/funcKillRoyals.js)
 // When a card is placed at a grid position, these are the royals that can be attacked
 // and the two cards that form the payload for each attack

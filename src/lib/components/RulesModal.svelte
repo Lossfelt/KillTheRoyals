@@ -72,6 +72,10 @@
 					<a href="https://www.pentadact.com/2019-08-20-gridcannon-a-single-player-game-with-regular-playing-cards/" target="_blank" rel="noopener">
 						Gridcannon by Tom Francis
 					</a>
+					<br>
+					<strong>Music: </strong> by 
+					<a href="https://pixabay.com/users/maksym_dudchyk-34570439/">Maksym_Dudchyk</a>
+					from <a href="https://pixabay.com/music/upbeat-whispers-of-september-instrumental-background-music-for-video-full-391387/">Pixabay</a>
 				</p>
 			</div>
 

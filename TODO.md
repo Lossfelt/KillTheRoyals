@@ -1,7 +1,7 @@
 # Kill The Royals - TODO List
 
  # Definert av Levin
- - [ ] Legg til musikk
+ - [X] Legg til musikk og kreditering
  - [X] Finn en annen visning av armor-placement-behov enn banner
  - [X] Hvis man er stuck fordi kortet hverken kan plasseres som armor eller på grid, men man har joker/ess, bør grid dimmes
  - [X] Sjekk hvorfor koden fortsatt bruker unicode her og der
@@ -13,6 +13,8 @@
  - [X] Bytt ett kort under setup har et banner. Finn en annen visning.
  - [X] Cylcing til nummerkort bør komme idet modal for kortbytte dukker opp
  - [ ] CSS for markering av gyldige plasseringer på grid må bli bedre
+ - [ ] Finn bug om duplikat kort (brukte joker, samme source og target, så samlet bunken med ess. Testet: bruk av joker på samme stack dupliserer toppkort)
+ - [ ] Lag en knapp for å se hva som ligger i en stack på grid
 
 ## 🚀 Modernization Tasks (Priority: High)
 

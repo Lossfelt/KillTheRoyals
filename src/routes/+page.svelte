@@ -5,6 +5,7 @@
 	import SetupCompleteModal from '$lib/components/SetupCompleteModal.svelte';
 	import GameOverModal from '$lib/components/GameOverModal.svelte';
 	import HighScoresModal from '$lib/components/HighScoresModal.svelte';
+	import { audioState, toggleMute } from '$lib/stores/audio';
 
 	let showRules = false;
 	let showHighScores = false;
@@ -24,6 +25,15 @@
 </svelte:head>
 
 <main>
+	<button
+		class="mute-button"
+		on:click={toggleMute}
+		type="button"
+		aria-label={$audioState.isMuted ? 'Unmute music' : 'Mute music'}
+	>
+		{$audioState.isMuted ? '🔇' : '🔊'}
+	</button>
+
 	<header>
 		<h1>Kill The Royals</h1>
 		<p class="subtitle">A card game by Tom Francis</p>
@@ -44,6 +54,35 @@
 		min-height: 100vh;
 		padding: var(--spacing-md);
 		padding-bottom: var(--spacing-xl);
+		position: relative;
+	}
+
+	.mute-button {
+		position: absolute;
+		top: var(--spacing-md);
+		right: var(--spacing-md);
+		width: 44px;
+		height: 44px;
+		border-radius: 50%;
+		background: transparent;
+		border: 2px solid var(--color-text-muted);
+		color: var(--color-text);
+		font-size: 1.25rem;
+		cursor: pointer;
+		transition: all var(--transition-fast);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 100;
+	}
+
+	.mute-button:hover {
+		border-color: var(--color-text);
+		transform: scale(1.1);
+	}
+
+	.mute-button:active {
+		transform: scale(0.95);
 	}
 
 	header {
@@ -67,6 +106,11 @@
 	@media (max-width: 767px) {
 		main {
 			padding: var(--spacing-sm);
+		}
+
+		.mute-button {
+			top: var(--spacing-sm);
+			right: var(--spacing-sm);
 		}
 
 		header {
