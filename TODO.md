@@ -14,7 +14,8 @@
  - [X] Cylcing til nummerkort bør komme idet modal for kortbytte dukker opp
  - [ ] CSS for markering av gyldige plasseringer på grid må bli bedre
  - [X] Finn bug om duplikat kort (brukte joker, samme source og target, så samlet bunken med ess. Testet: bruk av joker på samme stack dupliserer toppkort)
- - [ ] Lag en knapp for å se hva som ligger i en stack på grid
+ - [X] Lag en knapp for å se hva som ligger i en stack på grid
+ - [ ] Legg til mulighet for å undo siste handling
 
 ## 🚀 Modernization Tasks (Priority: High)
 

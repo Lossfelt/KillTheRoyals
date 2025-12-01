@@ -5,7 +5,9 @@
 	import SetupCompleteModal from '$lib/components/SetupCompleteModal.svelte';
 	import GameOverModal from '$lib/components/GameOverModal.svelte';
 	import HighScoresModal from '$lib/components/HighScoresModal.svelte';
+	import StackViewModal from '$lib/components/StackViewModal.svelte';
 	import { audioState, toggleMute } from '$lib/stores/audio';
+	import { gameState } from '$lib/stores/game';
 
 	let showRules = false;
 	let showHighScores = false;
@@ -47,6 +49,10 @@
 	<GameOverModal />
 	<RulesModal bind:show={showRules} />
 	<HighScoresModal bind:show={showHighScores} />
+
+	{#if $gameState.viewingStack}
+		<StackViewModal position={$gameState.viewingStack} />
+	{/if}
 </main>
 
 <style>

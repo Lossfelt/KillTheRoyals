@@ -143,6 +143,8 @@ export interface GameState {
 	alternativeGridPositions: GridPosition[]; // Available grid positions when numbered card can be placed
 	canPlaceTopCardOnGrid: boolean; // Whether the top card in deck can be placed on any grid position
 	gameStatus: GameStatus;
+	viewStackMode: boolean; // Whether view stack mode is active
+	viewingStack: GridPosition | null; // Which stack modal is currently open
 }
 
 // Payload type (2 cards that can kill a royal)

@@ -52,7 +52,9 @@ function createInitialGameState(): GameState {
 		alternativeAcePositions: [],
 		alternativeGridPositions: [],
 		canPlaceTopCardOnGrid: true, // During setup, this is not applicable yet
-		gameStatus: 'setup'
+		gameStatus: 'setup',
+		viewStackMode: false,
+		viewingStack: null
 	};
 
 	return updateCanPlaceTopCardOnGrid(initialState);
@@ -758,4 +760,29 @@ export function useJoker(targetPosition: GridPosition) {
 		// Update whether top card can be placed on grid
 		return updateCanPlaceTopCardOnGrid(newState);
 	});
+}
+
+// Action: Toggle view stack mode
+export function toggleViewStackMode() {
+	gameState.update((state) => ({
+		...state,
+		viewStackMode: !state.viewStackMode,
+		viewingStack: null // Close any open modal when toggling
+	}));
+}
+
+// Action: Open stack view modal for a specific position
+export function openStackView(position: GridPosition) {
+	gameState.update((state) => {
+		if (!state.viewStackMode) return state;
+		return { ...state, viewingStack: position };
+	});
+}
+
+// Action: Close stack view modal
+export function closeStackView() {
+	gameState.update((state) => ({
+		...state,
+		viewingStack: null
+	}));
 }

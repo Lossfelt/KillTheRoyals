@@ -11,7 +11,8 @@
 		activateJoker,
 		selectJokerSource,
 		useJoker,
-		completeSetup
+		completeSetup,
+		openStackView
 	} from '$lib/stores/game';
 	import Card from './Card.svelte';
 	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition, ArmorPosition } from '$lib/types';
@@ -26,6 +27,12 @@
 
 		// Block clicks during setup phase (unless in replace mode)
 		if ($gameState.isSetupPhase) return;
+
+		// Handle view stack mode: click to view stack contents
+		if ($gameState.viewStackMode) {
+			openStackView(position);
+			return;
+		}
 
 		// Handle Ace usage: click grid to pick up stack
 		if ($gameState.aceInUse) {
@@ -110,8 +117,8 @@
 	// Check if a grid card should show golden glow
 	// Two scenarios: 1) Setup replace mode, 2) Numbered card placement from deck
 	function shouldShowGridAlternative(position: GridPosition): boolean {
-		// Don't show grid highlighting during joker/ace usage (clearer UX)
-		if ($gameState.jokerInUse || $gameState.aceInUse) return false;
+		// Don't show grid highlighting during joker/ace usage or view stack mode (clearer UX)
+		if ($gameState.jokerInUse || $gameState.aceInUse || $gameState.viewStackMode) return false;
 
 		// Scenario 1: Setup replace mode - all grid cards can be replaced
 		if ($gameState.setupPhaseReplaceMode) return true;
@@ -293,6 +300,7 @@
 		onclick={() => handleGridClick('upperLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.upperMiddle[0]}
@@ -302,6 +310,7 @@
 		onclick={() => handleGridClick('upperMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.upperRight[0]}
@@ -311,6 +320,7 @@
 		onclick={() => handleGridClick('upperRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.rightUpperRoyal[0]}
@@ -354,6 +364,7 @@
 		onclick={() => handleGridClick('middleLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.middleMiddle[0]}
@@ -363,6 +374,7 @@
 		onclick={() => handleGridClick('middleMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.middleRight[0]}
@@ -372,6 +384,7 @@
 		onclick={() => handleGridClick('middleRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.rightMiddleRoyal[0]}
@@ -415,6 +428,7 @@
 		onclick={() => handleGridClick('bottomLeft')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.bottomMiddle[0]}
@@ -424,6 +438,7 @@
 		onclick={() => handleGridClick('bottomMiddle')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.bottomRight[0]}
@@ -433,6 +448,7 @@
 		onclick={() => handleGridClick('bottomRight')}
 		slotType="grid"
 		dimmed={shouldDimCard()}
+		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
 		card={$gameState.cardsInPlay.rightBottomRoyal[0]}
