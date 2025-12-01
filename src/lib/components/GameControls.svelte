@@ -15,6 +15,9 @@
 	<button class="btn" on:click={onShowRules} type="button">
 		Rules
 	</button>
+	<button class="btn" type="button">
+		Undo
+	</button>
 	<button
 		class="btn"
 		class:active={$gameState.viewStackMode}
