@@ -47,7 +47,7 @@
 			<feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
 		</filter>
 	</defs>
-	<rect width="100" height="140" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1" filter="url(#shadow-{uid})" />
+	<rect class="card-background" width="100" height="140" rx="4" stroke-width="1" filter="url(#shadow-{uid})" />
 
 	{#if card.suit === 'joker'}
 		<!-- Joker card - diagonal text -->
@@ -58,9 +58,9 @@
 		</g>
 	{:else if card.value === 'DEAD' || card.value === 'USED'}
 		<!-- Card back pattern - for dead royals/armor and used jokers/aces -->
-		<rect x="2" y="2" width="96" height="136" rx="4" fill="#ffffff" stroke="#111" stroke-width="2" />
-		<rect x="15" y="15" width="70" height="110" rx="2" fill="#ffffff" stroke="#111" stroke-width="2" />
-		<g fill="#111">
+		<rect class="card-back-outer" x="2" y="2" width="96" height="136" rx="4" stroke-width="2" />
+		<rect class="card-back-inner" x="15" y="15" width="70" height="110" rx="2" stroke-width="2" />
+		<g class="card-back-pattern">
 			{#each usedPatternPositions as { x, y }}
 				<polygon points="{x},{y + 10} {x + 9},{y} {x + 18},{y + 10} {x + 9},{y + 20}" />
 			{/each}
@@ -82,6 +82,21 @@
 		height: 100%;
 	}
 
+	.card-background {
+		fill: var(--color-card);
+		stroke: var(--color-card-border);
+	}
+
+	.card-back-outer,
+	.card-back-inner {
+		fill: var(--color-card);
+		stroke: var(--color-card-black);
+	}
+
+	.card-back-pattern {
+		fill: var(--color-card-black);
+	}
+
 	.corner-value {
 		font-size: 50px;
 		font-weight: bold;
@@ -97,7 +112,7 @@
 		font-weight: bold;
 		font-family: sans-serif;
 		letter-spacing: 2px;
-		fill: #9b59b6; /* Purple color for joker */
+		fill: var(--color-joker);
 	}
 
 	/* Color based on card suit */
