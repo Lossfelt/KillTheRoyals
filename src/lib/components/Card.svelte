@@ -22,7 +22,6 @@
 	class:card-red={cardColor === 'red'}
 	class:card-black={cardColor === 'black'}
 	class:card-active={active}
-	class:card-clickable={clickable}
 	class:card-alternative={alternative}
 	class:card-alternative-grid={alternative && slotType === 'grid'}
 	class:card-dimmed={dimmed}
@@ -143,7 +142,6 @@
 
 	.card-alternative {
 		animation: goldenGlow 2s ease-in-out infinite;
-		cursor: pointer;
 	}
 
 	.card-alternative-grid {

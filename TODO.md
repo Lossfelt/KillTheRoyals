@@ -12,7 +12,7 @@
  - [X] Vurder å legge til gull-markering for plassering av absolutt alle kort.
  - [X] Bytt ett kort under setup har et banner. Finn en annen visning.
  - [X] Cylcing til nummerkort bør komme idet modal for kortbytte dukker opp
- - [ ] CSS for markering av gyldige plasseringer på grid må bli bedre
+ - [X] CSS for markering av gyldige plasseringer på grid må bli bedre
  - [X] Finn bug om duplikat kort (brukte joker, samme source og target, så samlet bunken med ess. Testet: bruk av joker på samme stack dupliserer toppkort)
  - [X] Lag en knapp for å se hva som ligger i en stack på grid
  - [X] Legg til mulighet for å undo siste handling
@@ -154,7 +154,7 @@ These were the planned features for the original React version. Most will be imp
 - [x] **Fix cycleDeckForRoyal** - Should work when Joker or Ace on top of deck when no royals
   - Status: ✅ IMPLEMENTED in game.ts (line 585)
 
-- [ ] **Undo functionality** - Enable possibility to "undo" joker and ace usage
+- [X] **Undo functionality** - Enable possibility to "undo" joker and ace usage
   - Status: Planned for future enhancement
   - Implementation: Requires state history array
 
@@ -194,7 +194,7 @@ These were the planned features for the original React version. Most will be imp
   - Status: Currently in bottom row (row 8) - Layout works well
 
 ### Future Enhancements (Beyond Modernization)
-- [ ] **Full undo functionality** - Enable undo for all moves (requires state history array)
+- [X] **Full undo functionality** - Enable undo for all moves (requires state history array)
 - [ ] **Animations** - Card flip animations, slide-in effects
 - [ ] **Sound effects** - Card placement, royal death, win/loss sounds
 - [ ] **Statistics tracking** - Games played, win rate, average turns
