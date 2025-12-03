@@ -84,7 +84,7 @@
 	.modal-content {
 		background: var(--color-bg);
 		border-radius: var(--card-radius);
-		max-width: 400px;
+		max-width: 200px;
 		width: 100%;
 		max-height: 80vh;
 		display: flex;
