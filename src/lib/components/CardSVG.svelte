@@ -3,14 +3,16 @@
 
 	export let card: Card;
 
+	// Generate unique ID for this component instance to avoid duplicate filter IDs
+	const uid = Math.random().toString(36).substring(2, 9);
+
 	// Get suit display value
 	function getSuitSymbol(suit: string): string {
 		const symbols: Record<string, string> = {
 			hearts: '♥',
 			diamonds: '♦',
 			clubs: '♣',
-			spades: '♠',
-			joker: '🃏'
+			spades: '♠'
 		};
 		return symbols[suit] || '';
 	}
@@ -41,11 +43,11 @@
 <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" class="card-svg">
 	<!-- Card background with border and shadow -->
 	<defs>
-		<filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+		<filter id="shadow-{uid}" x="-50%" y="-50%" width="200%" height="200%">
 			<feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.3" />
 		</filter>
 	</defs>
-	<rect width="100" height="140" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1" filter="url(#shadow)" />
+	<rect width="100" height="140" rx="4" fill="white" stroke="#e0e0e0" stroke-width="1" filter="url(#shadow-{uid})" />
 
 	{#if card.suit === 'joker'}
 		<!-- Joker card - diagonal text -->
