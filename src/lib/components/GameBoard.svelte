@@ -68,6 +68,19 @@
 			|| !$gameState.canPlaceTopCardOnGrid;
 	}
 
+	// Check if a grid card should be dimmed (when it's not an alternative position)
+	function shouldDimGridCard(position: GridPosition): boolean {
+		// First check general dimming conditions
+		if (shouldDimCard()) return true;
+
+		// If there are alternative positions, dim cards that are NOT in the list
+		if ($gameState.alternativeGridPositions.length > 0) {
+			return !$gameState.alternativeGridPositions.includes(position);
+		}
+
+		return false;
+	}
+
 	// Check if a specific royal position should be dimmed
 	// Alternative positions (that can be clicked) should NOT be dimmed
 	function shouldDimRoyalPosition(position: RoyalPosition): boolean {
@@ -299,7 +312,7 @@
 		alternative={shouldShowGridAlternative('upperLeft')}
 		onclick={() => handleGridClick('upperLeft')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('upperLeft')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -309,7 +322,7 @@
 		alternative={shouldShowGridAlternative('upperMiddle')}
 		onclick={() => handleGridClick('upperMiddle')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('upperMiddle')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -319,7 +332,7 @@
 		alternative={shouldShowGridAlternative('upperRight')}
 		onclick={() => handleGridClick('upperRight')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('upperRight')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -363,7 +376,7 @@
 		alternative={shouldShowGridAlternative('middleLeft')}
 		onclick={() => handleGridClick('middleLeft')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('middleLeft')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -373,7 +386,7 @@
 		alternative={shouldShowGridAlternative('middleMiddle')}
 		onclick={() => handleGridClick('middleMiddle')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('middleMiddle')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -383,7 +396,7 @@
 		alternative={shouldShowGridAlternative('middleRight')}
 		onclick={() => handleGridClick('middleRight')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('middleRight')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -427,7 +440,7 @@
 		alternative={shouldShowGridAlternative('bottomLeft')}
 		onclick={() => handleGridClick('bottomLeft')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('bottomLeft')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -437,7 +450,7 @@
 		alternative={shouldShowGridAlternative('bottomMiddle')}
 		onclick={() => handleGridClick('bottomMiddle')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('bottomMiddle')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card
@@ -447,7 +460,7 @@
 		alternative={shouldShowGridAlternative('bottomRight')}
 		onclick={() => handleGridClick('bottomRight')}
 		slotType="grid"
-		dimmed={shouldDimCard()}
+		dimmed={shouldDimGridCard('bottomRight')}
 		viewMode={$gameState.viewStackMode}
 	/>
 	<Card

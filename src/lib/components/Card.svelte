@@ -24,6 +24,7 @@
 	class:card-active={active}
 	class:card-clickable={clickable}
 	class:card-alternative={alternative}
+	class:card-alternative-grid={alternative && slotType === 'grid'}
 	class:card-dimmed={dimmed}
 	class:card-view-mode={viewMode}
 	on:click={onclick}
@@ -143,6 +144,10 @@
 	.card-alternative {
 		animation: goldenGlow 2s ease-in-out infinite;
 		cursor: pointer;
+	}
+
+	.card-alternative-grid {
+		animation: none;
 	}
 
 	.card-view-mode {
