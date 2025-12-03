@@ -21,6 +21,7 @@
 	<button
 		class="btn"
 		class:active={$gameState.viewStackMode}
+		aria-pressed={$gameState.viewStackMode}
 		on:click={toggleViewStackMode}
 		type="button"
 	>
