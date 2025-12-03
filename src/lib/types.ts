@@ -127,6 +127,18 @@ export interface CardsInPlay {
 	royalsToBePlaced: CardStack;
 }
 
+// Undo History
+export interface HistoryEntry {
+	state: GameState;
+	actionType: 'place-numbered' | 'place-royal' | 'place-armor' | 'use-ace' | 'use-joker';
+	timestamp: number;
+}
+
+export interface UndoHistory {
+	past: HistoryEntry[]; // Stack of previous states (max 10)
+	maxSize: number; // Configurable limit
+}
+
 // Main Game State
 export interface GameState {
 	deck: Card[];
@@ -145,6 +157,7 @@ export interface GameState {
 	gameStatus: GameStatus;
 	viewStackMode: boolean; // Whether view stack mode is active
 	viewingStack: GridPosition | null; // Which stack modal is currently open
+	undoHistory: UndoHistory; // History of previous game states for undo
 }
 
 // Payload type (2 cards that can kill a royal)

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { restartGame, gameState, toggleViewStackMode } from '$lib/stores/game';
+	import { restartGame, gameState, toggleViewStackMode, undo, canUndo } from '$lib/stores/game';
 
 	export let onShowRules: () => void;
 	export let onShowHighScores: () => void;
@@ -15,7 +15,7 @@
 	<button class="btn" on:click={onShowRules} type="button">
 		Rules
 	</button>
-	<button class="btn" type="button">
+	<button class="btn" on:click={undo} disabled={!$canUndo} type="button">
 		Undo
 	</button>
 	<button
@@ -65,6 +65,11 @@
 		background: var(--color-button);
 		color: white;
 		border-color: var(--color-button);
+	}
+
+	.btn:disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
 	}
 
 	/* Mobile */

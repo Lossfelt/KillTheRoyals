@@ -12,7 +12,9 @@ import type {
 	JokerPosition,
 	RoyalPosition,
 	ArmorPosition,
-	CardsInPlay
+	CardsInPlay,
+	HistoryEntry,
+	UndoHistory
 } from '$lib/types';
 import { isRoyalValue } from '$lib/types';
 import { createShuffledDeck } from '$lib/utils/deck';
@@ -54,7 +56,11 @@ function createInitialGameState(): GameState {
 		canPlaceTopCardOnGrid: true, // During setup, this is not applicable yet
 		gameStatus: 'setup',
 		viewStackMode: false,
-		viewingStack: null
+		viewingStack: null,
+		undoHistory: {
+			past: [],
+			maxSize: 10
+		}
 	};
 
 	return updateCanPlaceTopCardOnGrid(initialState);
@@ -72,6 +78,36 @@ export const isGameOver = derived(
 export const livingRoyalsCount = derived(gameState, ($state) =>
 	countLivingRoyals($state.cardsInPlay)
 );
+
+// Derived store: Can undo?
+export const canUndo = derived(
+	gameState,
+	($state) => $state.undoHistory.past.length > 0
+);
+
+/**
+ * Helper: Save current state to history before action
+ */
+function saveToHistory(
+	state: GameState,
+	actionType: HistoryEntry['actionType']
+): UndoHistory {
+	const entry: HistoryEntry = {
+		state: { ...state }, // Shallow copy (nested objects are immutable)
+		actionType,
+		timestamp: Date.now()
+	};
+
+	const newPast = [...state.undoHistory.past, entry];
+
+	// Keep only last N entries
+	const trimmedPast = newPast.slice(-state.undoHistory.maxSize);
+
+	return {
+		...state.undoHistory,
+		past: trimmedPast
+	};
+}
 
 /**
  * Helper: Determine game status based on current state
@@ -401,6 +437,9 @@ export function placeNumberedCard(position: GridPosition) {
 			return state; // Invalid placement
 		}
 
+		// SAVE TO HISTORY (before mutation)
+		const newHistory = saveToHistory(state, 'place-numbered');
+
 		// Place the card
 		const newDeck = state.deck.slice(1);
 		const newCardsInPlay = {
@@ -418,7 +457,8 @@ export function placeNumberedCard(position: GridPosition) {
 			...state,
 			deck: newDeck,
 			cardsInPlay: updatedCardsInPlay,
-			gameStatus
+			gameStatus,
+			undoHistory: newHistory
 		};
 
 		// Update whether top card can be placed on grid
@@ -434,7 +474,15 @@ export function selectRoyalPosition(position: RoyalPosition) {
 			return state;
 		}
 
-		return placeRoyalAtPosition(state, position);
+		// SAVE TO HISTORY (before mutation)
+		const newHistory = saveToHistory(state, 'place-royal');
+
+		const newState = placeRoyalAtPosition(state, position);
+
+		return {
+			...newState,
+			undoHistory: newHistory
+		};
 	});
 }
 
@@ -509,7 +557,15 @@ export function selectArmorPosition(position: ArmorPosition) {
 			return state;
 		}
 
-		return placeArmorAtPosition(state, position);
+		// SAVE TO HISTORY (before mutation)
+		const newHistory = saveToHistory(state, 'place-armor');
+
+		const newState = placeArmorAtPosition(state, position);
+
+		return {
+			...newState,
+			undoHistory: newHistory
+		};
 	});
 }
 
@@ -652,6 +708,9 @@ export function useAce(stackPosition: GridPosition) {
 		const stack = state.cardsInPlay[stackPosition];
 		if (stack.length === 0) return state;
 
+		// SAVE TO HISTORY (before mutation)
+		const newHistory = saveToHistory(state, 'use-ace');
+
 		// Add stack to bottom of deck
 		const newDeck = [...state.deck, ...stack];
 
@@ -666,7 +725,8 @@ export function useAce(stackPosition: GridPosition) {
 			...state,
 			deck: newDeck,
 			cardsInPlay: newCardsInPlay,
-			aceInUse: null
+			aceInUse: null,
+			undoHistory: newHistory
 		};
 
 		// Update whether top card can be placed on grid
@@ -730,6 +790,9 @@ export function useJoker(targetPosition: GridPosition) {
 			return state; // Invalid move
 		}
 
+		// SAVE TO HISTORY (before mutation)
+		const newHistory = saveToHistory(state, 'use-joker');
+
 		// Move the card
 		let newCardsInPlay = {
 			...state.cardsInPlay,
@@ -754,7 +817,8 @@ export function useJoker(targetPosition: GridPosition) {
 			cardsInPlay: newCardsInPlay,
 			jokerInUse: null,
 			jokerSourceStack: null,
-			gameStatus
+			gameStatus,
+			undoHistory: newHistory
 		};
 
 		// Update whether top card can be placed on grid
@@ -785,4 +849,28 @@ export function closeStackView() {
 		...state,
 		viewingStack: null
 	}));
+}
+
+// Action: Undo last game action
+export function undo() {
+	gameState.update((state) => {
+		// Cannot undo if no history
+		if (state.undoHistory.past.length === 0) return state;
+
+		// Pop last history entry
+		const newPast = state.undoHistory.past.slice(0, -1);
+		const previousEntry = state.undoHistory.past[state.undoHistory.past.length - 1];
+
+		// Restore previous state, but keep new history
+		const restoredState = {
+			...previousEntry.state,
+			undoHistory: {
+				...state.undoHistory,
+				past: newPast
+			}
+		};
+
+		// Recompute derived fields
+		return updateCanPlaceTopCardOnGrid(restoredState);
+	});
 }
