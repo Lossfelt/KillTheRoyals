@@ -70,6 +70,11 @@
 
 	// Check if a grid card should be dimmed (when it's not an alternative position)
 	function shouldDimGridCard(position: GridPosition): boolean {
+		// Don't dim grid during special interactive modes where grid remains clickable
+		if ($gameState.jokerInUse || $gameState.aceInUse || $gameState.viewStackMode) {
+			return false;
+		}
+
 		// First check general dimming conditions
 		if (shouldDimCard()) return true;
 
