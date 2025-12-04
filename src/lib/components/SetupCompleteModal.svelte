@@ -29,6 +29,8 @@
 
 	$: showModal = delayedShow;
 
+	let modalElement: HTMLDivElement;
+
 	function handleSkip() {
 		completeSetup(false);
 	}
@@ -36,12 +38,31 @@
 	function handleReplace() {
 		enableReplaceMode();
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			handleSkip();
+		}
+	}
+
+	// Auto-focus modal when opened
+	$: if (showModal && modalElement) {
+		modalElement.focus();
+	}
 </script>
 
 {#if showModal}
-	<div class="modal-overlay">
+	<div
+		bind:this={modalElement}
+		class="modal-overlay"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="setup-complete-title"
+		tabindex="-1"
+		on:keydown={handleKeydown}
+	>
 		<div class="modal-content">
-			<h2>Replace a card?</h2>
+			<h2 id="setup-complete-title">Replace a card?</h2>
 			<p>You can choose to replace one numbered card on the board with a new card from the deck.</p>
 
 			<div class="button-group">
@@ -126,6 +147,11 @@
 		box-shadow: var(--shadow-lg);
 	}
 
+	.button-primary:focus-visible {
+		outline: 3px solid var(--color-button);
+		outline-offset: 2px;
+	}
+
 	.button-secondary {
 		background-color: transparent;
 		color: var(--color-text);
@@ -136,6 +162,11 @@
 		border-color: var(--color-text);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
+	}
+
+	.button-secondary:focus-visible {
+		outline: 3px solid var(--color-button);
+		outline-offset: 2px;
 	}
 
 	/* Mobile optimization */

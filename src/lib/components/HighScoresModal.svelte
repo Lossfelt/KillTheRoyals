@@ -5,6 +5,8 @@
 
 	$: topFive = $highScores.slice(0, 5);
 
+	let modalElement: HTMLDivElement;
+
 	function close() {
 		show = false;
 	}
@@ -20,10 +22,16 @@
 			close();
 		}
 	}
+
+	// Auto-focus modal when opened
+	$: if (show && modalElement) {
+		modalElement.focus();
+	}
 </script>
 
 {#if show}
 	<div
+		bind:this={modalElement}
 		class="modal-overlay"
 		role="dialog"
 		aria-modal="true"

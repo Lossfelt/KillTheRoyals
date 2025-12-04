@@ -8,6 +8,8 @@
 	$: stack = $gameState.cardsInPlay[position];
 	$: show = $gameState.viewingStack === position;
 
+	let modalElement: HTMLDivElement;
+
 	function handleClose() {
 		closeStackView();
 	}
@@ -36,10 +38,15 @@
 		bottomMiddle: 'Bottom Middle',
 		bottomRight: 'Bottom Right'
 	};
+
+	// Auto-focus modal when opened
+	$: if (show && modalElement) {
+		modalElement.focus();
+	}
 </script>
 
 {#if show}
-	<div class="modal-overlay" on:click={handleOverlayClick} on:keydown={handleKeyDown} role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+	<div bind:this={modalElement} class="modal-overlay" on:click={handleOverlayClick} on:keydown={handleKeyDown} role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
 		<div class="modal-content">
 			<header>
 				<h2 id="modal-title">{positionNames[position]} Stack</h2>

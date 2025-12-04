@@ -5,6 +5,8 @@
 	const showModal = $derived($gameState.gameStatus === 'won' || $gameState.gameStatus === 'lost');
 	const isWin = $derived($gameState.gameStatus === 'won');
 
+	let modalElement: HTMLDivElement | undefined = $state();
+
 	// Score: Start at 6, subtract 1 for each USED Joker or Ace (0-6)
 	const score = $derived.by(() => {
 		let baseScore = 6;
@@ -47,13 +49,20 @@
 		}
 	});
 
+	// Auto-focus modal when opened
+	$effect(() => {
+		if (showModal && modalElement) {
+			modalElement.focus();
+		}
+	});
+
 	function handlePlayAgain() {
 		restartGame();
 	}
 </script>
 
 {#if showModal}
-	<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+	<div bind:this={modalElement} class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="game-over-title" tabindex="-1">
 		<div class="modal-content" class:victory={isWin} class:defeat={!isWin}>
 			<h2 id="game-over-title">{isWin ? 'Victory! 🎉' : 'Defeat 💔'}</h2>
 
