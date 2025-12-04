@@ -556,7 +556,7 @@ export function checkGameLost(
 		if (canPlaceTopCardOnGrid) return false;
 
 		// Can armor? Not stuck
-		if (getArmorPlacementPosition(topCard, cardsInPlay) !== null) return false;
+		if (getArmorPlacementPosition(topCard, cardsInPlay).length > 0) return false;
 
 		// Has unused Joker? Not stuck (can move cards around)
 		if (hasUnusedJoker(cardsInPlay)) return false;
