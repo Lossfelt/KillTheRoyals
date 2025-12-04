@@ -66,10 +66,10 @@
 			<p>You can choose to replace one numbered card on the board with a new card from the deck.</p>
 
 			<div class="button-group">
-				<button class="button button-secondary" on:click={handleSkip}>
+				<button class="button button-secondary" on:click={handleSkip} type="button">
 					No, start game
 				</button>
-				<button class="button button-primary" on:click={handleReplace}>
+				<button class="button button-primary" on:click={handleReplace} type="button">
 					Yes, replace card
 				</button>
 			</div>
@@ -86,7 +86,7 @@
 		bottom: 0;
 		background-color: var(--color-modal-overlay);
 		display: flex;
-		align-items: top;
+		align-items: flex-start;
 		justify-content: center;
 		z-index: var(--z-overlay);
 		padding: var(--spacing-md);
@@ -103,6 +103,18 @@
 		height: fit-content;
 		box-shadow: var(--shadow-lg);
 		text-align: center;
+		animation: slideIn 0.3s ease-out;
+	}
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 
 	h2 {
@@ -130,10 +142,14 @@
 		font-size: 1rem;
 		font-weight: 600;
 		border-radius: var(--card-radius);
-		min-width: 44px;
-		min-height: 44px;
-		transition: all var(--transition-normal);
+		min-width: var(--touch-target-min);
+		min-height: var(--touch-target-min);
+		transition: transform var(--transition-normal),
+		            background-color var(--transition-normal),
+		            border-color var(--transition-normal),
+		            box-shadow var(--transition-normal);
 		cursor: pointer;
+		border: none;
 	}
 
 	.button-primary {
@@ -145,6 +161,10 @@
 		background-color: var(--color-button-hover);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-lg);
+	}
+
+	.button-primary:active {
+		transform: translateY(0);
 	}
 
 	.button-primary:focus-visible {
@@ -162,6 +182,10 @@
 		border-color: var(--color-text);
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
+	}
+
+	.button-secondary:active {
+		transform: translateY(0);
 	}
 
 	.button-secondary:focus-visible {
