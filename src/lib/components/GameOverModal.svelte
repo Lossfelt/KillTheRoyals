@@ -53,9 +53,9 @@
 </script>
 
 {#if showModal}
-	<div class="modal-overlay">
+	<div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
 		<div class="modal-content" class:victory={isWin} class:defeat={!isWin}>
-			<h2>{isWin ? 'Victory! 🎉' : 'Defeat 💔'}</h2>
+			<h2 id="game-over-title">{isWin ? 'Victory! 🎉' : 'Defeat 💔'}</h2>
 
 			{#if isWin}
 				{#if isNewHighScore}
@@ -116,11 +116,11 @@
 	}
 
 	.modal-content.victory {
-		border-color: #4caf50;
+		border-color: var(--color-success);
 	}
 
 	.modal-content.defeat {
-		border-color: #f44336;
+		border-color: var(--color-error);
 	}
 
 	h2 {
@@ -157,8 +157,8 @@
 	}
 
 	.new-high-score-badge {
-		background: linear-gradient(135deg, #ffd700, #ffed4e);
-		color: #1a472a;
+		background: linear-gradient(135deg, var(--color-gold), #ffed4e);
+		color: var(--color-bg);
 		font-weight: bold;
 		font-size: 1.1rem;
 		padding: var(--spacing-sm) var(--spacing-md);
@@ -203,6 +203,11 @@
 
 	.button-primary:active {
 		transform: translateY(0);
+	}
+
+	.button-primary:focus-visible {
+		outline: 3px solid var(--color-button);
+		outline-offset: 2px;
 	}
 
 	/* Mobile optimization */
