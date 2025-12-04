@@ -53,13 +53,18 @@
 		border: 2px solid var(--color-text-muted);
 	}
 
-	.btn:hover {
+	.btn:hover:not(:disabled) {
 		border-color: var(--color-text);
 		transform: translateY(-2px);
 	}
 
 	.btn:active {
 		transform: translateY(0);
+	}
+
+	.btn:focus-visible {
+		outline: 3px solid var(--color-button);
+		outline-offset: 2px;
 	}
 
 	.btn.active {
