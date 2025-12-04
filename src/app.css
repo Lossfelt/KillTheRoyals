@@ -26,6 +26,9 @@
 	--color-error: #f44336;
 	--color-gold: #ffd700;
 	--color-modal-overlay: rgba(0, 0, 0, 0.7);
+	--color-divider: rgba(255, 255, 255, 0.1);
+	--color-hover-overlay: rgba(255, 255, 255, 0.1);
+	--color-subtle-bg: rgba(255, 255, 255, 0.05);
 	--color-joker: #9b59b6;
 
 	/* Spacing System */
@@ -82,6 +85,9 @@
 		--color-success: #3d8b40;
 		--color-error: #ef5350;
 		--color-gold: #ffd700;
+		--color-divider: rgba(255, 255, 255, 0.1);
+		--color-hover-overlay: rgba(255, 255, 255, 0.15);
+		--color-subtle-bg: rgba(255, 255, 255, 0.08);
 	}
 }
 

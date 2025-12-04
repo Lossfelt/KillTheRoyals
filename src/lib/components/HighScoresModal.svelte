@@ -14,15 +14,27 @@
 			close();
 		}
 	}
+
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Escape') {
+			close();
+		}
+	}
 </script>
 
 {#if show}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<!-- svelte-ignore a11y-no-static-element-interactions -->
-	<div class="modal-overlay" on:click={handleOverlayClick}>
+	<div
+		class="modal-overlay"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="high-scores-title"
+		tabindex="-1"
+		on:click={handleOverlayClick}
+		on:keydown={handleKeydown}
+	>
 		<div class="modal-content">
 			<div class="modal-header">
-				<h2>High Scores</h2>
+				<h2 id="high-scores-title">High Scores</h2>
 				<button class="close-btn" on:click={close} type="button" aria-label="Close">×</button>
 			</div>
 
@@ -83,7 +95,7 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: var(--spacing-lg);
-		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		border-bottom: 1px solid var(--color-divider);
 	}
 
 	.modal-header h2 {
@@ -97,8 +109,8 @@
 		font-size: 2rem;
 		color: var(--color-text);
 		cursor: pointer;
-		width: 40px;
-		height: 40px;
+		width: var(--touch-target-min);
+		height: var(--touch-target-min);
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -107,7 +119,12 @@
 	}
 
 	.close-btn:hover {
-		background: rgba(255, 255, 255, 0.1);
+		background: var(--color-hover-overlay);
+	}
+
+	.close-btn:focus-visible {
+		outline: 3px solid var(--color-button);
+		outline-offset: 2px;
 	}
 
 	.modal-body {
@@ -128,7 +145,7 @@
 		grid-template-columns: auto 1fr auto;
 		gap: var(--spacing-md);
 		padding: var(--spacing-md);
-		background: rgba(255, 255, 255, 0.05);
+		background: var(--color-subtle-bg);
 		border-radius: var(--card-radius);
 		align-items: center;
 	}
@@ -167,7 +184,7 @@
 
 	.modal-footer {
 		padding: var(--spacing-lg);
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
+		border-top: 1px solid var(--color-divider);
 		display: flex;
 		justify-content: center;
 	}
@@ -193,6 +210,11 @@
 
 	.btn-close:active {
 		transform: translateY(0);
+	}
+
+	.btn-close:focus-visible {
+		outline: 3px solid var(--color-button);
+		outline-offset: 2px;
 	}
 
 	/* Mobile */
