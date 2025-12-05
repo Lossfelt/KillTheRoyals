@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import GameBoard from '$lib/components/GameBoard.svelte';
 	import GameControls from '$lib/components/GameControls.svelte';
 	import RulesModal from '$lib/components/RulesModal.svelte';
@@ -6,11 +7,12 @@
 	import GameOverModal from '$lib/components/GameOverModal.svelte';
 	import HighScoresModal from '$lib/components/HighScoresModal.svelte';
 	import StackViewModal from '$lib/components/StackViewModal.svelte';
-	import { audioState, toggleMute } from '$lib/stores/audio';
+	import { audioState, toggleMute, cleanupAudio } from '$lib/stores/audio';
 	import { gameState } from '$lib/stores/game';
 
 	let showRules = false;
 	let showHighScores = false;
+	let isTogglingMute = false;
 
 	function toggleRules() {
 		showRules = !showRules;
@@ -19,6 +21,24 @@
 	function toggleHighScores() {
 		showHighScores = !showHighScores;
 	}
+
+	async function handleMuteToggle() {
+		if (isTogglingMute) return; // Prevent race condition from multiple clicks
+
+		isTogglingMute = true;
+		try {
+			await toggleMute();
+		} catch (error) {
+			console.error('[UI] Failed to toggle mute:', error);
+		} finally {
+			isTogglingMute = false;
+		}
+	}
+
+	// Cleanup audio resources when component unmounts
+	onDestroy(() => {
+		cleanupAudio();
+	});
 </script>
 
 <svelte:head>
@@ -29,11 +49,20 @@
 <main>
 	<button
 		class="mute-button"
-		on:click={toggleMute}
+		class:error={$audioState.hasError}
+		on:click={handleMuteToggle}
+		disabled={isTogglingMute || $audioState.hasError}
 		type="button"
 		aria-label={$audioState.isMuted ? 'Unmute music' : 'Mute music'}
+		title={$audioState.hasError ? 'Audio failed to load' : ''}
 	>
-		{$audioState.isMuted ? '🔇' : '🔊'}
+		{#if isTogglingMute}
+			⏳
+		{:else if $audioState.hasError}
+			❌
+		{:else}
+			{$audioState.isMuted ? '🔇' : '🔊'}
+		{/if}
 	</button>
 
 	<header>
@@ -89,6 +118,27 @@
 
 	.mute-button:active {
 		transform: scale(0.95);
+	}
+
+	.mute-button:focus-visible {
+		outline: 3px solid var(--color-button);
+		outline-offset: 2px;
+	}
+
+	.mute-button:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
+
+	.mute-button:disabled:hover {
+		border-color: var(--color-text-muted);
+		transform: none;
+	}
+
+	.mute-button.error {
+		border-color: var(--color-error);
+		opacity: 0.7;
 	}
 
 	header {
