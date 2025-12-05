@@ -213,6 +213,7 @@ export interface AudioState {
 	isInitialized: boolean; // Whether AudioManager has been initialized
 	isPlaying: boolean; // Whether music is currently playing
 	isMuted: boolean; // Whether music is muted (persisted in localStorage)
+	hasError: boolean; // Whether audio failed to load or initialize
 }
 
 // Complete attack mappings based on legacy code (src-old/Functions/funcKillRoyals.js)

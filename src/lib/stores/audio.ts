@@ -3,7 +3,7 @@
  * Background music management with mobile autoplay compliance
  */
 
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import type { AudioState } from '$lib/types';
 
 const AUDIO_FILE_PATH = '/audio/background-music.mp3';
@@ -47,13 +47,13 @@ class AudioManager {
 			// Handle audio errors
 			this.audio.addEventListener('error', () => {
 				console.warn('[Audio] Failed to load background music');
-				audioState.update((s) => ({ ...s, isInitialized: false }));
+				audioState.update((s) => ({ ...s, isInitialized: false, hasError: true }));
 			});
 
-			audioState.update((s) => ({ ...s, isInitialized: true }));
+			audioState.update((s) => ({ ...s, isInitialized: true, hasError: false }));
 		} catch (error) {
 			console.warn('[Audio] Failed to initialize audio:', error);
-			audioState.update((s) => ({ ...s, isInitialized: false }));
+			audioState.update((s) => ({ ...s, isInitialized: false, hasError: true }));
 		}
 	}
 
@@ -131,13 +131,11 @@ class AudioManager {
 			this.audio.pause();
 			audioState.update((s) => ({ ...s, isPlaying: false }));
 		}
-	}
 
-	/**
-	 * Check if audio is currently playing
-	 */
-	isPlaying(): boolean {
-		return this.audio ? !this.audio.paused : false;
+		// Reset gain to 0 for clean restart
+		if (this.gainNode && this.audioContext) {
+			this.gainNode.gain.setValueAtTime(0, this.audioContext.currentTime);
+		}
 	}
 
 	/**
@@ -171,31 +169,59 @@ let audioManager: AudioManager | null = null;
 export const audioState = writable<AudioState>({
 	isInitialized: false,
 	isPlaying: false,
-	isMuted: true
+	isMuted: true,
+	hasError: false
 });
 
 /**
  * Toggle mute state - initializes audio on first unmute
  * Starts music when unmuted, stops when muted
  */
-export function toggleMute(): void {
-	audioState.update((state) => {
-		const newMutedState = !state.isMuted;
+export async function toggleMute(): Promise<void> {
+	const currentState = get(audioState);
+	const newMutedState = !currentState.isMuted;
 
-		if (newMutedState) {
-			// Muting - fade out and pause
-			if (audioManager) {
-				audioManager.fadeOut(FADE_OUT_DURATION);
+	if (newMutedState) {
+		// Muting - fade out and pause
+		if (audioManager) {
+			audioManager.fadeOut(FADE_OUT_DURATION);
+		}
+		audioState.update((s) => ({ ...s, isMuted: newMutedState }));
+	} else {
+		// Unmuting - initialize audio if needed, then fade in and play
+		if (!audioManager) {
+			audioManager = new AudioManager();
+			audioManager.init();
+
+			// Wait a tick to ensure initialization completes
+			await new Promise((resolve) => setTimeout(resolve, 0));
+
+			// Check if initialization failed
+			const stateAfterInit = get(audioState);
+			if (stateAfterInit.hasError || !stateAfterInit.isInitialized) {
+				// Don't update muted state if initialization failed
+				console.warn('[Audio] Failed to initialize, keeping muted state');
+				return;
 			}
-		} else {
-			// Unmuting - initialize audio if needed, then fade in and play
-			if (!audioManager) {
-				audioManager = new AudioManager();
-				audioManager.init();
-			}
-			audioManager.fadeIn(FADE_IN_DURATION);
 		}
 
-		return { ...state, isMuted: newMutedState };
+		await audioManager.fadeIn(FADE_IN_DURATION);
+		audioState.update((s) => ({ ...s, isMuted: newMutedState }));
+	}
+}
+
+/**
+ * Cleanup audio resources - call when app is unmounting
+ */
+export function cleanupAudio(): void {
+	if (audioManager) {
+		audioManager.cleanup();
+		audioManager = null;
+	}
+	audioState.set({
+		isInitialized: false,
+		isPlaying: false,
+		isMuted: true,
+		hasError: false
 	});
 }
