@@ -15,6 +15,37 @@ import type {
 import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS } from '$lib/types';
 
 /**
+ * Position constants (DRY - single source of truth)
+ * Used throughout game logic to avoid hardcoding position arrays
+ */
+const GRID_POSITIONS: readonly GridPosition[] = [
+	'upperLeft',
+	'upperMiddle',
+	'upperRight',
+	'middleLeft',
+	'middleMiddle',
+	'middleRight',
+	'bottomLeft',
+	'bottomMiddle',
+	'bottomRight'
+] as const;
+
+const ROYAL_POSITIONS: readonly RoyalPosition[] = [
+	'upperLeftRoyal',
+	'upperMiddleRoyal',
+	'upperRightRoyal',
+	'leftUpperRoyal',
+	'leftMiddleRoyal',
+	'leftBottomRoyal',
+	'rightUpperRoyal',
+	'rightMiddleRoyal',
+	'rightBottomRoyal',
+	'bottomLeftRoyal',
+	'bottomMiddleRoyal',
+	'bottomRightRoyal'
+] as const;
+
+/**
  * Calculate numeric value from card (handles 'A', 'Joker', and 'DEAD')
  */
 function getCardNumericValue(card: Card | undefined): number {
@@ -196,20 +227,8 @@ export function canPlaceCardOnGrid(card: Card, cardsInPlay: CardsInPlay): boolea
 		return false;
 	}
 
-	const gridPositions: GridPosition[] = [
-		'upperLeft',
-		'upperMiddle',
-		'upperRight',
-		'middleLeft',
-		'middleMiddle',
-		'middleRight',
-		'bottomLeft',
-		'bottomMiddle',
-		'bottomRight'
-	];
-
 	// Check if card can be placed on at least one grid position
-	return gridPositions.some((pos) => canPlaceNumberedCard(card, cardsInPlay[pos]));
+	return GRID_POSITIONS.some((pos) => canPlaceNumberedCard(card, cardsInPlay[pos]));
 }
 
 /**
@@ -224,23 +243,8 @@ export function getRoyalPlacementPosition(
 	royal: Card,
 	cardsInPlay: CardsInPlay
 ): RoyalPosition[] {
-	const royalPositions: RoyalPosition[] = [
-		'upperLeftRoyal',
-		'upperMiddleRoyal',
-		'upperRightRoyal',
-		'leftUpperRoyal',
-		'leftMiddleRoyal',
-		'leftBottomRoyal',
-		'rightUpperRoyal',
-		'rightMiddleRoyal',
-		'rightBottomRoyal',
-		'bottomLeftRoyal',
-		'bottomMiddleRoyal',
-		'bottomRightRoyal'
-	];
-
 	// Find empty royal positions (excluding dead royals)
-	const emptyPositions = royalPositions.filter((pos) => {
+	const emptyPositions = ROYAL_POSITIONS.filter((pos) => {
 		const card = cardsInPlay[pos][0];
 		return (cardsInPlay[pos].length === 0 || isEmptyCard(card)) && !isRoyalDead(card);
 	});
@@ -355,22 +359,7 @@ function isRoyalEligibleForArmor(
 	const currentValue = getCardNumericValue(currentRoyal);
 
 	// Check all other royals
-	const allRoyalPositions: RoyalPosition[] = [
-		'upperLeftRoyal',
-		'upperMiddleRoyal',
-		'upperRightRoyal',
-		'leftUpperRoyal',
-		'leftMiddleRoyal',
-		'leftBottomRoyal',
-		'rightUpperRoyal',
-		'rightMiddleRoyal',
-		'rightBottomRoyal',
-		'bottomLeftRoyal',
-		'bottomMiddleRoyal',
-		'bottomRightRoyal'
-	];
-
-	for (const otherRoyalPos of allRoyalPositions) {
+	for (const otherRoyalPos of ROYAL_POSITIONS) {
 		if (otherRoyalPos === royalPos) continue;
 
 		const otherRoyal = cardsInPlay[otherRoyalPos][0];
@@ -473,22 +462,7 @@ export function getArmorPlacementPosition(
  * Check if game is won (all royals dead)
  */
 export function checkGameWon(cardsInPlay: CardsInPlay): boolean {
-	const royalPositions: RoyalPosition[] = [
-		'upperLeftRoyal',
-		'upperMiddleRoyal',
-		'upperRightRoyal',
-		'leftUpperRoyal',
-		'leftMiddleRoyal',
-		'leftBottomRoyal',
-		'rightUpperRoyal',
-		'rightMiddleRoyal',
-		'rightBottomRoyal',
-		'bottomLeftRoyal',
-		'bottomMiddleRoyal',
-		'bottomRightRoyal'
-	];
-
-	for (const pos of royalPositions) {
+	for (const pos of ROYAL_POSITIONS) {
 		const royal = cardsInPlay[pos][0];
 		if (!royal || !isRoyalDead(royal)) {
 			return false; // Still missing or living royals
@@ -581,23 +555,8 @@ export function checkGameLost(
  * Count living royals on the board
  */
 export function countLivingRoyals(cardsInPlay: CardsInPlay): number {
-	const royalPositions: RoyalPosition[] = [
-		'upperLeftRoyal',
-		'upperMiddleRoyal',
-		'upperRightRoyal',
-		'leftUpperRoyal',
-		'leftMiddleRoyal',
-		'leftBottomRoyal',
-		'rightUpperRoyal',
-		'rightMiddleRoyal',
-		'rightBottomRoyal',
-		'bottomLeftRoyal',
-		'bottomMiddleRoyal',
-		'bottomRightRoyal'
-	];
-
 	let count = 0;
-	for (const pos of royalPositions) {
+	for (const pos of ROYAL_POSITIONS) {
 		const royal = cardsInPlay[pos][0];
 		if (royal && !isRoyalDead(royal) && !isEmptyCard(royal)) {
 			count++;
@@ -674,18 +633,6 @@ export function setupFirstNineCards(deck: Card[]): {
 	jokersToPlace: Card[];
 } {
 	const cardsInPlay = createEmptyCardsInPlay();
-	const gridPositions: GridPosition[] = [
-		'upperLeft',
-		'upperMiddle',
-		'upperRight',
-		'middleLeft',
-		'middleMiddle',
-		'middleRight',
-		'bottomLeft',
-		'bottomMiddle',
-		'bottomRight'
-	];
-
 	const newDeck = [...deck];
 	const royalsToPlace: Card[] = [];
 	const acesToPlace: Card[] = [];
@@ -708,7 +655,7 @@ export function setupFirstNineCards(deck: Card[]): {
 			royalsToPlace.push(card);
 		} else {
 			// Numbered card: place on grid
-			cardsInPlay[gridPositions[gridIndex]] = [card];
+			cardsInPlay[GRID_POSITIONS[gridIndex]] = [card];
 			gridIndex++;
 		}
 	}
