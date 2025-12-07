@@ -131,11 +131,8 @@ export function killRoyalsFromPosition(
 	position: GridPosition,
 	cardsInPlay: CardsInPlay
 ): CardsInPlay {
-	// Deep copy cardsInPlay to avoid mutations
-	const newCardsInPlay: CardsInPlay = {} as CardsInPlay;
-	for (const key in cardsInPlay) {
-		newCardsInPlay[key as keyof CardsInPlay] = [...cardsInPlay[key as keyof CardsInPlay]];
-	}
+	// Deep copy cardsInPlay to avoid mutations (consistent with game.ts pattern)
+	const newCardsInPlay = structuredClone(cardsInPlay);
 
 	// Get attack mappings for this position
 	const attacks = ATTACK_MAPPINGS[position];
@@ -307,6 +304,12 @@ export function getRoyalPlacementPosition(
 
 	// Return all positions with the same best score (tied positions)
 	const bestScore = positionScores[0];
+	if (!bestScore) {
+		// Should never happen (emptyPositions.length > 1 guarantees at least 2 entries)
+		console.warn('[GameLogic] Unexpected empty positionScores in getRoyalPlacementPosition');
+		return emptyPositions;
+	}
+
 	const tiedPositions = positionScores
 		.filter((score) => score.priority === bestScore.priority && score.value === bestScore.value)
 		.map((score) => score.position);
@@ -452,11 +455,13 @@ export function getArmorPlacementPosition(
 	// Multiple eligible royals with same value - apply suit/color priority
 	for (const pair of eligiblePairs) {
 		const royal = cardsInPlay[pair.royal][0];
+		if (!royal) continue; // Defensive null check
 		if (royal.suit === armorCard.suit) return [pair.armor];
 	}
 
 	for (const pair of eligiblePairs) {
 		const royal = cardsInPlay[pair.royal][0];
+		if (!royal) continue; // Defensive null check
 		if (royal.color === armorCard.color) return [pair.armor];
 	}
 
@@ -689,7 +694,11 @@ export function setupFirstNineCards(deck: Card[]): {
 	let gridIndex = 0;
 
 	while (gridIndex < 9 && newDeck.length > 0) {
-		const card = newDeck.shift()!;
+		const card = newDeck.shift();
+		if (!card) {
+			console.warn('[GameLogic] Unexpected empty deck during setup phase');
+			break;
+		}
 
 		if (card.value === 'Joker') {
 			jokersToPlace.push(card);
@@ -707,7 +716,11 @@ export function setupFirstNineCards(deck: Card[]): {
 	// If no royals found yet, cycle through deck to find at least one
 	const cycledCards: Card[] = [];
 	while (royalsToPlace.length === 0 && newDeck.length > 0) {
-		const card = newDeck.shift()!;
+		const card = newDeck.shift();
+		if (!card) {
+			console.warn('[GameLogic] Unexpected empty deck while searching for royal');
+			break;
+		}
 
 		if (card.value === 'Joker') {
 			jokersToPlace.push(card);
