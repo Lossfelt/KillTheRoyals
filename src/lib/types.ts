@@ -175,7 +175,7 @@ export function isRoyalValue(value: CardValue): value is RoyalValue {
 }
 
 // Royal-Armor position mapping
-export const ROYAL_ARMOR_PAIRS: RoyalArmorPair[] = [
+export const ROYAL_ARMOR_PAIRS: readonly RoyalArmorPair[] = [
 	{ royal: 'upperLeftRoyal', armor: 'upperLeftArmor' },
 	{ royal: 'upperMiddleRoyal', armor: 'upperMiddleArmor' },
 	{ royal: 'upperRightRoyal', armor: 'upperRightArmor' },
@@ -188,7 +188,7 @@ export const ROYAL_ARMOR_PAIRS: RoyalArmorPair[] = [
 	{ royal: 'bottomLeftRoyal', armor: 'bottomLeftArmor' },
 	{ royal: 'bottomMiddleRoyal', armor: 'bottomMiddleArmor' },
 	{ royal: 'bottomRightRoyal', armor: 'bottomRightArmor' }
-];
+] as const;
 
 // Attack mapping type: which royal and which two cards form the payload
 export type AttackMapping = {
@@ -203,11 +203,6 @@ export interface HighScoreEntry {
 	timestamp: string; // ISO 8601 format
 }
 
-export interface HighScoresData {
-	entries: HighScoreEntry[];
-	version: number; // For future schema migrations
-}
-
 // Audio State Types
 export interface AudioState {
 	isInitialized: boolean; // Whether AudioManager has been initialized
@@ -219,7 +214,7 @@ export interface AudioState {
 // Complete attack mappings based on legacy code (src-old/Functions/funcKillRoyals.js)
 // When a card is placed at a grid position, these are the royals that can be attacked
 // and the two cards that form the payload for each attack
-export const ATTACK_MAPPINGS: Record<GridPosition, AttackMapping[]> = {
+export const ATTACK_MAPPINGS: Readonly<Record<GridPosition, readonly AttackMapping[]>> = {
 	upperLeft: [
 		{ royal: 'rightUpperRoyal', payloadPositions: ['upperMiddle', 'upperRight'] },
 		{ royal: 'bottomLeftRoyal', payloadPositions: ['middleLeft', 'bottomLeft'] }
@@ -249,5 +244,5 @@ export const ATTACK_MAPPINGS: Record<GridPosition, AttackMapping[]> = {
 		{ royal: 'leftBottomRoyal', payloadPositions: ['bottomMiddle', 'bottomLeft'] },
 		{ royal: 'upperRightRoyal', payloadPositions: ['middleRight', 'upperRight'] }
 	]
-};
+} as const;
 
