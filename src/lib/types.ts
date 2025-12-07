@@ -211,7 +211,7 @@ export interface AudioState {
 	hasError: boolean; // Whether audio failed to load or initialize
 }
 
-// Complete attack mappings based on legacy code (src-old/Functions/funcKillRoyals.js)
+// Complete attack mappings for the game
 // When a card is placed at a grid position, these are the royals that can be attacked
 // and the two cards that form the payload for each attack
 export const ATTACK_MAPPINGS: Readonly<Record<GridPosition, readonly AttackMapping[]>> = {

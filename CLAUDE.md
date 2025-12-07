@@ -28,8 +28,6 @@ src/
 ├── routes/
 │   └── +page.svelte    # Main game page
 └── app.css             # Global styles + CSS variables
-
-Legacy: src-old/        # Original React code (reference only)
 ```
 
 **Type definitions:** See [src/lib/types.ts](src/lib/types.ts) for all TypeScript types
@@ -187,18 +185,14 @@ min-width: 30px;  /* Too small for mobile! */
 min-width: 44px;  /* iOS/Android minimum */
 ```
 
-## Key Game Logic References
+## Key Game Logic
 
-**Legacy code location:** `src-old/Functions/`
-
-When porting functions, modernize:
-- Remove Norwegian variables (`bunke` → `stack`, `kort` → `card`)
-- Add TypeScript types
-- Make functions pure (no side effects)
-- Use const/let instead of var
-- Replace nested if-statements with lookup tables or early returns
-
-**Important:** Legacy code has anti-patterns (class components, manual binding, setState batching issues). Use modern patterns from this guide instead.
+Game logic is implemented in [src/lib/utils/game-logic.ts](src/lib/utils/game-logic.ts) with pure, type-safe functions:
+- All functions are immutable (no side effects)
+- Full TypeScript type coverage
+- Defensive programming with null checks
+- Modern patterns (lookup tables, early returns)
+- English naming conventions throughout
 
 ## Quick Commands
 

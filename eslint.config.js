@@ -27,6 +27,6 @@ export default [
 		}
 	},
 	{
-		ignores: ['build/', '.svelte-kit/', 'dist/', 'src-old/', 'static-old/']
+		ignores: ['build/', '.svelte-kit/', 'dist/']
 	}
 ];
