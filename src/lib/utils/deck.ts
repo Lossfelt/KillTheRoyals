@@ -42,19 +42,33 @@ export function createDeck(): Card[] {
 /**
  * Fisher-Yates shuffle algorithm (optimal O(n) shuffle)
  * Much better than the old 1000-random-swaps approach!
- * @param deck - Array of cards to shuffle (will be mutated)
- * @returns The shuffled deck (same reference)
+ * Creates a new shuffled array without mutating the input (immutable)
+ * @param deck - Array of cards to shuffle (NOT mutated)
+ * @returns A new shuffled array
  */
 export function shuffleDeck<T>(deck: T[]): T[] {
-	for (let i = deck.length - 1; i > 0; i--) {
+	// Edge case validation
+	if (!deck || !Array.isArray(deck)) {
+		console.warn('[Deck] Invalid input to shuffleDeck:', deck);
+		return [];
+	}
+
+	if (deck.length === 0) {
+		return [];
+	}
+
+	// Create a copy to avoid mutating the input (immutable pattern)
+	const shuffled = [...deck];
+
+	for (let i = shuffled.length - 1; i > 0; i--) {
 		// Random index from 0 to i
 		const j = Math.floor(Math.random() * (i + 1));
 
 		// Swap elements at i and j
-		[deck[i], deck[j]] = [deck[j], deck[i]];
+		[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
 	}
 
-	return deck;
+	return shuffled;
 }
 
 /**
