@@ -12,7 +12,7 @@
 
 - **Framework:** SvelteKit (Svelte 5)
 - **Language:** TypeScript (strict mode)
-- **Build:** Vite 5
+- **Build:** Vite 6
 - **Styling:** Vanilla CSS + CSS custom properties
 - **Design:** Mobile-first, physical card theme, dark mode support
 
