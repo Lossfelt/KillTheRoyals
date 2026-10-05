@@ -49,7 +49,7 @@
 			<div class="modal-body">
 				{#if topFive.length > 0}
 					<ol class="scores-list">
-						{#each topFive as entry, index}
+						{#each topFive as entry, index (index)}
 							<li class="score-entry">
 								<span class="rank">{index + 1}.</span>
 								<div class="score-info">

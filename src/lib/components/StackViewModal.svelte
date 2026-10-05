@@ -58,7 +58,7 @@
 					<p class="empty-message">No cards in this stack</p>
 				{:else}
 					<div class="cards-list">
-						{#each stack as card, index}
+						{#each stack as card, index (index)}
 							<div class="card-item">
 								<span class="card-position">{index === 0 ? 'Top' : `#${index + 1}`}</span>
 								<div class="card-preview card-{card.color}">

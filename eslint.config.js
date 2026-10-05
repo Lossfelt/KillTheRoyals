@@ -11,6 +11,12 @@ export default [
 	prettier,
 	...svelte.configs['flat/prettier'],
 	{
+		rules: {
+			// Allow `const { omitted, ...rest } = obj` to drop a property
+			'@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true }]
+		}
+	},
+	{
 		languageOptions: {
 			globals: {
 				...globals.browser,
