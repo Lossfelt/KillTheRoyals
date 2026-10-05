@@ -1,11 +1,11 @@
-# CI: typesjekk, lint og bygg på hver PR og push til main, pluss
+# CI: typesjekk, lint og bygg på hver PR og push til master, pluss
 # automatisk fletting av Dependabot-PR-er (minor/patch).
 name: CI
 
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [master]
 
 permissions:
   contents: read
