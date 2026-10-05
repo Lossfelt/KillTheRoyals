@@ -61,7 +61,7 @@
 		<rect class="card-back-outer" x="2" y="2" width="96" height="136" rx="4" stroke-width="2" />
 		<rect class="card-back-inner" x="15" y="15" width="70" height="110" rx="2" stroke-width="2" />
 		<g class="card-back-pattern">
-			{#each usedPatternPositions as { x, y }}
+			{#each usedPatternPositions as { x, y } (`${x},${y}`)}
 				<polygon points="{x},{y + 10} {x + 9},{y} {x + 18},{y + 10} {x + 9},{y + 20}" />
 			{/each}
 		</g>

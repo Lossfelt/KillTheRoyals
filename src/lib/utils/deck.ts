@@ -2,7 +2,7 @@
  * Deck Utilities - Card creation and shuffling
  */
 
-import type { Card, Suit, CardValue, CardColor } from '$lib/types';
+import type { Card, Suit, CardValue } from '$lib/types';
 
 /**
  * Create a standard 52-card deck + 2 Jokers (54 cards total)
