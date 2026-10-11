@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { restartGame, gameState, toggleViewStackMode, undo, canUndo } from '$lib/stores/game';
+	import { restartGame, gameState, toggleViewStackMode, undo, canUndo } from '#lib/stores/game.js';
 
 	export let onShowRules: () => void;
 	export let onShowHighScores: () => void;

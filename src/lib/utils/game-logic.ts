@@ -11,8 +11,8 @@ import type {
 	RoyalPosition,
 	ArmorPosition,
 	Payload
-} from '$lib/types';
-import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS } from '$lib/types';
+} from '#lib/types.js';
+import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS } from '#lib/types.js';
 
 /**
  * Position constants (DRY - single source of truth)

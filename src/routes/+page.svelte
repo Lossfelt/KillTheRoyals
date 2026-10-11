@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-	import GameBoard from '$lib/components/GameBoard.svelte';
-	import GameControls from '$lib/components/GameControls.svelte';
-	import RulesModal from '$lib/components/RulesModal.svelte';
-	import SetupCompleteModal from '$lib/components/SetupCompleteModal.svelte';
-	import GameOverModal from '$lib/components/GameOverModal.svelte';
-	import HighScoresModal from '$lib/components/HighScoresModal.svelte';
-	import StackViewModal from '$lib/components/StackViewModal.svelte';
-	import { audioState, toggleMute, cleanupAudio } from '$lib/stores/audio';
-	import { gameState } from '$lib/stores/game';
+	import GameBoard from '#lib/components/GameBoard.svelte';
+	import GameControls from '#lib/components/GameControls.svelte';
+	import RulesModal from '#lib/components/RulesModal.svelte';
+	import SetupCompleteModal from '#lib/components/SetupCompleteModal.svelte';
+	import GameOverModal from '#lib/components/GameOverModal.svelte';
+	import HighScoresModal from '#lib/components/HighScoresModal.svelte';
+	import StackViewModal from '#lib/components/StackViewModal.svelte';
+	import { audioState, toggleMute, cleanupAudio } from '#lib/stores/audio.js';
+	import { gameState } from '#lib/stores/game.js';
 
 	let showRules = false;
 	let showHighScores = false;

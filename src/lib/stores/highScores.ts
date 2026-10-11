@@ -4,7 +4,7 @@
  */
 
 import { writable } from 'svelte/store';
-import type { HighScoreEntry } from '$lib/types';
+import type { HighScoreEntry } from '#lib/types.js';
 
 const STORAGE_KEY = 'killTheRoyals:highScores';
 const STORAGE_VERSION = 1; // Increment when schema changes

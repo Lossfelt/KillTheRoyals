@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { highScores, formatScoreDate } from '$lib/stores/highScores';
+	import { highScores, formatScoreDate } from '#lib/stores/highScores.js';
 
 	export let show: boolean = false;
 

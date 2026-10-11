@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { GridPosition } from '$lib/types';
-	import { gameState, closeStackView } from '$lib/stores/game';
+	import type { GridPosition } from '#lib/types.js';
+	import { gameState, closeStackView } from '#lib/stores/game.js';
 	import CardSVG from './CardSVG.svelte';
 
 	export let position: GridPosition;

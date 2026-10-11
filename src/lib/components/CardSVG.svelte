@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Card } from '$lib/types';
+	import type { Card } from '#lib/types.js';
 
 	export let card: Card;
 
