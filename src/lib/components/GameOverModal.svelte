@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { gameState, restartGame } from '$lib/stores/game';
-	import { saveHighScore, highScores } from '$lib/stores/highScores';
+	import { gameState, restartGame } from '#lib/stores/game.js';
+	import { saveHighScore, highScores } from '#lib/stores/highScores.js';
 
 	const showModal = $derived($gameState.gameStatus === 'won' || $gameState.gameStatus === 'lost');
 	const isWin = $derived($gameState.gameStatus === 'won');

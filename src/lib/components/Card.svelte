@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Card as CardType } from '$lib/types';
+	import type { Card as CardType } from '#lib/types.js';
 	import CardSVG from './CardSVG.svelte';
 
 	// Props

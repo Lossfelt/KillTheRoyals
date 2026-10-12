@@ -4,7 +4,7 @@
  */
 
 import { writable, get } from 'svelte/store';
-import type { AudioState } from '$lib/types';
+import type { AudioState } from '#lib/types.js';
 
 const AUDIO_FILE_PATH = '/audio/background-music.mp3';
 const FADE_IN_DURATION = 1000; // 1 second

@@ -15,9 +15,9 @@ import type {
 	CardsInPlay,
 	HistoryEntry,
 	UndoHistory
-} from '$lib/types';
-import { isRoyalValue } from '$lib/types';
-import { createShuffledDeck } from '$lib/utils/deck';
+} from '#lib/types.js';
+import { isRoyalValue } from '#lib/types.js';
+import { createShuffledDeck } from '#lib/utils/deck.js';
 import {
 	setupFirstNineCards,
 	killRoyalsFromPosition,
@@ -31,7 +31,7 @@ import {
 	isRoyalDead,
 	isEmptyCard,
 	createUsedCard
-} from '$lib/utils/game-logic';
+} from '#lib/utils/game-logic.js';
 
 /**
  * Initialize a new game state

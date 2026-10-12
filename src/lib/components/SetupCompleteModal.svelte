@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { gameState, completeSetup, enableReplaceMode } from '$lib/stores/game';
+	import { gameState, completeSetup, enableReplaceMode } from '#lib/stores/game.js';
 
 	let delayedShow = false;
 	let timeoutId: ReturnType<typeof setTimeout> | null = null;

@@ -13,9 +13,9 @@
 		useJoker,
 		completeSetup,
 		openStackView
-	} from '$lib/stores/game';
+	} from '#lib/stores/game.js';
 	import Card from './Card.svelte';
-	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition, ArmorPosition } from '$lib/types';
+	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition, ArmorPosition } from '#lib/types.js';
 
 	// Handle clicks on grid positions
 	function handleGridClick(position: GridPosition) {
