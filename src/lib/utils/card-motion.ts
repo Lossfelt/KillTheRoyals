@@ -10,7 +10,7 @@ import { GRID_POSITIONS } from './game-logic.js';
 export interface CardMove {
 	from: string;
 	to: string;
-	heavy: boolean; // Royals land with a thud
+	heavy: boolean; // Kings land with a thud
 }
 
 const SPECIAL_SLOTS = ['joker1', 'joker2', 'ace1', 'ace2', 'ace3', 'ace4'] as const;
@@ -58,12 +58,14 @@ export function findCardMoves(previous: GameState, next: GameState): CardMove[] 
 
 	const moves: CardMove[] = [];
 	for (const slot of TARGET_SLOTS) {
-		const key = keyOf(topAt(next, slot));
+		const card = topAt(next, slot);
+		const key = keyOf(card);
 		if (!key || key === keyOf(topAt(previous, slot))) continue;
 
 		const from = sources.get(key);
 		if (from && from !== slot) {
-			moves.push({ from, to: slot, heavy: (ROYAL_SLOTS as string[]).includes(slot) });
+			const heavy = card?.value === 13 && (ROYAL_SLOTS as string[]).includes(slot);
+			moves.push({ from, to: slot, heavy });
 		}
 	}
 

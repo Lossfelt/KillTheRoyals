@@ -24,6 +24,7 @@ export class BoardEffects {
 	firing = $state<string[]>([]);
 	hits = $state<string[]>([]);
 	landed = $state<string[]>([]);
+	thud = $state(false); // The table shakes when a king lands
 	held = $state<Record<string, Card>>({}); // Cards kept on screen until the shot lands
 
 	#previous: GameState;
@@ -63,6 +64,7 @@ export class BoardEffects {
 		this.firing = [];
 		this.hits = [];
 		this.landed = [];
+		this.thud = false;
 	}
 
 	#fireShots(kills: KillEvent[], previous: GameState, reducedMotion: boolean) {
@@ -109,32 +111,41 @@ export class BoardEffects {
 			const a = from.getBoundingClientRect();
 			const b = to.getBoundingClientRect();
 			const start = `translate(${a.left - b.left}px, ${a.top - b.top}px)`;
-			const keyframes = move.heavy
-				? [
-						{ transform: `${start} scale(1.1)`, offset: 0 },
-						{ transform: 'translateY(-10px) scale(1.12)', offset: 0.7 },
-						{ transform: 'scale(0.94)', offset: 0.86 },
-						{ transform: 'none', offset: 1 }
-					]
-				: [{ transform: start }, { transform: 'none' }];
-
 			to.style.zIndex = '30';
-			const animation = to.animate(keyframes, {
-				duration: move.heavy ? HEAVY_MOVE_MS : MOVE_MS,
-				easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
-			});
-			animation.onfinish = animation.oncancel = () => {
-				to.style.zIndex = '';
-			};
-			// A timer, not onfinish: the dust must come even if the animation is cut short
-			if (move.heavy) this.#later(HEAVY_MOVE_MS * 0.86, () => this.#land(move.to));
+			const animation = move.heavy
+				? // Lifted high over its slot, then dropped: the last frame is the impact
+					to.animate(
+						[
+							{ transform: `${start} scale(1.08)`, easing: 'cubic-bezier(0.2, 0.8, 0.3, 1)' },
+							{ transform: 'translateY(-18px) scale(1.18)', offset: 0.7, easing: 'ease-in' },
+							{ transform: 'none' }
+						],
+						{ duration: HEAVY_MOVE_MS }
+					)
+				: to.animate([{ transform: start }, { transform: 'none' }], {
+						duration: MOVE_MS,
+						easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+					});
+
+			animation.finished
+				.then(() => {
+					if (move.heavy) this.#land(move.to);
+				})
+				.catch(() => {}) // Cancelled by the next move: no impact
+				.finally(() => {
+					to.style.zIndex = '';
+				});
 		}
 	}
 
+	// Impact of a king: dust around the card and a thud through the table
 	#land(position: string) {
 		this.landed = [...this.landed, position];
+		this.thud = true;
+		if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.(30);
 		this.#later(LANDED_MS, () => {
 			this.landed = this.landed.filter((pos) => pos !== position);
+			this.thud = false;
 		});
 	}
 

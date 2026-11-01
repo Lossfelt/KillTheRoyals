@@ -81,7 +81,12 @@
 {/if}
 
 <div class="stage">
-	<div class="table" class:defeated={$gameState.gameStatus === 'lost'} bind:this={tableElement}>
+	<div
+		class="table"
+		class:defeated={$gameState.gameStatus === 'lost'}
+		class:table-thud={effects.thud}
+		bind:this={tableElement}
+	>
 		<div class="board" class:board-shake={effects.hits.length > 0} bind:this={boardElement}>
 			<div class="wall" aria-hidden="true"></div>
 			<div class="platform" aria-hidden="true"></div>
@@ -114,6 +119,7 @@
 						viewMode={$gameState.viewStackMode}
 						position={cell.pos}
 						killCount={preview.killCounts[cell.pos] ?? 0}
+						showCount={$gameState.aceInUse !== null}
 						aiming={preview.aiming.includes(cell.pos)}
 						firing={effects.firing.includes(cell.pos)}
 					/>
@@ -224,7 +230,7 @@
 		height: var(--card-h);
 	}
 
-	/* Printed on the mat: the castle wall the royals stand on, and the courtyard inside it */
+	/* Printed on the mat: the ring the royals stand on, and the courtyard inside it */
 	.wall,
 	.platform {
 		position: absolute;
@@ -240,7 +246,6 @@
 		width: calc(5 * var(--card-w) + 5 * var(--gap));
 		height: calc(5 * var(--card-h) + 5 * var(--gap));
 		border-radius: calc(var(--card-radius) * 2);
-		background: var(--pattern-bricks) 0 0 / calc(var(--card-w) * 0.5) calc(var(--card-w) * 0.25);
 	}
 
 	/* Courtyard under the 3x3 grid, where the cannons stand */
@@ -277,8 +282,26 @@
 		}
 	}
 
+	/* A king lands: the whole table jolts down and settles */
+	.table-thud {
+		animation: thud 0.28s ease-out;
+	}
+
+	@keyframes thud {
+		15% {
+			transform: translateY(5px);
+		}
+		40% {
+			transform: translate(-2px, -2px);
+		}
+		65% {
+			transform: translate(1px, 1px);
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
-		.board-shake {
+		.board-shake,
+		.table-thud {
 			animation: none;
 		}
 	}

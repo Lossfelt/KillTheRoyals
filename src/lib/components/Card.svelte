@@ -14,6 +14,7 @@
 		slotType?: 'royal' | 'armor' | 'joker' | 'ace' | 'grid';
 		position?: string; // Board position, used to locate the card for effects
 		killCount?: number; // Royals this slot would kill if the pending card lands here
+		showCount?: boolean; // Show the number of cards in the stack (while an ace is chosen)
 		targeted?: boolean; // Would die from the hovered move
 		aiming?: boolean; // Part of the hovered move's payload
 		firing?: boolean; // Just fired a shot
@@ -36,6 +37,7 @@
 		slotType,
 		position,
 		killCount = 0,
+		showCount = false,
 		targeted = false,
 		aiming = false,
 		firing = false,
@@ -148,6 +150,10 @@
 			</svg>
 			{#if killCount > 1}{killCount}{/if}
 		</span>
+	{/if}
+
+	{#if showCount && stackDepth > 0}
+		<span class="count-badge" aria-hidden="true">{stackDepth}</span>
 	{/if}
 </button>
 
@@ -284,6 +290,36 @@
 		height: 10px;
 	}
 
+	/* Stack size, shown while the player picks a stack for an ace */
+	.count-badge {
+		position: absolute;
+		top: -6px;
+		right: -6px;
+		z-index: 11;
+		min-width: 22px;
+		height: 22px;
+		padding: 0 5px;
+		display: grid;
+		place-items: center;
+		font-family: var(--font-display);
+		font-size: 0.85rem;
+		font-weight: 700;
+		line-height: 1;
+		color: var(--color-ink);
+		background: var(--gradient-gold);
+		border-radius: 999px;
+		box-shadow: var(--shadow-md);
+		pointer-events: none;
+		animation: popIn 0.2s ease-out;
+	}
+
+	@keyframes popIn {
+		from {
+			transform: scale(0.4);
+			opacity: 0;
+		}
+	}
+
 	/* Shot effects */
 	.card-firing {
 		animation: recoil 0.25s ease-out;
@@ -293,29 +329,39 @@
 		animation: hitShake 0.45s ease-out;
 	}
 
-	/* A landing royal steps out of the shadow, or the dimming would swallow its dust */
+	/* A landing king squashes on impact, above its neighbours and out of the shadow */
 	.card-landed {
+		z-index: 5;
 		filter: none;
+		animation: impact 0.2s ease-out;
 	}
 
-	/* Dust cloud when a royal lands: puffs billow out from under the card */
+	/* Dust blown out from under all four edges at the moment of impact */
 	.card-landed::after {
 		content: '';
 		position: absolute;
-		left: -45%;
-		right: -45%;
-		bottom: -18%;
-		height: 50%;
-		z-index: 2;
+		--puff: calc(var(--card-w, 60px) * 0.2);
+		inset: -22% -30%;
+		z-index: -2;
 		pointer-events: none;
+		/* Puffs on every edge: three along top and bottom, two on each side, one per corner */
 		background:
-			radial-gradient(circle at 18% 70%, var(--color-dust) 0 12%, transparent 30%),
-			radial-gradient(circle at 34% 55%, var(--color-dust) 0 14%, transparent 34%),
-			radial-gradient(circle at 50% 75%, var(--color-dust) 0 16%, transparent 38%),
-			radial-gradient(circle at 66% 55%, var(--color-dust) 0 14%, transparent 34%),
-			radial-gradient(circle at 82% 70%, var(--color-dust) 0 12%, transparent 30%);
-		filter: blur(2px);
-		animation: dust 0.7s ease-out forwards;
+			radial-gradient(circle var(--puff) at 30% 12%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 50% 9%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 70% 12%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 30% 88%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 50% 91%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 70% 88%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 12% 36%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 12% 64%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 88% 36%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 88% 64%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 16% 14%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 84% 14%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 16% 86%, var(--color-dust) 35%, transparent),
+			radial-gradient(circle var(--puff) at 84% 86%, var(--color-dust) 35%, transparent);
+		filter: blur(1.5px);
+		animation: dust 0.5s ease-out forwards;
 	}
 
 	.card-flip-in {
@@ -364,14 +410,20 @@
 	@keyframes dust {
 		0% {
 			opacity: 1;
-			transform: scale(0.45, 0.6);
+			transform: scale(0.75);
 		}
-		40% {
-			opacity: 0.85;
+		35% {
+			opacity: 0.9;
 		}
 		100% {
 			opacity: 0;
-			transform: scale(1.15, 1.25) translateY(-14%);
+			transform: scale(1.3);
+		}
+	}
+
+	@keyframes impact {
+		0% {
+			transform: scale(1.04, 0.94);
 		}
 	}
 
@@ -393,6 +445,7 @@
 		.card-firing,
 		.card-hit,
 		.card-flip-in,
+		.card-landed,
 		.card-landed::after {
 			animation: none;
 		}

@@ -80,6 +80,7 @@
 				<ul>
 					<li><strong>Target marker:</strong> A red marker on a grid slot shows how many royals the drawn card would kill there. Hover or focus the slot to see the line of fire.</li>
 					<li><strong>Look inside a stack:</strong> Long-press or right-click a grid stack, or use the eye button.</li>
+					<li><strong>Stack sizes:</strong> While an Ace is selected, each stack shows how many cards it holds.</li>
 				</ul>
 
 				<h3>Winning</h3>
