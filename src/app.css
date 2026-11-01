@@ -30,6 +30,32 @@
 	--color-hover-overlay: rgba(255, 255, 255, 0.1);
 	--color-subtle-bg: rgba(255, 255, 255, 0.05);
 	--color-joker: #9b59b6;
+	--color-shot: #ffb300; /* Tracer and payload highlight */
+	--color-target: #e53935; /* Royals in the line of fire */
+	--color-dead-card: #2b2622; /* Killed royals and armor */
+	--color-dead-emblem: #8c7a4a;
+	--color-gold-muted: rgba(214, 180, 90, 0.55);
+	--color-ink: #1b1b1b; /* Dark text on gold */
+	--gradient-gold: linear-gradient(180deg, #fff3b0 0%, #ffd700 45%, #c99a1e 100%);
+	--color-card-edge: #ece6d6; /* Edges of stacked cards */
+	--color-card-edge-line: rgba(0, 0, 0, 0.35);
+	--color-card-back: #7a1f2b;
+	--color-card-back-accent: #d9b55a;
+	--color-dust: rgba(238, 226, 198, 0.95);
+
+	/* Table: felt, castle wall and cannon platform */
+	--felt-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	--color-felt-center: #2b6b42;
+	--color-felt-edge: #0e2a19;
+	/* Gold ink printed on the felt, like the layout on a play mat */
+	--color-print: rgba(226, 200, 140, 0.6);
+	--color-print-faint: rgba(226, 200, 140, 0.25);
+	/* Typography */
+	--font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+
+	/* Bars above the table */
+	--top-bar-height: 52px;
+	--status-bar-height: 44px;
 
 	/* Spacing System */
 	--spacing-xs: 0.25rem; /* 4px */
@@ -38,15 +64,8 @@
 	--spacing-lg: 1.5rem; /* 24px */
 	--spacing-xl: 2rem; /* 32px */
 
-	/* Card Dimensions - Mobile First (small for 7 columns to fit) */
-	--card-width: 40px;
-	--card-height: 56px; /* Maintain 2:3 aspect ratio */
+	/* Card shape. Card size is set by GameBoard to fit the screen */
 	--card-radius: 4px;
-	--card-font-size: 1.8rem;
-
-	/* Grid Layout */
-	--grid-gap: 0.25rem;
-	--grid-max-width: 100vw;
 
 	/* Shadows */
 	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.24);
@@ -88,27 +107,10 @@
 		--color-divider: rgba(255, 255, 255, 0.1);
 		--color-hover-overlay: rgba(255, 255, 255, 0.15);
 		--color-subtle-bg: rgba(255, 255, 255, 0.08);
-	}
-}
-
-/* Tablet Breakpoint (768px+) */
-@media (min-width: 768px) {
-	:root {
-		--card-width: 70px;
-		--card-height: 98px;
-		--card-font-size: 3rem;
-		--grid-gap: 0.75rem;
-	}
-}
-
-/* Desktop Breakpoint (1024px+) */
-@media (min-width: 1024px) {
-	:root {
-		--card-width: 80px;
-		--card-height: 112px;
-		--card-font-size: 3.5rem;
-		--grid-gap: 1rem;
-		--grid-max-width: 800px;
+		--color-card-edge: #3a3a3a;
+		--color-card-edge-line: rgba(0, 0, 0, 0.6);
+		--color-felt-center: #173f27;
+		--color-felt-edge: #06140c;
 	}
 }
 
@@ -117,13 +119,27 @@ html,
 body {
 	width: 100%;
 	min-height: 100vh;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
-		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	font-family:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+		'Helvetica Neue', sans-serif;
 	background-color: var(--color-bg);
 	color: var(--color-text);
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	overflow-x: hidden;
+}
+
+/* Card-table felt: fine noise over a lit centre fading to dark edges */
+body {
+	background:
+		var(--felt-noise),
+		radial-gradient(
+			ellipse 120% 90% at 50% 45%,
+			var(--color-felt-center) 0%,
+			var(--color-bg) 55%,
+			var(--color-felt-edge) 100%
+		);
+	background-attachment: fixed;
 }
 
 /* Accessibility: Respect reduced motion preferences */
@@ -135,6 +151,12 @@ body {
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
 	}
+}
+
+/* Dialog headings share the title typeface */
+[role='dialog'] h2 {
+	font-family: var(--font-display);
+	letter-spacing: 0.03em;
 }
 
 /* Focus Styles for Accessibility */
@@ -151,4 +173,3 @@ button {
 	background: none;
 	color: inherit;
 }
-
