@@ -1,38 +1,108 @@
 <script lang="ts">
 	import type { Card as CardType } from '#lib/types.js';
 	import CardSVG from './CardSVG.svelte';
+	import EmptySlot from './EmptySlot.svelte';
 
-	// Props
-	export let card: CardType | undefined = undefined;
-	export let stackDepth: number = 0;
-	export let active: boolean = false;
-	export let clickable: boolean = true;
-	export let alternative: boolean = false; // Golden glow for alternative royal positions
-	export let dimmed: boolean = false; // Lower opacity when disabled/waiting
-	export let viewMode: boolean = false; // View stack mode indicator
-	export let onclick: (() => void) | undefined = undefined;
-	export let slotType: 'royal' | 'armor' | 'joker' | 'ace' | 'grid' | undefined = undefined;
-	export let position: string | undefined = undefined; // Board position, used to locate the card for shot effects
-	export let killCount: number = 0; // Royals this slot would kill if the pending card lands here
-	export let targeted: boolean = false; // Would die from the hovered move
-	export let aiming: boolean = false; // Part of the hovered move's payload
-	export let firing: boolean = false; // Just fired a shot
-	export let hit: boolean = false; // Just got shot
-	export let onhover: ((hovering: boolean) => void) | undefined = undefined;
+	interface Props {
+		card?: CardType;
+		stackDepth?: number;
+		active?: boolean;
+		clickable?: boolean;
+		alternative?: boolean; // Golden glow for alternative positions
+		dimmed?: boolean; // Faded when disabled/waiting
+		viewMode?: boolean; // View stack mode indicator
+		slotType?: 'royal' | 'armor' | 'joker' | 'ace' | 'grid';
+		position?: string; // Board position, used to locate the card for effects
+		killCount?: number; // Royals this slot would kill if the pending card lands here
+		targeted?: boolean; // Would die from the hovered move
+		aiming?: boolean; // Part of the hovered move's payload
+		firing?: boolean; // Just fired a shot
+		hit?: boolean; // Just got shot
+		landed?: boolean; // Just landed after a move (dust puff)
+		flipIn?: boolean; // Turn over when the card appears
+		onclick?: () => void;
+		onhover?: (hovering: boolean) => void;
+		onlongpress?: () => void; // Long-press or right-click
+	}
 
-	$: cardColor = card ? card.color : 'black';
-	$: showDepth = stackDepth > 1;
-	$: cardLabel = card ? `${card.value} of ${card.suit}` : 'Empty card slot';
-	$: killLabel = killCount > 0 ? `, kills ${killCount} royal${killCount > 1 ? 's' : ''}` : '';
+	let {
+		card,
+		stackDepth = 0,
+		active = false,
+		clickable = true,
+		alternative = false,
+		dimmed = false,
+		viewMode = false,
+		slotType,
+		position,
+		killCount = 0,
+		targeted = false,
+		aiming = false,
+		firing = false,
+		hit = false,
+		landed = false,
+		flipIn = false,
+		onclick,
+		onhover,
+		onlongpress
+	}: Props = $props();
+
+	const LONG_PRESS_MS = 450;
+
+	const cardColor = $derived(card ? card.color : 'black');
+	const edges = $derived(Math.min(Math.max(stackDepth - 1, 0), 3)); // Visible card edges under the top card
+	const label = $derived.by(() => {
+		const name = card ? `${card.value} of ${card.suit}` : 'Empty card slot';
+		const depth = stackDepth > 1 ? `, stack of ${stackDepth}` : '';
+		const kills = killCount > 0 ? `, kills ${killCount} royal${killCount > 1 ? 's' : ''}` : '';
+		return name + depth + kills;
+	});
+
+	let pressTimer: ReturnType<typeof setTimeout> | undefined;
+	let swallowClick = false;
+	let lastPointerType = 'mouse';
 
 	// Touch has no hover: the kill badge carries the preview there
 	function handlePointer(event: PointerEvent, hovering: boolean) {
 		if (event.pointerType !== 'touch') onhover?.(hovering);
 	}
+
+	function startPress(event: PointerEvent) {
+		lastPointerType = event.pointerType;
+		if (!onlongpress || event.button !== 0) return;
+		swallowClick = false;
+		pressTimer = setTimeout(() => {
+			swallowClick = true; // The release after a long-press must not also place a card
+			onlongpress?.();
+		}, LONG_PRESS_MS);
+	}
+
+	function cancelPress() {
+		clearTimeout(pressTimer);
+	}
+
+	function handleClick() {
+		if (swallowClick) {
+			swallowClick = false;
+			return;
+		}
+		onclick?.();
+	}
+
+	function handleContextMenu(event: MouseEvent) {
+		if (!onlongpress) return;
+		event.preventDefault();
+		cancelPress();
+		if (swallowClick) return; // The long-press timer already opened it
+
+		onlongpress();
+		// Touch browsers send a click on release after the context menu; a right-click does not
+		if (lastPointerType !== 'mouse') swallowClick = true;
+	}
 </script>
 
 <button
-	class="card"
+	class="card edges-{edges}"
 	class:card-red={cardColor === 'red'}
 	class:card-black={cardColor === 'black'}
 	class:card-active={active}
@@ -44,82 +114,29 @@
 	class:card-aiming={aiming}
 	class:card-firing={firing}
 	class:card-hit={hit}
+	class:card-landed={landed}
+	class:card-flip-in={flipIn}
 	data-pos={position}
-	on:click={onclick}
-	on:pointerenter={(event) => handlePointer(event, true)}
-	on:pointerleave={(event) => handlePointer(event, false)}
-	on:focus={() => onhover?.(true)}
-	on:blur={() => onhover?.(false)}
+	onclick={handleClick}
+	onpointerenter={(event) => handlePointer(event, true)}
+	onpointerleave={(event) => {
+		handlePointer(event, false);
+		cancelPress();
+	}}
+	onpointerdown={startPress}
+	onpointerup={cancelPress}
+	onpointercancel={cancelPress}
+	oncontextmenu={handleContextMenu}
+	onfocus={() => onhover?.(true)}
+	onblur={() => onhover?.(false)}
 	disabled={!clickable}
 	type="button"
-	aria-label={cardLabel + killLabel}
+	aria-label={label}
 >
 	{#if card}
 		<CardSVG {card} {slotType} />
 	{:else}
-		<!-- Empty slot placeholder -->
-		<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" class="card-svg empty-slot">
-			<rect
-				width="100"
-				height="140"
-				rx="4"
-				fill="transparent"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-dasharray="5,5"
-				opacity="0.3"
-			/>
-
-			{#if slotType === 'royal'}
-				<!-- Profile silhouette for royal cards -->
-				<svg x="0" y="0" width="100" height="140" viewBox="0 0 300 320" preserveAspectRatio="xMidYMid meet">
-					<g opacity="0.3" fill="currentColor" transform="translate(0, 320) scale(0.1, -0.1)">
-						<path d="M1545 2943 c-334 -30 -582 -155 -716 -360 -124 -191 -199 -505 -155 -655 9 -31 16 -65 16 -75 0 -10 -43 -88 -95 -173 -59 -96 -95 -164 -95 -181 0 -41 43 -85 103 -105 89 -29 104 -57 70 -130 l-18 -36 33 -28 c29 -24 31 -29 17 -40 -21 -18 -19 -54 6 -76 42 -38 52 -72 38 -122 -29 -103 -8 -182 58 -224 36 -22 45 -23 203 -20 96 1 176 -2 190 -8 38 -16 51 -45 70 -155 l17 -100 591 -3 c326 -1 592 0 592 3 0 3 -32 124 -70 269 -80 300 -92 375 -79 478 13 103 30 150 125 343 125 256 158 375 157 580 -1 142 -28 259 -90 385 -40 81 -61 109 -142 191 -82 81 -110 102 -191 142 -181 88 -394 122 -635 100z m300 -43 c132 -16 198 -35 313 -91 86 -42 115 -62 185 -132 71 -70 91 -97 134 -187 77 -157 103 -310 82 -482 -17 -142 -52 -247 -144 -438 -47 -96 -96 -208 -110 -249 -28 -85 -28 -84 -16 -76 6 3 9 -3 8 -14 0 -10 -6 -17 -13 -14 -6 2 -14 -5 -17 -16 -6 -23 8 -29 16 -8 3 7 6 5 6 -5 1 -10 -3 -18 -9 -18 -14 0 -2 -120 22 -220 11 -47 40 -158 64 -248 24 -90 44 -174 44 -188 l0 -25 -109 2 c-60 1 -113 -1 -119 -5 -5 -3 -12 -3 -14 0 -3 3 -193 5 -421 4 -477 -1 -426 -13 -446 108 -9 51 -21 82 -39 104 -44 53 -76 60 -236 53 -157 -6 -196 2 -228 46 -22 29 -26 75 -13 162 7 49 5 60 -11 78 -17 19 -17 20 0 13 14 -5 17 -3 14 7 -3 8 -12 13 -21 11 -8 -1 -19 3 -23 9 -4 8 -3 9 4 5 7 -4 12 -3 12 3 0 5 -4 13 -10 16 -5 3 -10 25 -10 47 0 25 -7 49 -17 60 -14 15 -15 25 -6 65 19 80 -9 122 -100 154 -50 18 -81 51 -74 81 4 13 38 75 78 138 109 175 113 185 94 265 -57 248 76 632 276 794 104 84 292 161 436 177 29 4 55 10 57 13 8 11 271 12 361 1z" />
-					</g>
-				</svg>
-			{:else if slotType === 'armor'}
-				<!-- Shield for armor -->
-				<path
-					d="M 50 30 L 70 40 L 70 70 Q 70 90 50 110 Q 30 90 30 70 L 30 40 Z"
-					fill="transparent"
-					stroke="currentColor"
-					stroke-width="3"
-					opacity="0.2"
-				/>
-			{:else if slotType === 'joker'}
-				<!-- Large "J" for joker -->
-				<text
-					x="50"
-					y="85"
-					text-anchor="middle"
-					dominant-baseline="middle"
-					font-size="60"
-					font-weight="bold"
-					fill="currentColor"
-					opacity="0.15"
-				>
-					J
-				</text>
-			{:else if slotType === 'ace'}
-				<!-- Large "A" for ace -->
-				<text
-					x="50"
-					y="85"
-					text-anchor="middle"
-					dominant-baseline="middle"
-					font-size="60"
-					font-weight="bold"
-					fill="currentColor"
-					opacity="0.15"
-				>
-					A
-				</text>
-			{/if}
-		</svg>
-	{/if}
-
-	{#if showDepth}
-		<span class="card-depth">{stackDepth}</span>
+		<EmptySlot {slotType} />
 	{/if}
 
 	{#if killCount > 0}
@@ -136,41 +153,77 @@
 <style>
 	.card {
 		position: relative;
+		isolation: isolate;
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		width: 100%;
-		min-width: var(--card-width);
-		min-height: var(--card-height);
+		height: 100%;
 		background: transparent;
 		border: none;
+		border-radius: var(--card-radius);
 		box-shadow: none;
-		transition: all var(--transition-normal);
+		transition:
+			filter var(--transition-normal),
+			opacity var(--transition-normal),
+			transform var(--transition-normal);
 		cursor: pointer;
 		padding: 0;
 		margin: 0;
 		user-select: none;
+		-webkit-user-select: none;
+		-webkit-touch-callout: none;
 		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
 	}
 
-	.empty-slot {
-		width: 100%;
-		height: 100%;
+	/* Stacked cards: edges of the cards underneath peek out below the top card */
+	.card::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		pointer-events: none;
+	}
+
+	.edges-1::before {
+		box-shadow:
+			0 2px 0 0 var(--color-card-edge),
+			0 3px 0 0 var(--color-card-edge-line);
+	}
+
+	.edges-2::before {
+		box-shadow:
+			0 2px 0 0 var(--color-card-edge),
+			0 3px 0 0 var(--color-card-edge-line),
+			0 5px 0 0 var(--color-card-edge),
+			0 6px 0 0 var(--color-card-edge-line);
+	}
+
+	.edges-3::before {
+		box-shadow:
+			0 2px 0 0 var(--color-card-edge),
+			0 3px 0 0 var(--color-card-edge-line),
+			0 5px 0 0 var(--color-card-edge),
+			0 6px 0 0 var(--color-card-edge-line),
+			0 8px 0 0 var(--color-card-edge),
+			0 9px 0 0 var(--color-card-edge-line);
 	}
 
 	.card-active {
-		filter: brightness(2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-		transform: translateY(-2px);
+		filter: brightness(1.15) drop-shadow(0 0 8px var(--color-gold));
+		transform: translateY(-3px);
 	}
 
 	.card:disabled {
 		cursor: default;
-		opacity: 0.9;
 	}
 
+	/* Waiting cards fade back but stay readable */
 	.card-dimmed {
-		opacity: 0.2;
+		filter: saturate(0.25) brightness(0.6);
+		opacity: 0.8;
 	}
 
 	.card-alternative {
@@ -187,52 +240,40 @@
 
 	.card-view-mode:hover {
 		transform: scale(1.05);
-		box-shadow: 0 0 0 2px var(--color-button);
+		box-shadow: 0 0 0 2px var(--color-gold);
 	}
 
 	@keyframes goldenGlow {
-		0%, 100% {
-			box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.2),
-			            0 0 25px 6px rgba(255, 215, 0, 0.1);
+		0%,
+		100% {
+			box-shadow:
+				0 0 14px 3px rgba(255, 215, 0, 0.25),
+				0 0 0 2px rgba(255, 215, 0, 0.5);
 		}
 		50% {
-			box-shadow: 0 0 20px 4px rgba(255, 215, 0, 0.5),
-			            0 0 25px 6px rgba(255, 215, 0, 0.4);
+			box-shadow:
+				0 0 22px 6px rgba(255, 215, 0, 0.5),
+				0 0 0 2px rgba(255, 215, 0, 0.9);
 		}
-	}
-
-	.card-depth {
-		position: absolute;
-		bottom: 2px;
-		right: 4px;
-		font-size: 0.6rem;
-		font-weight: bold;
-		color: var(--color-text-muted);
-		background: rgba(255, 255, 255, 0.9);
-		padding: 1px 3px;
-		border-radius: 3px;
-		z-index: 10;
 	}
 
 	/* Attack preview: royals in the line of fire */
 	.card-targeted {
-		border-radius: var(--card-radius);
 		animation: targetPulse 0.9s ease-in-out infinite;
 	}
 
 	.card-aiming {
-		border-radius: var(--card-radius);
 		box-shadow: 0 0 0 2px var(--color-shot);
 	}
 
 	.kill-badge {
 		position: absolute;
-		top: -4px;
-		left: -4px;
+		top: -5px;
+		left: -5px;
 		display: flex;
 		align-items: center;
 		gap: 1px;
-		padding: 1px 3px;
+		padding: 2px 4px;
 		font-size: 0.65rem;
 		font-weight: bold;
 		line-height: 1;
@@ -255,8 +296,25 @@
 	}
 
 	.card-hit {
-		border-radius: var(--card-radius);
 		animation: hitShake 0.45s ease-out;
+	}
+
+	/* Dust puff when a card lands */
+	.card-landed::after {
+		content: '';
+		position: absolute;
+		left: -30%;
+		right: -30%;
+		bottom: -12%;
+		height: 32%;
+		border-radius: 50%;
+		background: radial-gradient(ellipse at center, var(--color-dust) 0%, transparent 70%);
+		pointer-events: none;
+		animation: dust 0.55s ease-out forwards;
+	}
+
+	.card-flip-in {
+		animation: flipIn 0.32s ease-out;
 	}
 
 	@keyframes targetPulse {
@@ -298,6 +356,26 @@
 		}
 	}
 
+	@keyframes dust {
+		0% {
+			opacity: 0.9;
+			transform: scaleX(0.5);
+		}
+		100% {
+			opacity: 0;
+			transform: scaleX(1.3) translateY(-4px);
+		}
+	}
+
+	@keyframes flipIn {
+		0% {
+			transform: perspective(400px) rotateY(90deg);
+		}
+		100% {
+			transform: perspective(400px) rotateY(0);
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.card-targeted {
 			animation: none;
@@ -305,14 +383,20 @@
 		}
 
 		.card-firing,
-		.card-hit {
+		.card-hit,
+		.card-flip-in,
+		.card-landed::after {
 			animation: none;
+		}
+
+		.card-landed::after {
+			display: none;
 		}
 	}
 
 	/* Accessibility: Focus visible */
 	.card:focus-visible {
-		outline: 2px solid var(--color-active-border);
-		outline-offset: 2px;
+		outline: 2px solid var(--color-gold);
+		outline-offset: 3px;
 	}
 </style>

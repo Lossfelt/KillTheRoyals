@@ -1,26 +1,17 @@
 /**
- * Board layout - the 7-column grid of slots, row by row
- * GameBoard renders this list instead of one hand-written Card per slot
+ * Board layout - the 7x7 grid of slots around the 3x3 cannon grid, row by row
+ * GameBoard renders this list instead of one hand-written Card per slot.
+ * The deck, Jokers and Aces live in SupplyArea.
  */
 
-import type {
-	AcePosition,
-	ArmorPosition,
-	GridPosition,
-	JokerPosition,
-	RoyalPosition
-} from '#lib/types.js';
+import type { ArmorPosition, GridPosition, RoyalPosition } from '#lib/types.js';
 
 export type BoardCell =
 	| { kind: 'empty' }
-	| { kind: 'break' }
 	| { kind: 'pending' } // Royals waiting to be placed
-	| { kind: 'deck' }
 	| { kind: 'grid'; pos: GridPosition }
 	| { kind: 'royal'; pos: RoyalPosition }
-	| { kind: 'armor'; pos: ArmorPosition }
-	| { kind: 'joker'; pos: JokerPosition }
-	| { kind: 'ace'; pos: AcePosition };
+	| { kind: 'armor'; pos: ArmorPosition };
 
 const empty: BoardCell = { kind: 'empty' };
 const grid = (pos: GridPosition): BoardCell => ({ kind: 'grid', pos });
@@ -87,17 +78,5 @@ export const BOARD_LAYOUT: readonly BoardCell[] = [
 	armor('bottomMiddleArmor'),
 	armor('bottomRightArmor'),
 	empty,
-	empty,
-
-	// Break between board and supply
-	{ kind: 'break' },
-
-	// Row 8: Deck + jokers + aces
-	{ kind: 'deck' },
-	{ kind: 'joker', pos: 'joker1' },
-	{ kind: 'joker', pos: 'joker2' },
-	{ kind: 'ace', pos: 'ace1' },
-	{ kind: 'ace', pos: 'ace2' },
-	{ kind: 'ace', pos: 'ace3' },
-	{ kind: 'ace', pos: 'ace4' }
+	empty
 ];

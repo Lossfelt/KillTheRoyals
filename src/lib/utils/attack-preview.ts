@@ -108,10 +108,7 @@ function getPendingMove(state: GameState): PendingMove | null {
 /**
  * Build the board preview: kill counts on every target, details for the hovered one
  */
-export function buildAttackPreview(
-	state: GameState,
-	hovered: GridPosition | null
-): AttackPreview {
+export function buildAttackPreview(state: GameState, hovered: GridPosition | null): AttackPreview {
 	const move = getPendingMove(state);
 	if (!move) return EMPTY_PREVIEW;
 

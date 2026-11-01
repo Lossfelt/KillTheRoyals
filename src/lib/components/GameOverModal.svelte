@@ -2,48 +2,37 @@
 	import { gameState, restartGame } from '#lib/stores/game.js';
 	import { saveHighScore, highScores } from '#lib/stores/highScores.js';
 	import { SHOT_TOTAL_MS } from './ShotLayer.svelte';
+	import Icon from './Icon.svelte';
+	import { calculateScore } from '#lib/utils/score.js';
+
+	// Time for the board to turn grey before the defeat screen covers it
+	const DEFEAT_DELAY_MS = 700;
 
 	const showModal = $derived($gameState.gameStatus === 'won' || $gameState.gameStatus === 'lost');
 	const isWin = $derived($gameState.gameStatus === 'won');
 
-	// Let the winning shot land before the result covers the board
+	// Let the winning shot land (or the board fade) before the result covers it
 	let revealed = $state(false);
 	$effect(() => {
 		if (!showModal) {
 			revealed = false;
 			return;
 		}
-		const timer = setTimeout(() => (revealed = true), isWin ? SHOT_TOTAL_MS : 0);
+		const timer = setTimeout(() => (revealed = true), isWin ? SHOT_TOTAL_MS : DEFEAT_DELAY_MS);
 		return () => clearTimeout(timer);
 	});
 
 	let modalElement: HTMLDivElement | undefined = $state();
 
 	// Score: Start at 6, subtract 1 for each USED Joker or Ace (0-6)
-	const score = $derived.by(() => {
-		let baseScore = 6;
-		const cards = $gameState.cardsInPlay;
-
-		// Subtract 1 for each used Joker (2)
-		if (cards.joker1[0] && cards.joker1[0].value === 'USED') baseScore--;
-		if (cards.joker2[0] && cards.joker2[0].value === 'USED') baseScore--;
-
-		// Subtract 1 for each used Ace (4)
-		if (cards.ace1[0] && cards.ace1[0].value === 'USED') baseScore--;
-		if (cards.ace2[0] && cards.ace2[0].value === 'USED') baseScore--;
-		if (cards.ace3[0] && cards.ace3[0].value === 'USED') baseScore--;
-		if (cards.ace4[0] && cards.ace4[0].value === 'USED') baseScore--;
-
-		return baseScore;
-	});
+	const score = $derived(calculateScore($gameState.cardsInPlay));
 
 	let hasScoreSaved = $state(false);
 
 	// Check if current score qualifies as top 5
 	const isNewHighScore = $derived(
 		isWin &&
-			($highScores.length < 5 ||
-				score > $highScores[Math.min(4, $highScores.length - 1)].score)
+			($highScores.length < 5 || score > $highScores[Math.min(4, $highScores.length - 1)].score)
 	);
 
 	// Save high score when player wins
@@ -74,13 +63,26 @@
 </script>
 
 {#if showModal && revealed}
-	<div bind:this={modalElement} class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="game-over-title" tabindex="-1">
+	<div
+		bind:this={modalElement}
+		class="modal-overlay"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="game-over-title"
+		tabindex="-1"
+	>
 		<div class="modal-content" class:victory={isWin} class:defeat={!isWin}>
-			<h2 id="game-over-title">{isWin ? 'Victory! 🎉' : 'Defeat 💔'}</h2>
+			<div class="result-icon" aria-hidden="true">
+				<Icon name={isWin ? 'crown' : 'flag'} size={44} filled={isWin} />
+			</div>
+			<h2 id="game-over-title">{isWin ? 'Victory!' : 'Defeat'}</h2>
 
 			{#if isWin}
 				{#if isNewHighScore}
-					<div class="new-high-score-badge">🎉 New High Score!</div>
+					<div class="new-high-score-badge">
+						<Icon name="star" size={18} filled />
+						<span>New High Score!</span>
+					</div>
 				{/if}
 
 				<div class="stats">
@@ -91,9 +93,7 @@
 				</div>
 			{/if}
 
-			<button class="button button-primary" onclick={handlePlayAgain}>
-				Play Again
-			</button>
+			<button class="button button-primary" onclick={handlePlayAgain}> Play Again </button>
 		</div>
 	</div>
 {/if}
@@ -137,15 +137,33 @@
 	}
 
 	.modal-content.victory {
-		border-color: var(--color-success);
+		border-color: var(--color-gold-muted);
 	}
 
 	.modal-content.defeat {
 		border-color: var(--color-error);
 	}
 
+	.result-icon {
+		display: flex;
+		justify-content: center;
+		margin-bottom: var(--spacing-sm);
+	}
+
+	.victory .result-icon {
+		color: var(--color-gold);
+		filter: drop-shadow(0 2px 6px rgba(255, 215, 0, 0.45));
+	}
+
+	.defeat .result-icon {
+		color: var(--color-error);
+	}
+
 	h2 {
-		font-size: 2rem;
+		font-family: var(--font-display);
+		font-size: 2.2rem;
+		font-variant: small-caps;
+		letter-spacing: 0.05em;
 		margin: 0 0 var(--spacing-lg) 0;
 		color: var(--color-text);
 	}
@@ -178,6 +196,10 @@
 	}
 
 	.new-high-score-badge {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-xs);
 		background: linear-gradient(135deg, var(--color-gold), #ffed4e);
 		color: var(--color-bg);
 		font-weight: bold;

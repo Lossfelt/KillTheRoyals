@@ -926,6 +926,14 @@ export function openStackView(position: GridPosition) {
 	});
 }
 
+// Action: Open stack view modal without view stack mode (long-press on a stack)
+export function peekStack(position: GridPosition) {
+	gameState.update((state) => {
+		if (state.cardsInPlay[position].length === 0) return state;
+		return { ...state, viewingStack: position };
+	});
+}
+
 // Action: Close stack view modal
 export function closeStackView() {
 	gameState.update((state) => ({

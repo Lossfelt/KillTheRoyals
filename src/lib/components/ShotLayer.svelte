@@ -6,11 +6,14 @@
 <script lang="ts">
 	import type { AimLine, KillEvent } from '#lib/utils/attack-preview.js';
 
-	// Props
-	export let board: HTMLElement | undefined = undefined;
-	export let events: KillEvent[] = [];
-	export let aims: AimLine[] = []; // Lines of fire for the move being previewed
-	export let volley: number = 0; // Bumped for every new set of shots to restart the animation
+	interface Props {
+		board?: HTMLElement;
+		events?: KillEvent[];
+		aims?: AimLine[]; // Lines of fire for the move being previewed
+		volley?: number; // Bumped for every new set of shots to restart the animation
+	}
+
+	let { board, events = [], aims = [], volley = 0 }: Props = $props();
 
 	interface Segment {
 		x1: number;
@@ -25,8 +28,8 @@
 		return { x: Math.cos(angle), y: Math.sin(angle) };
 	});
 
-	$: tracers = board ? measure(board, events) : [];
-	$: aimLines = board ? measure(board, aims) : [];
+	const tracers = $derived(board ? measure(board, events) : []);
+	const aimLines = $derived(board ? measure(board, aims) : []);
 
 	// Find the centre of a card on the board, relative to the board itself
 	function centreOf(boardEl: HTMLElement, position: string): { x: number; y: number } | null {

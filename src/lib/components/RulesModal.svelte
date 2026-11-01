@@ -76,6 +76,12 @@
 					<li><strong>Joker:</strong> Click to activate, then select a stack (top card only), then place it on another stack. Can trigger payloads if placed opposite a royal.</li>
 				</ul>
 
+				<h3>Helpful Hints</h3>
+				<ul>
+					<li><strong>Target marker:</strong> A red marker on a grid slot shows how many royals the drawn card would kill there. Hover or focus the slot to see the line of fire.</li>
+					<li><strong>Look inside a stack:</strong> Long-press or right-click a grid stack, or use the eye button.</li>
+				</ul>
+
 				<h3>Winning</h3>
 				<p>You win when all 12 royals are killed.</p>
 				<p><strong>Score:</strong> Number of unspent Jokers and Aces (0-6). Higher is better!</p>
