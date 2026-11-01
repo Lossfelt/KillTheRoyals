@@ -104,9 +104,12 @@
 			clip-path="url(#art-{uid})"
 		/>
 		<rect class="art-frame" x="5" y="5" width="90" height="130" rx="3" />
-		<path class="index-tab" d="M5 5 H33 V44 Q33 50 27 50 H5 Z" />
-		<text class="index royal-index" x="19" y="31" text-anchor="middle">{index}</text>
-		<text class="index-suit" x="19" y="47" text-anchor="middle">{suit}</text>
+		<path class="index-tab" d="M5 5 H33 V47 Q33 53 27 53 H5 Z" />
+		<!-- J hangs below the baseline in this serif, so it sits a little higher -->
+		<text class="index royal-index" x="19" y={card.value === 11 ? 26 : 29} text-anchor="middle"
+			>{index}</text
+		>
+		<text class="index-suit" x="19" y="48" text-anchor="middle">{suit}</text>
 	{:else}
 		<!-- Numbered card or Ace: big index top-left, watermark suit, small mirrored index -->
 		<text class="index" x="29" y="44" text-anchor="middle">{index}</text>
@@ -145,7 +148,7 @@
 	}
 
 	.royal-index {
-		font-size: 30px;
+		font-size: 26px;
 		letter-spacing: 0;
 	}
 
