@@ -2,6 +2,7 @@
 	import type { Card } from '#lib/types.js';
 
 	export let card: Card;
+	export let slotType: string | undefined = undefined; // Picks the emblem on a dead card
 
 	// Generate unique ID for this component instance to avoid duplicate filter IDs
 	const uid = Math.random().toString(36).substring(2, 9);
@@ -56,8 +57,21 @@
 				JOKER
 			</text>
 		</g>
-	{:else if card.value === 'DEAD' || card.value === 'USED'}
-		<!-- Card back pattern - for dead royals/armor and used jokers/aces -->
+	{:else if card.value === 'DEAD'}
+		<!-- Dead royal or armor: fallen emblem, struck through -->
+		<rect class="dead-background" width="100" height="140" rx="4" />
+		<g class="dead-emblem" transform="rotate(-14 50 72)">
+			{#if slotType === 'armor'}
+				<path d="M50 42 L72 52 L72 76 Q72 96 50 110 Q28 96 28 76 L28 52 Z" />
+			{:else}
+				<path d="M24 92 L24 54 L38 70 L50 46 L62 70 L76 54 L76 92 Z" />
+				<rect x="22" y="94" width="56" height="8" rx="2" />
+			{/if}
+		</g>
+		<path class="dead-slash" d="M20 26 L80 114" pathLength="1" />
+		<path class="dead-slash dead-slash-second" d="M80 26 L20 114" pathLength="1" />
+	{:else if card.value === 'USED'}
+		<!-- Card back pattern - for used jokers/aces -->
 		<rect class="card-back-outer" x="2" y="2" width="96" height="136" rx="4" stroke-width="2" />
 		<rect class="card-back-inner" x="15" y="15" width="70" height="110" rx="2" stroke-width="2" />
 		<g class="card-back-pattern">
@@ -95,6 +109,41 @@
 
 	.card-back-pattern {
 		fill: var(--color-card-black);
+	}
+
+	.dead-background {
+		fill: var(--color-dead-card);
+	}
+
+	.dead-emblem {
+		fill: var(--color-dead-emblem);
+	}
+
+	/* Slashes are drawn in when the card dies */
+	.dead-slash {
+		fill: none;
+		stroke: var(--color-target);
+		stroke-width: 7;
+		stroke-linecap: round;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 0;
+		animation: slash 0.2s ease-out backwards;
+	}
+
+	.dead-slash-second {
+		animation-delay: 0.12s;
+	}
+
+	@keyframes slash {
+		from {
+			stroke-dashoffset: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.dead-slash {
+			animation: none;
+		}
 	}
 
 	.corner-value {

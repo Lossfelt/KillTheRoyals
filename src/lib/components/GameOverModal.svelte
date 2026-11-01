@@ -1,9 +1,21 @@
 <script lang="ts">
 	import { gameState, restartGame } from '#lib/stores/game.js';
 	import { saveHighScore, highScores } from '#lib/stores/highScores.js';
+	import { SHOT_TOTAL_MS } from './ShotLayer.svelte';
 
 	const showModal = $derived($gameState.gameStatus === 'won' || $gameState.gameStatus === 'lost');
 	const isWin = $derived($gameState.gameStatus === 'won');
+
+	// Let the winning shot land before the result covers the board
+	let revealed = $state(false);
+	$effect(() => {
+		if (!showModal) {
+			revealed = false;
+			return;
+		}
+		const timer = setTimeout(() => (revealed = true), isWin ? SHOT_TOTAL_MS : 0);
+		return () => clearTimeout(timer);
+	});
 
 	let modalElement: HTMLDivElement | undefined = $state();
 
@@ -61,7 +73,7 @@
 	}
 </script>
 
-{#if showModal}
+{#if showModal && revealed}
 	<div bind:this={modalElement} class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="game-over-title" tabindex="-1">
 		<div class="modal-content" class:victory={isWin} class:defeat={!isWin}>
 			<h2 id="game-over-title">{isWin ? 'Victory! 🎉' : 'Defeat 💔'}</h2>

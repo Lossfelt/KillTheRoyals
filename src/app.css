@@ -30,6 +30,10 @@
 	--color-hover-overlay: rgba(255, 255, 255, 0.1);
 	--color-subtle-bg: rgba(255, 255, 255, 0.05);
 	--color-joker: #9b59b6;
+	--color-shot: #ffb300; /* Tracer and payload highlight */
+	--color-target: #e53935; /* Royals in the line of fire */
+	--color-dead-card: #2b2622; /* Killed royals and armor */
+	--color-dead-emblem: #8c7a4a;
 
 	/* Spacing System */
 	--spacing-xs: 0.25rem; /* 4px */

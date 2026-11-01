@@ -12,9 +12,23 @@
 	export let viewMode: boolean = false; // View stack mode indicator
 	export let onclick: (() => void) | undefined = undefined;
 	export let slotType: 'royal' | 'armor' | 'joker' | 'ace' | 'grid' | undefined = undefined;
+	export let position: string | undefined = undefined; // Board position, used to locate the card for shot effects
+	export let killCount: number = 0; // Royals this slot would kill if the pending card lands here
+	export let targeted: boolean = false; // Would die from the hovered move
+	export let aiming: boolean = false; // Part of the hovered move's payload
+	export let firing: boolean = false; // Just fired a shot
+	export let hit: boolean = false; // Just got shot
+	export let onhover: ((hovering: boolean) => void) | undefined = undefined;
 
 	$: cardColor = card ? card.color : 'black';
 	$: showDepth = stackDepth > 1;
+	$: cardLabel = card ? `${card.value} of ${card.suit}` : 'Empty card slot';
+	$: killLabel = killCount > 0 ? `, kills ${killCount} royal${killCount > 1 ? 's' : ''}` : '';
+
+	// Touch has no hover: the kill badge carries the preview there
+	function handlePointer(event: PointerEvent, hovering: boolean) {
+		if (event.pointerType !== 'touch') onhover?.(hovering);
+	}
 </script>
 
 <button
@@ -26,13 +40,22 @@
 	class:card-alternative-grid={alternative && slotType === 'grid'}
 	class:card-dimmed={dimmed}
 	class:card-view-mode={viewMode}
+	class:card-targeted={targeted}
+	class:card-aiming={aiming}
+	class:card-firing={firing}
+	class:card-hit={hit}
+	data-pos={position}
 	on:click={onclick}
+	on:pointerenter={(event) => handlePointer(event, true)}
+	on:pointerleave={(event) => handlePointer(event, false)}
+	on:focus={() => onhover?.(true)}
+	on:blur={() => onhover?.(false)}
 	disabled={!clickable}
 	type="button"
-	aria-label={card ? `${card.value} of ${card.suit}` : 'Empty card slot'}
+	aria-label={cardLabel + killLabel}
 >
 	{#if card}
-		<CardSVG {card} />
+		<CardSVG {card} {slotType} />
 	{:else}
 		<!-- Empty slot placeholder -->
 		<svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" class="card-svg empty-slot">
@@ -97,6 +120,16 @@
 
 	{#if showDepth}
 		<span class="card-depth">{stackDepth}</span>
+	{/if}
+
+	{#if killCount > 0}
+		<span class="kill-badge" aria-hidden="true">
+			<svg viewBox="0 0 16 16" class="kill-icon">
+				<circle cx="8" cy="8" r="5" fill="none" stroke="currentColor" stroke-width="2" />
+				<path d="M8 0v5M8 11v5M0 8h5M11 8h5" stroke="currentColor" stroke-width="2" />
+			</svg>
+			{#if killCount > 1}{killCount}{/if}
+		</span>
 	{/if}
 </button>
 
@@ -179,6 +212,102 @@
 		padding: 1px 3px;
 		border-radius: 3px;
 		z-index: 10;
+	}
+
+	/* Attack preview: royals in the line of fire */
+	.card-targeted {
+		border-radius: var(--card-radius);
+		animation: targetPulse 0.9s ease-in-out infinite;
+	}
+
+	.card-aiming {
+		border-radius: var(--card-radius);
+		box-shadow: 0 0 0 2px var(--color-shot);
+	}
+
+	.kill-badge {
+		position: absolute;
+		top: -4px;
+		left: -4px;
+		display: flex;
+		align-items: center;
+		gap: 1px;
+		padding: 1px 3px;
+		font-size: 0.65rem;
+		font-weight: bold;
+		line-height: 1;
+		color: white;
+		background: var(--color-target);
+		border-radius: 999px;
+		box-shadow: var(--shadow-sm);
+		z-index: 11;
+		pointer-events: none;
+	}
+
+	.kill-icon {
+		width: 10px;
+		height: 10px;
+	}
+
+	/* Shot effects */
+	.card-firing {
+		animation: recoil 0.25s ease-out;
+	}
+
+	.card-hit {
+		border-radius: var(--card-radius);
+		animation: hitShake 0.45s ease-out;
+	}
+
+	@keyframes targetPulse {
+		0%,
+		100% {
+			box-shadow: 0 0 0 2px var(--color-target);
+		}
+		50% {
+			box-shadow:
+				0 0 0 3px var(--color-target),
+				0 0 14px 4px var(--color-target);
+		}
+	}
+
+	@keyframes recoil {
+		30% {
+			transform: scale(0.92);
+		}
+	}
+
+	@keyframes hitShake {
+		0% {
+			filter: brightness(2.5);
+			box-shadow: 0 0 18px 6px var(--color-target);
+		}
+		20% {
+			transform: translateX(-4px) rotate(-3deg);
+		}
+		40% {
+			transform: translateX(4px) rotate(3deg);
+		}
+		60% {
+			transform: translateX(-2px);
+		}
+		100% {
+			transform: none;
+			filter: none;
+			box-shadow: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.card-targeted {
+			animation: none;
+			box-shadow: 0 0 0 3px var(--color-target);
+		}
+
+		.card-firing,
+		.card-hit {
+			animation: none;
+		}
 	}
 
 	/* Accessibility: Focus visible */

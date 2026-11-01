@@ -18,7 +18,7 @@ import { ATTACK_MAPPINGS, ROYAL_ARMOR_PAIRS } from '#lib/types.js';
  * Position constants (DRY - single source of truth)
  * Used throughout game logic to avoid hardcoding position arrays
  */
-const GRID_POSITIONS: readonly GridPosition[] = [
+export const GRID_POSITIONS: readonly GridPosition[] = [
 	'upperLeft',
 	'upperMiddle',
 	'upperRight',
@@ -99,7 +99,7 @@ export function createUsedCard(): Card {
 /**
  * Get the armor position for a royal position
  */
-function getArmorPositionForRoyal(royal: RoyalPosition): ArmorPosition {
+export function getArmorPositionForRoyal(royal: RoyalPosition): ArmorPosition {
 	const pair = ROYAL_ARMOR_PAIRS.find((p) => p.royal === royal);
 	if (!pair) throw new Error(`No armor position found for royal: ${royal}`);
 	return pair.armor;
@@ -155,6 +155,49 @@ export function canKillRoyal(
 }
 
 /**
+ * Outcome of one attack fired from a grid position at a living royal
+ */
+export interface AttackResult {
+	royal: RoyalPosition;
+	armor: ArmorPosition;
+	payloadPositions: readonly [GridPosition, GridPosition];
+	kills: boolean;
+}
+
+/**
+ * Evaluate every attack fired from a grid position against living royals.
+ * Attacks with an incomplete payload are left out.
+ */
+export function evaluateAttacksFromPosition(
+	position: GridPosition,
+	cardsInPlay: CardsInPlay
+): AttackResult[] {
+	const results: AttackResult[] = [];
+
+	for (const attack of ATTACK_MAPPINGS[position] ?? []) {
+		const royal = cardsInPlay[attack.royal][0];
+		if (!royal || isRoyalDead(royal)) continue;
+
+		// Get the payload cards from the specified positions
+		const card1 = cardsInPlay[attack.payloadPositions[0]][0];
+		const card2 = cardsInPlay[attack.payloadPositions[1]][0];
+		if (!card1 || !card2 || isEmptyCard(card1) || isEmptyCard(card2)) continue;
+
+		const payload: Payload = [card1, card2];
+		const armorPos = getArmorPositionForRoyal(attack.royal);
+
+		results.push({
+			royal: attack.royal,
+			armor: armorPos,
+			payloadPositions: attack.payloadPositions,
+			kills: canKillRoyal(payload, royal, cardsInPlay[armorPos][0])
+		});
+	}
+
+	return results;
+}
+
+/**
  * Kill royals that can be killed from a grid position
  * Returns updated cardsInPlay with dead royals marked
  */
@@ -165,35 +208,15 @@ export function killRoyalsFromPosition(
 	// Deep copy cardsInPlay to avoid mutations (consistent with game.ts pattern)
 	const newCardsInPlay = structuredClone(cardsInPlay);
 
-	// Get attack mappings for this position
-	const attacks = ATTACK_MAPPINGS[position];
-	if (!attacks || attacks.length === 0) return newCardsInPlay;
+	for (const attack of evaluateAttacksFromPosition(position, cardsInPlay)) {
+		if (!attack.kills) continue;
 
-	// Try each attack from this position
-	for (const attack of attacks) {
-		const royal = cardsInPlay[attack.royal][0];
-		if (!royal || isRoyalDead(royal)) continue;
+		// Kill the royal - create new dead card instance
+		newCardsInPlay[attack.royal] = [createDeadCard()];
 
-		// Get the payload cards from the specified positions
-		const card1 = cardsInPlay[attack.payloadPositions[0]][0];
-		const card2 = cardsInPlay[attack.payloadPositions[1]][0];
-
-		if (!card1 || !card2 || isEmptyCard(card1) || isEmptyCard(card2)) continue;
-
-		const payload: Payload = [card1, card2];
-
-		// Check armor
-		const armorPos = getArmorPositionForRoyal(attack.royal);
-		const armor = cardsInPlay[armorPos][0];
-
-		if (canKillRoyal(payload, royal, armor)) {
-			// Kill the royal - create new dead card instance
-			newCardsInPlay[attack.royal] = [createDeadCard()];
-
-			// Kill the armor too if it exists - create new dead card instance
-			if (armor && !isEmptyCard(armor)) {
-				newCardsInPlay[armorPos] = [createDeadCard()];
-			}
+		// Kill the armor too if it exists - create new dead card instance
+		if (!isEmptyCard(cardsInPlay[attack.armor][0])) {
+			newCardsInPlay[attack.armor] = [createDeadCard()];
 		}
 	}
 

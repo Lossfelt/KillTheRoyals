@@ -14,8 +14,22 @@
 		completeSetup,
 		openStackView
 	} from '#lib/stores/game.js';
+	import { onDestroy } from 'svelte';
 	import Card from './Card.svelte';
-	import type { GridPosition, AcePosition, JokerPosition, RoyalPosition, ArmorPosition } from '#lib/types.js';
+	import ShotLayer, { SHOT_TOTAL_MS, SHOT_TRAVEL_MS } from './ShotLayer.svelte';
+	import { BOARD_LAYOUT } from './board-layout.js';
+	import { buildAttackPreview, findKillEvents, type KillEvent } from '#lib/utils/attack-preview.js';
+	import type {
+		Card as CardType,
+		CardsInPlay,
+		GridPosition,
+		AcePosition,
+		JokerPosition,
+		RoyalPosition,
+		ArmorPosition,
+		SpecialPosition,
+		GameState
+	} from '#lib/types.js';
 
 	// Handle clicks on grid positions
 	function handleGridClick(position: GridPosition) {
@@ -62,25 +76,29 @@
 		}
 	}
 
+	// Display helpers take the state as an argument. In legacy mode Svelte only tracks
+	// variables written directly in a template expression, so a helper that read
+	// $gameState itself would not update inside the {#each} below.
+
 	// Check if cards should be dimmed (when royals need to be placed or grid cannot be used)
-	function shouldDimCard(): boolean {
-		return $gameState.cardsInPlay.royalsToBePlaced.length > 0
-			|| !$gameState.canPlaceTopCardOnGrid;
+	function shouldDimCard(state: GameState): boolean {
+		return state.cardsInPlay.royalsToBePlaced.length > 0
+			|| !state.canPlaceTopCardOnGrid;
 	}
 
 	// Check if a grid card should be dimmed (when it's not an alternative position)
-	function shouldDimGridCard(position: GridPosition): boolean {
+	function shouldDimGridCard(state: GameState, position: GridPosition): boolean {
 		// Don't dim grid during special interactive modes where grid remains clickable
-		if ($gameState.jokerInUse || $gameState.aceInUse || $gameState.viewStackMode) {
+		if (state.jokerInUse || state.aceInUse || state.viewStackMode) {
 			return false;
 		}
 
 		// First check general dimming conditions
-		if (shouldDimCard()) return true;
+		if (shouldDimCard(state)) return true;
 
 		// If there are alternative positions, dim cards that are NOT in the list
-		if ($gameState.alternativeGridPositions.length > 0) {
-			return !$gameState.alternativeGridPositions.includes(position);
+		if (state.alternativeGridPositions.length > 0) {
+			return !state.alternativeGridPositions.includes(position);
 		}
 
 		return false;
@@ -88,11 +106,11 @@
 
 	// Check if a specific royal position should be dimmed
 	// Alternative positions (that can be clicked) should NOT be dimmed
-	function shouldDimRoyalPosition(position: RoyalPosition): boolean {
-		if (isAlternativePosition(position)) {
+	function shouldDimRoyalPosition(state: GameState, position: RoyalPosition): boolean {
+		if (isAlternativePosition(state, position)) {
 			return false; // Never dim alternative positions - they need to be clickable!
 		}
-		return shouldDimCard();
+		return shouldDimCard(state);
 	}
 
 	function handleRoyalPositionClick(position: RoyalPosition) {
@@ -103,21 +121,21 @@
 	}
 
 	// Check if a royal position is an alternative choice
-	function isAlternativePosition(position: RoyalPosition): boolean {
-		return $gameState.alternativeRoyalPositions.includes(position);
+	function isAlternativePosition(state: GameState, position: RoyalPosition): boolean {
+		return state.alternativeRoyalPositions.includes(position);
 	}
 
 	// Check if an armor position is an alternative choice
-	function isAlternativeArmorPosition(position: ArmorPosition): boolean {
-		return $gameState.alternativeArmorPositions.includes(position);
+	function isAlternativeArmorPosition(state: GameState, position: ArmorPosition): boolean {
+		return state.alternativeArmorPositions.includes(position);
 	}
 
 	// Check if a specific armor position should be dimmed
-	function shouldDimArmorPosition(position: ArmorPosition): boolean {
-		if (isAlternativeArmorPosition(position)) {
+	function shouldDimArmorPosition(state: GameState, position: ArmorPosition): boolean {
+		if (isAlternativeArmorPosition(state, position)) {
 			return false; // Never dim alternative positions - they need to be clickable!
 		}
-		return shouldDimCard();
+		return shouldDimCard(state);
 	}
 
 	function handleArmorPositionClick(position: ArmorPosition) {
@@ -128,45 +146,45 @@
 	}
 
 	// Check if a grid position is an alternative choice for numbered card placement
-	function isAlternativeGridPosition(position: GridPosition): boolean {
-		return $gameState.alternativeGridPositions.includes(position);
+	function isAlternativeGridPosition(state: GameState, position: GridPosition): boolean {
+		return state.alternativeGridPositions.includes(position);
 	}
 
 	// Check if a grid card should show golden glow
 	// Two scenarios: 1) Setup replace mode, 2) Numbered card placement from deck
-	function shouldShowGridAlternative(position: GridPosition): boolean {
+	function shouldShowGridAlternative(state: GameState, position: GridPosition): boolean {
 		// Don't show grid highlighting during joker/ace usage or view stack mode (clearer UX)
-		if ($gameState.jokerInUse || $gameState.aceInUse || $gameState.viewStackMode) return false;
+		if (state.jokerInUse || state.aceInUse || state.viewStackMode) return false;
 
 		// Scenario 1: Setup replace mode - all grid cards can be replaced
-		if ($gameState.setupPhaseReplaceMode) return true;
+		if (state.setupPhaseReplaceMode) return true;
 
 		// Scenario 2: Normal play - highlight positions where card can go
-		return isAlternativeGridPosition(position);
+		return isAlternativeGridPosition(state, position);
 	}
 
 	// Check if a joker position is an alternative choice
-	function isAlternativeJokerPosition(position: JokerPosition): boolean {
-		return $gameState.alternativeJokerPositions.includes(position);
+	function isAlternativeJokerPosition(state: GameState, position: JokerPosition): boolean {
+		return state.alternativeJokerPositions.includes(position);
 	}
 
 	// Check if a joker position should be dimmed
-	function shouldDimJokerPosition(position: JokerPosition): boolean {
-		if (isAlternativeJokerPosition(position)) {
+	function shouldDimJokerPosition(state: GameState, position: JokerPosition): boolean {
+		if (isAlternativeJokerPosition(state, position)) {
 			return false; // Never dim alternative positions - they need to be clickable!
 		}
 
 		// Don't dim when armor is being placed (numbered cards can still use joker)
-		if ($gameState.alternativeArmorPositions.length > 0) {
+		if (state.alternativeArmorPositions.length > 0) {
 			return false;
 		}
 
 		// Dim when setup, royals, or other special cards are being placed
-		return $gameState.isSetupPhase
-			|| $gameState.cardsInPlay.royalsToBePlaced.length > 0
-			|| $gameState.alternativeRoyalPositions.length > 0
-			|| $gameState.alternativeAcePositions.length > 0
-			|| $gameState.alternativeJokerPositions.length > 0;
+		return state.isSetupPhase
+			|| state.cardsInPlay.royalsToBePlaced.length > 0
+			|| state.alternativeRoyalPositions.length > 0
+			|| state.alternativeAcePositions.length > 0
+			|| state.alternativeJokerPositions.length > 0;
 	}
 
 	// Handle clicks on joker positions (both placement and activation)
@@ -182,27 +200,27 @@
 	}
 
 	// Check if an ace position is an alternative choice
-	function isAlternativeAcePosition(position: AcePosition): boolean {
-		return $gameState.alternativeAcePositions.includes(position);
+	function isAlternativeAcePosition(state: GameState, position: AcePosition): boolean {
+		return state.alternativeAcePositions.includes(position);
 	}
 
 	// Check if an ace position should be dimmed
-	function shouldDimAcePosition(position: AcePosition): boolean {
-		if (isAlternativeAcePosition(position)) {
+	function shouldDimAcePosition(state: GameState, position: AcePosition): boolean {
+		if (isAlternativeAcePosition(state, position)) {
 			return false; // Never dim alternative positions - they need to be clickable!
 		}
 
 		// Don't dim when armor is being placed (numbered cards can still use ace)
-		if ($gameState.alternativeArmorPositions.length > 0) {
+		if (state.alternativeArmorPositions.length > 0) {
 			return false;
 		}
 
 		// Dim when setup, royals, or other special cards are being placed
-		return $gameState.isSetupPhase
-			|| $gameState.cardsInPlay.royalsToBePlaced.length > 0
-			|| $gameState.alternativeRoyalPositions.length > 0
-			|| $gameState.alternativeJokerPositions.length > 0
-			|| $gameState.alternativeAcePositions.length > 0;
+		return state.isSetupPhase
+			|| state.cardsInPlay.royalsToBePlaced.length > 0
+			|| state.alternativeRoyalPositions.length > 0
+			|| state.alternativeJokerPositions.length > 0
+			|| state.alternativeAcePositions.length > 0;
 	}
 
 	// Handle clicks on ace positions (both placement and activation)
@@ -216,6 +234,90 @@
 		// Otherwise, it's an activation click (ace already placed)
 		activateAce(position);
 	}
+
+	// Placed Ace/Joker that has not been used yet can be activated
+	function isUnusedSpecial(state: GameState, position: SpecialPosition): boolean {
+		const card = state.cardsInPlay[position][0];
+		return !!card && card.value !== 'USED';
+	}
+
+	// Attack preview: the grid slot under the pointer or keyboard focus
+	let hoveredGrid: GridPosition | null = null;
+	$: preview = buildAttackPreview($gameState, hoveredGrid);
+
+	function setHovered(position: GridPosition, hovering: boolean) {
+		if (hovering) hoveredGrid = position;
+		else if (hoveredGrid === position) hoveredGrid = null;
+	}
+
+	// Shot effects: spot royals that died since the last state and animate the shot
+	let boardElement: HTMLElement | undefined;
+	let shotEvents: KillEvent[] = [];
+	let volley = 0;
+	let firingPositions: string[] = [];
+	let hitPositions: string[] = [];
+	let heldCards: Record<string, CardType> = {}; // Cards kept on screen until the shot lands
+	let shotTimers: ReturnType<typeof setTimeout>[] = [];
+	let previousCardsInPlay: CardsInPlay = $gameState.cardsInPlay;
+
+	$: handleBoardChange($gameState.cardsInPlay);
+
+	function handleBoardChange(next: CardsInPlay) {
+		if (next === previousCardsInPlay) return;
+		const previous = previousCardsInPlay;
+		previousCardsInPlay = next;
+
+		resetShotEffects();
+		const kills = findKillEvents(previous, next);
+		if (kills.length > 0) fireShots(kills, previous);
+	}
+
+	function prefersReducedMotion(): boolean {
+		return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+	}
+
+	function fireShots(kills: KillEvent[], previous: CardsInPlay) {
+		const reducedMotion = prefersReducedMotion();
+		const held: Record<string, CardType> = {};
+		if (!reducedMotion) {
+			for (const kill of kills) {
+				const royal = previous[kill.royal][0];
+				const armor = previous[kill.armor][0];
+				if (royal) held[kill.royal] = royal;
+				if (armor) held[kill.armor] = armor;
+			}
+		}
+
+		heldCards = held;
+		shotEvents = kills;
+		volley += 1;
+		firingPositions = kills.flatMap((kill) => [kill.shooter, ...kill.payloadPositions]);
+		navigator.vibrate?.(40);
+
+		shotTimers = [
+			setTimeout(
+				() => {
+					heldCards = {};
+					hitPositions = kills.flatMap((kill) =>
+						previous[kill.armor][0] ? [kill.royal, kill.armor] : [kill.royal]
+					);
+				},
+				reducedMotion ? 0 : SHOT_TRAVEL_MS
+			),
+			setTimeout(resetShotEffects, SHOT_TOTAL_MS)
+		];
+	}
+
+	function resetShotEffects() {
+		shotTimers.forEach(clearTimeout);
+		shotTimers = [];
+		heldCards = {};
+		shotEvents = [];
+		firingPositions = [];
+		hitPositions = [];
+	}
+
+	onDestroy(resetShotEffects);
 </script>
 
 {#if $gameState.isSetupPhase && $gameState.setupPhaseReplaceMode}
@@ -224,394 +326,93 @@
 	</div>
 {/if}
 
-<div class="game-board">
-	<!-- Row 1: Empty + Upper Armors + Empty + RoyalsToBePlaced -->
-	<div class="cell empty"></div>
-	<div class="cell empty"></div>
-	<Card
-		card={$gameState.cardsInPlay.upperLeftArmor[0]}
-		clickable={isAlternativeArmorPosition('upperLeftArmor')}
-		alternative={isAlternativeArmorPosition('upperLeftArmor')}
-		onclick={() => handleArmorPositionClick('upperLeftArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('upperLeftArmor')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.upperMiddleArmor[0]}
-		clickable={isAlternativeArmorPosition('upperMiddleArmor')}
-		alternative={isAlternativeArmorPosition('upperMiddleArmor')}
-		onclick={() => handleArmorPositionClick('upperMiddleArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('upperMiddleArmor')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.upperRightArmor[0]}
-		clickable={isAlternativeArmorPosition('upperRightArmor')}
-		alternative={isAlternativeArmorPosition('upperRightArmor')}
-		onclick={() => handleArmorPositionClick('upperRightArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('upperRightArmor')}
-	/>
-	<div class="cell empty"></div>
-	{#if $gameState.cardsInPlay.royalsToBePlaced[0]}
-		<Card
-			card={$gameState.cardsInPlay.royalsToBePlaced[0]}
-			stackDepth={$gameState.cardsInPlay.royalsToBePlaced.length}
-			clickable={false}
-		/>
-	{:else}
-		<div class="cell empty"></div>
-	{/if}
+<div class="game-board" class:board-shake={hitPositions.length > 0} bind:this={boardElement}>
+	{#each BOARD_LAYOUT as cell, i (i)}
+		{#if cell.kind === 'empty'}
+			<div class="cell empty"></div>
+		{:else if cell.kind === 'break'}
+			<div class="board-break" aria-hidden="true"></div>
+		{:else if cell.kind === 'pending'}
+			{#if $gameState.cardsInPlay.royalsToBePlaced[0]}
+				<Card
+					card={$gameState.cardsInPlay.royalsToBePlaced[0]}
+					stackDepth={$gameState.cardsInPlay.royalsToBePlaced.length}
+					clickable={false}
+				/>
+			{:else}
+				<div class="cell empty"></div>
+			{/if}
+		{:else if cell.kind === 'deck'}
+			<Card card={$gameState.deck[0]} stackDepth={$gameState.deck.length} clickable={false} />
+		{:else if cell.kind === 'grid'}
+			<Card
+				card={$gameState.cardsInPlay[cell.pos][0]}
+				stackDepth={$gameState.cardsInPlay[cell.pos].length}
+				active={$gameState.jokerSourceStack === cell.pos}
+				alternative={shouldShowGridAlternative($gameState, cell.pos)}
+				onclick={() => handleGridClick(cell.pos)}
+				onhover={(hovering) => setHovered(cell.pos, hovering)}
+				slotType="grid"
+				dimmed={!preview.aiming.includes(cell.pos) && shouldDimGridCard($gameState, cell.pos)}
+				viewMode={$gameState.viewStackMode}
+				position={cell.pos}
+				killCount={preview.killCounts[cell.pos] ?? 0}
+				aiming={preview.aiming.includes(cell.pos)}
+				firing={firingPositions.includes(cell.pos)}
+			/>
+		{:else if cell.kind === 'royal'}
+			<Card
+				card={heldCards[cell.pos] ?? $gameState.cardsInPlay[cell.pos][0]}
+				clickable={isAlternativePosition($gameState, cell.pos)}
+				alternative={isAlternativePosition($gameState, cell.pos)}
+				onclick={() => handleRoyalPositionClick(cell.pos)}
+				slotType="royal"
+				dimmed={!preview.targeted.includes(cell.pos) && shouldDimRoyalPosition($gameState, cell.pos)}
+				position={cell.pos}
+				targeted={preview.targeted.includes(cell.pos)}
+				hit={hitPositions.includes(cell.pos)}
+			/>
+		{:else if cell.kind === 'armor'}
+			<Card
+				card={heldCards[cell.pos] ?? $gameState.cardsInPlay[cell.pos][0]}
+				clickable={isAlternativeArmorPosition($gameState, cell.pos)}
+				alternative={isAlternativeArmorPosition($gameState, cell.pos)}
+				onclick={() => handleArmorPositionClick(cell.pos)}
+				slotType="armor"
+				dimmed={!preview.targeted.includes(cell.pos) && shouldDimArmorPosition($gameState, cell.pos)}
+				position={cell.pos}
+				targeted={preview.targeted.includes(cell.pos)}
+				hit={hitPositions.includes(cell.pos)}
+			/>
+		{:else if cell.kind === 'joker'}
+			<Card
+				card={$gameState.cardsInPlay[cell.pos][0]}
+				active={$gameState.jokerInUse === cell.pos}
+				clickable={isAlternativeJokerPosition($gameState, cell.pos) || isUnusedSpecial($gameState, cell.pos)}
+				alternative={isAlternativeJokerPosition($gameState, cell.pos)}
+				onclick={() => handleJokerPositionClick(cell.pos)}
+				slotType="joker"
+				dimmed={shouldDimJokerPosition($gameState, cell.pos)}
+			/>
+		{:else if cell.kind === 'ace'}
+			<Card
+				card={$gameState.cardsInPlay[cell.pos][0]}
+				active={$gameState.aceInUse === cell.pos}
+				clickable={isAlternativeAcePosition($gameState, cell.pos) || isUnusedSpecial($gameState, cell.pos)}
+				alternative={isAlternativeAcePosition($gameState, cell.pos)}
+				onclick={() => handleAcePositionClick(cell.pos)}
+				slotType="ace"
+				dimmed={shouldDimAcePosition($gameState, cell.pos)}
+			/>
+		{/if}
+	{/each}
 
-	<!-- Row 2: Empty + Upper Royals + Empty -->
-	<div class="cell empty"></div>
-	<div class="cell empty"></div>
-	<Card
-		card={$gameState.cardsInPlay.upperLeftRoyal[0]}
-		clickable={isAlternativePosition('upperLeftRoyal')}
-		alternative={isAlternativePosition('upperLeftRoyal')}
-		onclick={() => handleRoyalPositionClick('upperLeftRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('upperLeftRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.upperMiddleRoyal[0]}
-		clickable={isAlternativePosition('upperMiddleRoyal')}
-		alternative={isAlternativePosition('upperMiddleRoyal')}
-		onclick={() => handleRoyalPositionClick('upperMiddleRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('upperMiddleRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.upperRightRoyal[0]}
-		clickable={isAlternativePosition('upperRightRoyal')}
-		alternative={isAlternativePosition('upperRightRoyal')}
-		onclick={() => handleRoyalPositionClick('upperRightRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('upperRightRoyal')}
-	/>
-	<div class="cell empty"></div>
-	<div class="cell empty"></div>
-
-	<!-- Row 3: Left Upper + Grid Top Row + Right Upper -->
-	<Card
-		card={$gameState.cardsInPlay.leftUpperArmor[0]}
-		clickable={isAlternativeArmorPosition('leftUpperArmor')}
-		alternative={isAlternativeArmorPosition('leftUpperArmor')}
-		onclick={() => handleArmorPositionClick('leftUpperArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('leftUpperArmor')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.leftUpperRoyal[0]}
-		clickable={isAlternativePosition('leftUpperRoyal')}
-		alternative={isAlternativePosition('leftUpperRoyal')}
-		onclick={() => handleRoyalPositionClick('leftUpperRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('leftUpperRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.upperLeft[0]}
-		stackDepth={$gameState.cardsInPlay.upperLeft.length}
-		active={$gameState.jokerSourceStack === 'upperLeft'}
-		alternative={shouldShowGridAlternative('upperLeft')}
-		onclick={() => handleGridClick('upperLeft')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('upperLeft')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.upperMiddle[0]}
-		stackDepth={$gameState.cardsInPlay.upperMiddle.length}
-		active={$gameState.jokerSourceStack === 'upperMiddle'}
-		alternative={shouldShowGridAlternative('upperMiddle')}
-		onclick={() => handleGridClick('upperMiddle')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('upperMiddle')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.upperRight[0]}
-		stackDepth={$gameState.cardsInPlay.upperRight.length}
-		active={$gameState.jokerSourceStack === 'upperRight'}
-		alternative={shouldShowGridAlternative('upperRight')}
-		onclick={() => handleGridClick('upperRight')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('upperRight')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.rightUpperRoyal[0]}
-		clickable={isAlternativePosition('rightUpperRoyal')}
-		alternative={isAlternativePosition('rightUpperRoyal')}
-		onclick={() => handleRoyalPositionClick('rightUpperRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('rightUpperRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.rightUpperArmor[0]}
-		clickable={isAlternativeArmorPosition('rightUpperArmor')}
-		alternative={isAlternativeArmorPosition('rightUpperArmor')}
-		onclick={() => handleArmorPositionClick('rightUpperArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('rightUpperArmor')}
-	/>
-
-	<!-- Row 4: Left Middle + Grid Middle Row + Right Middle -->
-	<Card
-		card={$gameState.cardsInPlay.leftMiddleArmor[0]}
-		clickable={isAlternativeArmorPosition('leftMiddleArmor')}
-		alternative={isAlternativeArmorPosition('leftMiddleArmor')}
-		onclick={() => handleArmorPositionClick('leftMiddleArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('leftMiddleArmor')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.leftMiddleRoyal[0]}
-		clickable={isAlternativePosition('leftMiddleRoyal')}
-		alternative={isAlternativePosition('leftMiddleRoyal')}
-		onclick={() => handleRoyalPositionClick('leftMiddleRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('leftMiddleRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.middleLeft[0]}
-		stackDepth={$gameState.cardsInPlay.middleLeft.length}
-		active={$gameState.jokerSourceStack === 'middleLeft'}
-		alternative={shouldShowGridAlternative('middleLeft')}
-		onclick={() => handleGridClick('middleLeft')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('middleLeft')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.middleMiddle[0]}
-		stackDepth={$gameState.cardsInPlay.middleMiddle.length}
-		active={$gameState.jokerSourceStack === 'middleMiddle'}
-		alternative={shouldShowGridAlternative('middleMiddle')}
-		onclick={() => handleGridClick('middleMiddle')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('middleMiddle')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.middleRight[0]}
-		stackDepth={$gameState.cardsInPlay.middleRight.length}
-		active={$gameState.jokerSourceStack === 'middleRight'}
-		alternative={shouldShowGridAlternative('middleRight')}
-		onclick={() => handleGridClick('middleRight')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('middleRight')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.rightMiddleRoyal[0]}
-		clickable={isAlternativePosition('rightMiddleRoyal')}
-		alternative={isAlternativePosition('rightMiddleRoyal')}
-		onclick={() => handleRoyalPositionClick('rightMiddleRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('rightMiddleRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.rightMiddleArmor[0]}
-		clickable={isAlternativeArmorPosition('rightMiddleArmor')}
-		alternative={isAlternativeArmorPosition('rightMiddleArmor')}
-		onclick={() => handleArmorPositionClick('rightMiddleArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('rightMiddleArmor')}
-	/>
-
-	<!-- Row 5: Left Bottom + Grid Bottom Row + Right Bottom -->
-	<Card
-		card={$gameState.cardsInPlay.leftBottomArmor[0]}
-		clickable={isAlternativeArmorPosition('leftBottomArmor')}
-		alternative={isAlternativeArmorPosition('leftBottomArmor')}
-		onclick={() => handleArmorPositionClick('leftBottomArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('leftBottomArmor')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.leftBottomRoyal[0]}
-		clickable={isAlternativePosition('leftBottomRoyal')}
-		alternative={isAlternativePosition('leftBottomRoyal')}
-		onclick={() => handleRoyalPositionClick('leftBottomRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('leftBottomRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.bottomLeft[0]}
-		stackDepth={$gameState.cardsInPlay.bottomLeft.length}
-		active={$gameState.jokerSourceStack === 'bottomLeft'}
-		alternative={shouldShowGridAlternative('bottomLeft')}
-		onclick={() => handleGridClick('bottomLeft')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('bottomLeft')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.bottomMiddle[0]}
-		stackDepth={$gameState.cardsInPlay.bottomMiddle.length}
-		active={$gameState.jokerSourceStack === 'bottomMiddle'}
-		alternative={shouldShowGridAlternative('bottomMiddle')}
-		onclick={() => handleGridClick('bottomMiddle')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('bottomMiddle')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.bottomRight[0]}
-		stackDepth={$gameState.cardsInPlay.bottomRight.length}
-		active={$gameState.jokerSourceStack === 'bottomRight'}
-		alternative={shouldShowGridAlternative('bottomRight')}
-		onclick={() => handleGridClick('bottomRight')}
-		slotType="grid"
-		dimmed={shouldDimGridCard('bottomRight')}
-		viewMode={$gameState.viewStackMode}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.rightBottomRoyal[0]}
-		clickable={isAlternativePosition('rightBottomRoyal')}
-		alternative={isAlternativePosition('rightBottomRoyal')}
-		onclick={() => handleRoyalPositionClick('rightBottomRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('rightBottomRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.rightBottomArmor[0]}
-		clickable={isAlternativeArmorPosition('rightBottomArmor')}
-		alternative={isAlternativeArmorPosition('rightBottomArmor')}
-		onclick={() => handleArmorPositionClick('rightBottomArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('rightBottomArmor')}
-	/>
-
-	<!-- Row 6: Empty + Bottom Royals + Empty -->
-	<div class="cell empty"></div>
-	<div class="cell empty"></div>
-	<Card
-		card={$gameState.cardsInPlay.bottomLeftRoyal[0]}
-		clickable={isAlternativePosition('bottomLeftRoyal')}
-		alternative={isAlternativePosition('bottomLeftRoyal')}
-		onclick={() => handleRoyalPositionClick('bottomLeftRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('bottomLeftRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.bottomMiddleRoyal[0]}
-		clickable={isAlternativePosition('bottomMiddleRoyal')}
-		alternative={isAlternativePosition('bottomMiddleRoyal')}
-		onclick={() => handleRoyalPositionClick('bottomMiddleRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('bottomMiddleRoyal')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.bottomRightRoyal[0]}
-		clickable={isAlternativePosition('bottomRightRoyal')}
-		alternative={isAlternativePosition('bottomRightRoyal')}
-		onclick={() => handleRoyalPositionClick('bottomRightRoyal')}
-		slotType="royal"
-		dimmed={shouldDimRoyalPosition('bottomRightRoyal')}
-	/>
-	<div class="cell empty"></div>
-	<div class="cell empty"></div>
-
-	<!-- Row 7: Empty + Bottom Armors + Empty -->
-	<div class="cell empty"></div>
-	<div class="cell empty"></div>
-	<Card
-		card={$gameState.cardsInPlay.bottomLeftArmor[0]}
-		clickable={isAlternativeArmorPosition('bottomLeftArmor')}
-		alternative={isAlternativeArmorPosition('bottomLeftArmor')}
-		onclick={() => handleArmorPositionClick('bottomLeftArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('bottomLeftArmor')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.bottomMiddleArmor[0]}
-		clickable={isAlternativeArmorPosition('bottomMiddleArmor')}
-		alternative={isAlternativeArmorPosition('bottomMiddleArmor')}
-		onclick={() => handleArmorPositionClick('bottomMiddleArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('bottomMiddleArmor')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.bottomRightArmor[0]}
-		clickable={isAlternativeArmorPosition('bottomRightArmor')}
-		alternative={isAlternativeArmorPosition('bottomRightArmor')}
-		onclick={() => handleArmorPositionClick('bottomRightArmor')}
-		slotType="armor"
-		dimmed={shouldDimArmorPosition('bottomRightArmor')}
-	/>
-	<div class="cell empty"></div>
-	<div class="cell empty"></div>
-
-	<!-- Break between board and supply -->
-	<div class="board-break" aria-hidden="true"></div>
-
-	<!-- Row 8: Deck + Jokers + Aces -->
-	<Card
-		card={$gameState.deck[0]}
-		stackDepth={$gameState.deck.length}
-		clickable={false}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.joker1[0]}
-		active={$gameState.jokerInUse === 'joker1'}
-		clickable={isAlternativeJokerPosition('joker1') || (!!$gameState.cardsInPlay.joker1[0] && $gameState.cardsInPlay.joker1[0]?.value !== 'USED')}
-		alternative={isAlternativeJokerPosition('joker1')}
-		onclick={() => handleJokerPositionClick('joker1')}
-		slotType="joker"
-		dimmed={shouldDimJokerPosition('joker1')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.joker2[0]}
-		active={$gameState.jokerInUse === 'joker2'}
-		clickable={isAlternativeJokerPosition('joker2') || (!!$gameState.cardsInPlay.joker2[0] && $gameState.cardsInPlay.joker2[0]?.value !== 'USED')}
-		alternative={isAlternativeJokerPosition('joker2')}
-		onclick={() => handleJokerPositionClick('joker2')}
-		slotType="joker"
-		dimmed={shouldDimJokerPosition('joker2')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.ace1[0]}
-		active={$gameState.aceInUse === 'ace1'}
-		clickable={isAlternativeAcePosition('ace1') || (!!$gameState.cardsInPlay.ace1[0] && $gameState.cardsInPlay.ace1[0]?.value !== 'USED')}
-		alternative={isAlternativeAcePosition('ace1')}
-		onclick={() => handleAcePositionClick('ace1')}
-		slotType="ace"
-		dimmed={shouldDimAcePosition('ace1')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.ace2[0]}
-		active={$gameState.aceInUse === 'ace2'}
-		clickable={isAlternativeAcePosition('ace2') || (!!$gameState.cardsInPlay.ace2[0] && $gameState.cardsInPlay.ace2[0]?.value !== 'USED')}
-		alternative={isAlternativeAcePosition('ace2')}
-		onclick={() => handleAcePositionClick('ace2')}
-		slotType="ace"
-		dimmed={shouldDimAcePosition('ace2')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.ace3[0]}
-		active={$gameState.aceInUse === 'ace3'}
-		clickable={isAlternativeAcePosition('ace3') || (!!$gameState.cardsInPlay.ace3[0] && $gameState.cardsInPlay.ace3[0]?.value !== 'USED')}
-		alternative={isAlternativeAcePosition('ace3')}
-		onclick={() => handleAcePositionClick('ace3')}
-		slotType="ace"
-		dimmed={shouldDimAcePosition('ace3')}
-	/>
-	<Card
-		card={$gameState.cardsInPlay.ace4[0]}
-		active={$gameState.aceInUse === 'ace4'}
-		clickable={isAlternativeAcePosition('ace4') || (!!$gameState.cardsInPlay.ace4[0] && $gameState.cardsInPlay.ace4[0]?.value !== 'USED')}
-		alternative={isAlternativeAcePosition('ace4')}
-		onclick={() => handleAcePositionClick('ace4')}
-		slotType="ace"
-		dimmed={shouldDimAcePosition('ace4')}
-	/>
+	<ShotLayer board={boardElement} events={shotEvents} aims={shotEvents.length > 0 ? [] : preview.lines} {volley} />
 </div>
 
 <style>
 	.game-board {
+		position: relative; /* Anchor for the shot layer */
 		display: grid;
 		grid-template-columns: repeat(7, minmax(var(--card-width), 1fr));
 		gap: var(--grid-gap);
@@ -625,6 +426,29 @@
 		overflow: hidden;
 	}
 	
+	/* Recoil of the whole board when a shot lands */
+	.board-shake {
+		animation: boardShake 0.3s ease-out;
+	}
+
+	@keyframes boardShake {
+		20% {
+			transform: translate(-3px, 2px);
+		}
+		45% {
+			transform: translate(3px, -2px);
+		}
+		70% {
+			transform: translate(-1px, 1px);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.board-shake {
+			animation: none;
+		}
+	}
+
 	.board-break {
 	grid-column: 1 / -1;
 	height: var(--spacing-xl);
