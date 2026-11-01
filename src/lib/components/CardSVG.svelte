@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Card } from '#lib/types.js';
 	import { isRoyalValue } from '#lib/types.js';
-	import RoyalPortrait from './RoyalPortrait.svelte';
+	import { royalArtUrl } from '#lib/utils/royal-art.js';
 
 	interface Props {
 		card: Card;
@@ -90,10 +90,23 @@
 		/>
 		<circle class="joker-bell" cx="50" cy="116" r="6" />
 	{:else if isRoyal}
-		<!-- Royal: small index and a portrait -->
-		<text class="index royal-index" x="17" y="28" text-anchor="middle">{index}</text>
-		<text class="index-suit" x="17" y="50" text-anchor="middle">{suit}</text>
-		<RoyalPortrait rank={card.value as 11 | 12 | 13} x={33} y={15} />
+		<!-- Royal: full-card portrait with the index on a tab in the corner -->
+		<clipPath id="art-{uid}">
+			<rect x="5" y="5" width="90" height="130" rx="3" />
+		</clipPath>
+		<image
+			href={royalArtUrl(card)}
+			x="5"
+			y="5"
+			width="90"
+			height="130"
+			preserveAspectRatio="xMidYMin slice"
+			clip-path="url(#art-{uid})"
+		/>
+		<rect class="art-frame" x="5" y="5" width="90" height="130" rx="3" />
+		<path class="index-tab" d="M5 5 H33 V44 Q33 50 27 50 H5 Z" />
+		<text class="index royal-index" x="19" y="31" text-anchor="middle">{index}</text>
+		<text class="index-suit" x="19" y="47" text-anchor="middle">{suit}</text>
 	{:else}
 		<!-- Numbered card or Ace: big index top-left, watermark suit, small mirrored index -->
 		<text class="index" x="29" y="44" text-anchor="middle">{index}</text>
@@ -133,6 +146,20 @@
 
 	.royal-index {
 		font-size: 30px;
+		letter-spacing: 0;
+	}
+
+	/* Royal portrait */
+	.art-frame {
+		fill: none;
+		stroke: var(--color-ink);
+		stroke-width: 1.5;
+	}
+
+	.index-tab {
+		fill: var(--color-card);
+		stroke: var(--color-ink);
+		stroke-width: 1.5;
 	}
 
 	.index-suit {

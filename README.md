@@ -58,3 +58,4 @@ src/
 
 Original game concept: **Gridcannon** by Tom Francis
 Digital implementation: Kill The Royals v2.0
+Court card portraits (`static/royals/`): generated with OpenAI `gpt-image-2`, scaled to 360x540 WebP

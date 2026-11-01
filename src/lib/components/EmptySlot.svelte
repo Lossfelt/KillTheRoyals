@@ -9,14 +9,24 @@
 <!-- Placeholder for an empty slot, with a faint hint of what belongs there -->
 <svg viewBox="0 0 100 140" xmlns="http://www.w3.org/2000/svg" class="card-svg empty-slot">
 	<rect
-		width="100"
-		height="140"
+		x="1"
+		y="1"
+		width="98"
+		height="138"
 		rx="4"
-		fill="transparent"
+		fill="none"
 		stroke="currentColor"
 		stroke-width="2"
-		stroke-dasharray="5,5"
-		opacity="0.3"
+	/>
+	<rect
+		x="7"
+		y="7"
+		width="86"
+		height="126"
+		rx="2"
+		fill="none"
+		stroke="currentColor"
+		opacity="0.35"
 	/>
 
 	{#if slotType === 'royal'}
@@ -76,8 +86,10 @@
 </svg>
 
 <style>
+	/* Printed outline on the mat */
 	.empty-slot {
 		width: 100%;
 		height: 100%;
+		color: var(--color-print);
 	}
 </style>

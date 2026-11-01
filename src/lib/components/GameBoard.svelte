@@ -206,9 +206,17 @@
 		gap: var(--gap);
 		padding: var(--board-pad);
 		border-radius: calc(var(--card-radius) * 3);
-		background: var(--color-board);
-		box-shadow: var(--shadow-board);
 		transition: filter 1.2s ease;
+	}
+
+	/* Outer border of the printed play mat */
+	.board::before {
+		content: '';
+		position: absolute;
+		inset: calc(var(--board-pad) / 3);
+		border: 1px solid var(--color-print-faint);
+		border-radius: inherit;
+		pointer-events: none;
 	}
 
 	.cell {
@@ -216,11 +224,14 @@
 		height: var(--card-h);
 	}
 
-	/* Castle wall: the ring of royals and armor around the grid */
+	/* Printed on the mat: the castle wall the royals stand on, and the courtyard inside it */
 	.wall,
 	.platform {
 		position: absolute;
 		pointer-events: none;
+		border: 1.5px solid var(--color-print);
+		outline: 1px solid var(--color-print-faint);
+		outline-offset: calc(var(--gap) / 2 + 1px);
 	}
 
 	.wall {
@@ -228,25 +239,20 @@
 		top: calc(var(--board-pad) + var(--card-h) + var(--gap) / 2);
 		width: calc(5 * var(--card-w) + 5 * var(--gap));
 		height: calc(5 * var(--card-h) + 5 * var(--gap));
-		border-radius: calc(var(--card-radius) * 3);
-		background: var(--color-wall);
-		box-shadow:
-			inset 0 0 0 2px var(--color-wall-edge),
-			inset 0 0 calc(var(--card-w) * 0.4) rgba(0, 0, 0, 0.35);
+		border-radius: calc(var(--card-radius) * 2);
+		background: var(--pattern-bricks) 0 0 / calc(var(--card-w) * 0.5) calc(var(--card-w) * 0.25);
 	}
 
-	/* Cannon platform under the 3x3 grid */
+	/* Courtyard under the 3x3 grid, where the cannons stand */
 	.platform {
 		left: calc(var(--board-pad) + 2 * var(--card-w) + 1.5 * var(--gap));
 		top: calc(var(--board-pad) + 2 * var(--card-h) + 1.5 * var(--gap));
 		width: calc(3 * var(--card-w) + 3 * var(--gap));
 		height: calc(3 * var(--card-h) + 3 * var(--gap));
-		border-radius: calc(var(--card-radius) * 2);
-		background: var(--color-platform);
-		box-shadow:
-			0 0 0 2px var(--color-gold-muted),
-			0 6px 16px rgba(0, 0, 0, 0.45),
-			inset 0 1px 0 rgba(255, 255, 255, 0.12);
+		border-radius: var(--card-radius);
+		outline-offset: -4px;
+		background: var(--felt-noise), var(--color-felt-center);
+		box-shadow: 0 0 0 calc(var(--gap) / 2) var(--color-felt-center);
 	}
 
 	/* Defeat: the board loses its colour */

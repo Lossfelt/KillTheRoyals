@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import TopBar from '#lib/components/TopBar.svelte';
 	import StatusBar from '#lib/components/StatusBar.svelte';
 	import GameBoard from '#lib/components/GameBoard.svelte';
@@ -11,9 +11,12 @@
 	import StackViewModal from '#lib/components/StackViewModal.svelte';
 	import { cleanupAudio } from '#lib/stores/audio.js';
 	import { gameState } from '#lib/stores/game.js';
+	import { preloadRoyalArt } from '#lib/utils/royal-art.js';
 
 	let showRules = $state(false);
 	let showHighScores = $state(false);
+
+	onMount(preloadRoyalArt);
 
 	// Cleanup audio resources when component unmounts
 	onDestroy(() => {

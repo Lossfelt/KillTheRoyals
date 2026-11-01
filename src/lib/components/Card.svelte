@@ -103,6 +103,7 @@
 
 <button
 	class="card edges-{edges}"
+	style="--edges: {edges}"
 	class:card-red={cardColor === 'red'}
 	class:card-black={cardColor === 'black'}
 	class:card-active={active}
@@ -177,7 +178,11 @@
 		touch-action: manipulation;
 	}
 
-	/* Stacked cards: edges of the cards underneath peek out below the top card */
+	/* Stacked cards: the top card sits raised on a pile, one edge per card underneath */
+	.card {
+		--stack-step: max(2px, calc(var(--card-w, 60px) * 0.04));
+	}
+
 	.card::before {
 		content: '';
 		position: absolute;
@@ -185,30 +190,20 @@
 		z-index: -1;
 		border-radius: inherit;
 		pointer-events: none;
+		background: repeating-linear-gradient(
+			to top,
+			var(--color-card-edge-line) 0 1px,
+			var(--color-card-edge) 1px var(--stack-step)
+		);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
 	}
 
-	.edges-1::before {
-		box-shadow:
-			0 2px 0 0 var(--color-card-edge),
-			0 3px 0 0 var(--color-card-edge-line);
+	.edges-0::before {
+		display: none;
 	}
 
-	.edges-2::before {
-		box-shadow:
-			0 2px 0 0 var(--color-card-edge),
-			0 3px 0 0 var(--color-card-edge-line),
-			0 5px 0 0 var(--color-card-edge),
-			0 6px 0 0 var(--color-card-edge-line);
-	}
-
-	.edges-3::before {
-		box-shadow:
-			0 2px 0 0 var(--color-card-edge),
-			0 3px 0 0 var(--color-card-edge-line),
-			0 5px 0 0 var(--color-card-edge),
-			0 6px 0 0 var(--color-card-edge-line),
-			0 8px 0 0 var(--color-card-edge),
-			0 9px 0 0 var(--color-card-edge-line);
+	.card > :global(svg) {
+		transform: translateY(calc(var(--edges) * var(--stack-step) * -1));
 	}
 
 	.card-active {
@@ -220,10 +215,9 @@
 		cursor: default;
 	}
 
-	/* Waiting cards fade back but stay readable */
+	/* Waiting cards fall into shadow but keep their red and black */
 	.card-dimmed {
-		filter: saturate(0.25) brightness(0.6);
-		opacity: 0.8;
+		filter: brightness(0.62) contrast(0.9);
 	}
 
 	.card-alternative {
@@ -299,18 +293,29 @@
 		animation: hitShake 0.45s ease-out;
 	}
 
-	/* Dust puff when a card lands */
+	/* A landing royal steps out of the shadow, or the dimming would swallow its dust */
+	.card-landed {
+		filter: none;
+	}
+
+	/* Dust cloud when a royal lands: puffs billow out from under the card */
 	.card-landed::after {
 		content: '';
 		position: absolute;
-		left: -30%;
-		right: -30%;
-		bottom: -12%;
-		height: 32%;
-		border-radius: 50%;
-		background: radial-gradient(ellipse at center, var(--color-dust) 0%, transparent 70%);
+		left: -45%;
+		right: -45%;
+		bottom: -18%;
+		height: 50%;
+		z-index: 2;
 		pointer-events: none;
-		animation: dust 0.55s ease-out forwards;
+		background:
+			radial-gradient(circle at 18% 70%, var(--color-dust) 0 12%, transparent 30%),
+			radial-gradient(circle at 34% 55%, var(--color-dust) 0 14%, transparent 34%),
+			radial-gradient(circle at 50% 75%, var(--color-dust) 0 16%, transparent 38%),
+			radial-gradient(circle at 66% 55%, var(--color-dust) 0 14%, transparent 34%),
+			radial-gradient(circle at 82% 70%, var(--color-dust) 0 12%, transparent 30%);
+		filter: blur(2px);
+		animation: dust 0.7s ease-out forwards;
 	}
 
 	.card-flip-in {
@@ -358,12 +363,15 @@
 
 	@keyframes dust {
 		0% {
-			opacity: 0.9;
-			transform: scaleX(0.5);
+			opacity: 1;
+			transform: scale(0.45, 0.6);
+		}
+		40% {
+			opacity: 0.85;
 		}
 		100% {
 			opacity: 0;
-			transform: scaleX(1.3) translateY(-4px);
+			transform: scale(1.15, 1.25) translateY(-14%);
 		}
 	}
 

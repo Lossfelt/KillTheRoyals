@@ -108,8 +108,7 @@
 		gap: var(--gap);
 		padding: var(--board-pad);
 		border-radius: calc(var(--card-radius) * 3);
-		background: var(--color-tray);
-		box-shadow: var(--shadow-inset-tray);
+		border: 1px solid var(--color-print-faint);
 	}
 
 	.slot {

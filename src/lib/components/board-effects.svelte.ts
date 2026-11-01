@@ -125,8 +125,9 @@ export class BoardEffects {
 			});
 			animation.onfinish = animation.oncancel = () => {
 				to.style.zIndex = '';
-				if (move.heavy) this.#land(move.to);
 			};
+			// A timer, not onfinish: the dust must come even if the animation is cut short
+			if (move.heavy) this.#later(HEAVY_MOVE_MS * 0.86, () => this.#land(move.to));
 		}
 	}
 

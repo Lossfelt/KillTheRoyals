@@ -41,22 +41,16 @@
 	--color-card-edge-line: rgba(0, 0, 0, 0.35);
 	--color-card-back: #7a1f2b;
 	--color-card-back-accent: #d9b55a;
-	--color-portrait-skin: #f3d2b0;
-	--color-portrait-hair: #5b3a1e;
-	--color-dust: rgba(225, 205, 160, 0.6);
+	--color-dust: rgba(232, 218, 186, 0.85);
 
 	/* Table: felt, castle wall and cannon platform */
 	--felt-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 	--color-felt-center: #2b6b42;
 	--color-felt-edge: #0e2a19;
-	--color-board: rgba(0, 0, 0, 0.16);
-	--shadow-board: inset 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 2px 18px rgba(0, 0, 0, 0.35);
-	--color-wall: rgba(30, 24, 16, 0.32);
-	--color-wall-edge: rgba(214, 196, 150, 0.22);
-	--color-platform: linear-gradient(160deg, #5a3d22 0%, #3d2815 100%);
-	--color-tray: rgba(0, 0, 0, 0.22);
-	--shadow-inset-tray:
-		inset 0 2px 10px rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+	/* Gold ink printed on the felt, like the layout on a play mat */
+	--color-print: rgba(226, 200, 140, 0.6);
+	--color-print-faint: rgba(226, 200, 140, 0.25);
+	--pattern-bricks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='20'%3E%3Cpath d='M0 .5H40M0 10.5H40M.5 0V10M20.5 10V20' fill='none' stroke='rgb(226,200,140)' stroke-opacity='0.22'/%3E%3C/svg%3E");
 
 	/* Typography */
 	--font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
