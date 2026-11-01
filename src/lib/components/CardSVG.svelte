@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { Card } from '#lib/types.js';
+	import type { Card, RoyalValue } from '#lib/types.js';
 	import { isRoyalValue } from '#lib/types.js';
 	import { royalArtUrl } from '#lib/utils/royal-art.js';
+	import RoyalIndex from './RoyalIndex.svelte';
 
 	interface Props {
 		card: Card;
@@ -104,10 +105,8 @@
 			clip-path="url(#art-{uid})"
 		/>
 		<rect class="art-frame" x="5" y="5" width="90" height="130" rx="3" />
-		<path class="index-tab" d="M5 5 H33 V54 Q33 60 27 60 H5 Z" />
-		<!-- J and Q hang far below the baseline in some serifs (Iowan on iOS), so the suit sits well clear -->
-		<text class="index royal-index" x="19" y="27" text-anchor="middle">{index}</text>
-		<text class="index-suit" x="19" y="55" text-anchor="middle">{suit}</text>
+		<path class="index-tab" d="M5 5 H33 V51 Q33 57 27 57 H5 Z" />
+		<RoyalIndex rank={card.value as RoyalValue} suit={card.suit} />
 	{:else}
 		<!-- Numbered card or Ace: big index top-left, watermark suit, small mirrored index -->
 		<text class="index" x="29" y="44" text-anchor="middle">{index}</text>
@@ -143,11 +142,6 @@
 	.index.small {
 		font-size: 20px;
 		letter-spacing: -1px;
-	}
-
-	.royal-index {
-		font-size: 24px;
-		letter-spacing: 0;
 	}
 
 	/* Royal portrait */
